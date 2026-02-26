@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission Form - 2026-27 | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        primary: {
+          500: '#8CC63F',
+          600: '#4CAF50',
+          700: '#388E3C',
+          800: '#2E7D32',
+        },
+        accent: {
+          500: '#F7931E',
+          600: '#EF6C00',
+        }
+      }
+    }
+  }
+}
+</script>
+</head>
+
+<body class="bg-gray-50 font-inter">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center space-x-3">
+    <img src="images/logo.png" class="w-10 h-10 object-contain">
+    <div>
+      <h1 class="font-poppins font-bold text-primary-800">Suraj English Academy</h1>
+      <p class="text-sm text-primary-600">Palanpur</p>
+    </div>
+  </div>
+</nav>
+
+<!-- Admission Section -->
+<section class="py-16">
+<div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8 md:p-12">
+
+<div class="text-center mb-10">
+<h2 class="font-poppins font-bold text-3xl text-gray-900 mb-2">
+Admission 2026-27
+</h2>
+<p class="text-gray-600">
+Please fill all required details carefully.
+</p>
+</div>
+
+<form action="https://formsubmit.co/surajenglishacademypalanpur@gmail.com" 
+      method="POST"
+      class="space-y-6">
+
+  <!-- FormSubmit Settings -->
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_subject" value="New Admission Form Submission - Suraj English Academy">
+  <input type="hidden" name="_template" value="table">
+  <input type="hidden" name="_next" value="https://smartexamroom.in//thankyou.html">
+
+  <!-- Course -->
+  <div>
+    <label class="block font-medium mb-2">Course *</label>
+    <select name="Course" required class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-primary-500">
+      <option value="">Select Course</option>
+      <option>Std.:08 (English Medium)</option>
+      <option>Std.:08 (Gujarati Medium)</option>
+      <option>Std.:09 (Gujarati Medium)</option>
+      <option>Std.:10 (Gujarati Medium)</option>
+    </select>
+  </div>
+
+  <!-- Name Row -->
+  <div class="grid md:grid-cols-3 gap-5">
+    <input type="text" name="Student Surname" placeholder="Student Surname *" required class="border rounded-xl p-3">
+    <input type="text" name="Student Name" placeholder="Student Name *" required class="border rounded-xl p-3">
+    <input type="text" name="Student Last Name" placeholder="Student Last Name *" required class="border rounded-xl p-3">
+  </div>
+
+  <input type="text" name="School" placeholder="School *" required class="w-full border rounded-xl p-3">
+
+  <div class="grid md:grid-cols-2 gap-5">
+    <input type="tel" name="Mobile Number" placeholder="Mobile Number *" required class="border rounded-xl p-3">
+    <input type="tel" name="Whatsapp Number" placeholder="Whatsapp Number *" required class="border rounded-xl p-3">
+  </div>
+
+  <input type="tel" name="Alternative Mobile Number" placeholder="Alternative Mobile Number" class="w-full border rounded-xl p-3">
+
+  <input type="email" name="Email ID" placeholder="Email ID *" required class="w-full border rounded-xl p-3">
+
+  <textarea name="Address" rows="4" placeholder="Address *" required class="w-full border rounded-xl p-3"></textarea>
+
+  <button type="submit"
+    class="w-full bg-accent-500 hover:bg-accent-600 text-gray-900 font-semibold py-4 rounded-2xl shadow-lg transition-all">
+    Submit Admission Form
+  </button>
+
+</form>
+
+</div>
+</section>
+
+</body>
+</html>
