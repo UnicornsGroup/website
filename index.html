@@ -1134,5 +1134,50 @@ function iframeLoaded() {
     }
 }
 </script> 
+
+<!-- POP-UP -->
+ <!-- ===== PROMOTIONAL POPUP START ===== -->
+<div id="promo-popup" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999]">
+
+  <div class="relative bg-white rounded-3xl shadow-2xl max-w-md w-[90%] overflow-hidden animate-scaleIn">
+
+    <!-- Close Button -->
+    <button onclick="closePopup()" 
+            class="absolute top-3 right-3 w-8 h-8 bg-gray-100 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center font-bold transition-all">
+      ×
+    </button>
+
+    <!-- Image -->
+    <img src="images/admission-open.jpg" 
+         alt="Admission Open"
+         class="w-full h-60 object-cover">
+
+    <!-- Content -->
+    <div class="p-6 text-center">
+      <h3 class="font-poppins font-bold text-2xl text-gray-900 mb-2">
+        Admissions Open 2026-27 🎉
+      </h3>
+      <p class="text-gray-600 mb-5">
+        Limited seats available. Enroll now and secure your future!
+      </p>
+
+      <!-- Button -->
+      <a href="/admission.html" 
+         class="inline-block bg-accent-500 hover:bg-accent-600 text-gray-900 font-semibold px-6 py-3 rounded-full shadow-lg transition-all">
+        Enroll Now
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function closePopup() {
+  document.getElementById("promo-popup").style.display = "none";
+}
+</script>
+<!-- ===== PROMOTIONAL POPUP END ===== -->
+
+
 </body>
 </html>
