@@ -263,7 +263,6 @@ if(stepIndex===2)toggleButton("submitBtn",allValid);
 
 function toggleButton(id,valid){
 const btn=document.getElementById(id);
-if(!btn)return;
 btn.disabled=!valid;
 btn.classList.toggle("bg-accent-500",valid);
 btn.classList.toggle("bg-gray-300",!valid);
@@ -272,16 +271,46 @@ btn.classList.toggle("bg-gray-300",!valid);
 function nextStep(){currentStep++;showStep(currentStep);}
 function prevStep(){currentStep--;showStep(currentStep);}
 
-form.addEventListener("submit",function(e){
-e.preventDefault();
-const mobile=form["Mobile Number"].value;
-const alt=form["Alternative Mobile Number"].value;
-if(alt && mobile===alt){
-alert("Alternative number must be different.");
-return;
-}
-document.getElementById("loadingScreen").classList.remove("hidden");
-setTimeout(()=>{form.submit();},1500);
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const mobile = form["Mobile Number"].value;
+  const alt = form["Alternative Mobile Number"].value;
+
+  if(alt && mobile === alt){
+    alert("Alternative number must be different.");
+    return;
+  }
+
+  document.getElementById("loadingScreen").classList.remove("hidden");
+
+  const course = form["Course"].value;
+  let groupLink = "";
+
+  if(course.includes("Std. 8")){
+    groupLink = "https://chat.whatsapp.com/YOUR_STD8_GROUP_LINK";
+  }
+  else if(course.includes("Std. 9")){
+    groupLink = "https://chat.whatsapp.com/YOUR_STD9_GROUP_LINK";
+  }
+  else if(course.includes("Std. 10")){
+    groupLink = "https://chat.whatsapp.com/YOUR_STD10_GROUP_LINK";
+  }
+
+  const formData = new FormData(form);
+
+  fetch(form.action, {
+    method: "POST",
+    body: formData,
+    headers: { 'Accept': 'application/json' }
+  }).then(() => {
+    setTimeout(()=>{
+      window.location.href = groupLink;
+    },1500);
+  }).catch(()=>{
+    alert("Something went wrong. Please try again.");
+  });
+
 });
 
 showStep(currentStep);
