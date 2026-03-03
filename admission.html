@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admission Form - 2026-27 | Suraj English Academy</title>
+<title>Admission Form 2026-27 | Suraj English Academy</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
 <script>
@@ -18,100 +17,273 @@ tailwind.config = {
         inter: ['Inter', 'sans-serif'],
       },
       colors: {
-        primary: {
-          500: '#8CC63F',
-          600: '#4CAF50',
-          700: '#388E3C',
-          800: '#2E7D32',
-        },
-        accent: {
-          500: '#F7931E',
-          600: '#EF6C00',
-        }
+        primary: {600:'#4CAF50',800:'#2E7D32'},
+        accent: {500:'#F7931E'}
       }
     }
   }
 }
 </script>
+
+<style>
+.step { display:none; }
+.step.active { display:block; }
+</style>
 </head>
 
 <body class="bg-gray-50 font-inter">
 
-<!-- Navbar -->
+<!-- NAVBAR -->
 <nav class="bg-white shadow-md">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center space-x-3">
-    <img src="images/logo.png" class="w-10 h-10 object-contain">
-    <div>
-      <h1 class="font-poppins font-bold text-primary-800">Suraj English Academy</h1>
-      <p class="text-sm text-primary-600">Palanpur</p>
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <img src="images/logo.png" class="w-10 h-10">
+      <div>
+        <h1 class="font-poppins font-bold text-primary-800">Suraj English Academy</h1>
+        <p class="text-sm text-primary-600">Palanpur</p>
+      </div>
     </div>
+    <a href="index.html" class="bg-primary-600 hover:bg-primary-800 text-white px-5 py-2 rounded-xl">
+      Home
+    </a>
   </div>
 </nav>
 
-<!-- Admission Section -->
 <section class="py-16">
-<div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8 md:p-12">
+<div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8">
 
-<div class="text-center mb-10">
-<h2 class="font-poppins font-bold text-3xl text-gray-900 mb-2">
-Admission 2026-27
-</h2>
-<p class="text-gray-600">
-Please fill all required details carefully.
-</p>
-</div>
+<h2 class="text-3xl font-bold text-center mb-8">Admission Form 2026-27</h2>
 
-<form action="https://formsubmit.co/surajenglishacademypalanpur@gmail.com" 
+<form action="https://formsubmit.co/surajenglishacademypalanpur@gmail.com"
       method="POST"
+      id="multiStepForm"
       class="space-y-6">
 
-  <!-- FormSubmit Settings -->
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_subject" value="New Admission Form Submission - Suraj English Academy">
-  <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_next" value="https://smartexamroom.in//thankyou.html">
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_template" value="table">
 
-  <!-- Course -->
-  <div>
-    <label class="block font-medium mb-2">Course *</label>
-    <select name="Course" required class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-primary-500">
-      <option value="">Select Course</option>
-      <option>Std.:08 (English Medium)</option>
-      <option>Std.:08 (Gujarati Medium)</option>
-      <option>Std.:09 (Gujarati Medium)</option>
-      <option>Std.:10 (Gujarati Medium)</option>
-    </select>
-  </div>
+<!-- Progress -->
+<div class="w-full bg-gray-200 h-2 rounded-full">
+  <div id="progressBar" class="bg-primary-600 h-2 rounded-full transition-all duration-300"></div>
+</div>
 
-  <!-- Name Row -->
-  <div class="grid md:grid-cols-3 gap-5">
-    <input type="text" name="Student Surname" placeholder="Student Surname *" required class="border rounded-xl p-3">
-    <input type="text" name="Student Name" placeholder="Student Name *" required class="border rounded-xl p-3">
-    <input type="text" name="Student Last Name" placeholder="Student Last Name *" required class="border rounded-xl p-3">
-  </div>
+<!-- STEP 1 -->
+<div class="step active">
+<h3 class="text-xl font-semibold mb-6">Student Details</h3>
 
-  <input type="text" name="School" placeholder="School *" required class="w-full border rounded-xl p-3">
+<div class="relative mb-4 validation-field">
+<label>Course *</label>
+<select name="Course" required onchange="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<option value="">Select Course</option>
+<option>Std. 8</option>
+<option>Std. 9</option>
+<option>Std. 10</option>
+</select>
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
 
-  <div class="grid md:grid-cols-2 gap-5">
-    <input type="tel" name="Mobile Number" placeholder="Mobile Number *" required class="border rounded-xl p-3">
-    <input type="tel" name="Whatsapp Number" placeholder="Whatsapp Number *" required class="border rounded-xl p-3">
-  </div>
+<div class="grid md:grid-cols-3 gap-4">
+<div class="relative validation-field">
+<label>Surname *</label>
+<input type="text" name="Student Surname" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
 
-  <input type="tel" name="Alternative Mobile Number" placeholder="Alternative Mobile Number" class="w-full border rounded-xl p-3">
+<div class="relative validation-field">
+<label>Name *</label>
+<input type="text" name="Student Name" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
 
-  <input type="email" name="Email ID" placeholder="Email ID *" required class="w-full border rounded-xl p-3">
+<div class="relative validation-field">
+<label>Last Name *</label>
+<input type="text" name="Student Last Name" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+</div>
 
-  <textarea name="Address" rows="4" placeholder="Address *" required class="w-full border rounded-xl p-3"></textarea>
+<button type="button" id="nextBtn1" disabled onclick="nextStep()"
+class="mt-6 bg-gray-300 text-white px-6 py-3 rounded-xl">
+Next
+</button>
+</div>
 
-  <button type="submit"
-    class="w-full bg-accent-500 hover:bg-accent-600 text-gray-900 font-semibold py-4 rounded-2xl shadow-lg transition-all">
-    Submit Admission Form
-  </button>
+<!-- STEP 2 -->
+<div class="step">
+<h3 class="text-xl font-semibold mb-6">Personal Details</h3>
+
+<div class="relative mb-4 validation-field">
+<label>DOB *</label>
+<input type="date" name="DOB" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<div class="relative mb-4 validation-field">
+<label>School *</label>
+<input type="text" name="School" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<button type="button" onclick="prevStep()" class="bg-gray-300 px-4 py-2 rounded-xl">Previous</button>
+<button type="button" id="nextBtn2" disabled onclick="nextStep()"
+class="bg-gray-300 text-white px-6 py-3 rounded-xl">
+Next
+</button>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+<h3 class="text-xl font-semibold mb-6">Contact Details</h3>
+
+<div class="relative mb-4 validation-field">
+<label>Mobile *</label>
+<input type="tel" name="Mobile Number" required pattern="[0-9]{10}" maxlength="10"
+oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<div class="relative mb-4 validation-field">
+<label>Alternative Mobile</label>
+<input type="tel" name="Alternative Mobile Number" pattern="[0-9]{10}" maxlength="10"
+oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<div class="relative mb-4 validation-field">
+<label>WhatsApp *</label>
+<input type="tel" name="Whatsapp Number" required pattern="[0-9]{10}" maxlength="10"
+oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<div class="relative mb-4 validation-field">
+<label>Email *</label>
+<input type="email" name="Email ID" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10">
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<div class="relative mb-4 validation-field">
+<label>Address *</label>
+<textarea name="Address" required oninput="liveValidate(this)"
+class="w-full border rounded-xl p-3 pr-10"></textarea>
+<span class="absolute right-3 top-11 hidden text-green-600 valid-icon">✔</span>
+<span class="absolute right-3 top-11 hidden text-red-500 invalid-icon">❌</span>
+</div>
+
+<button type="button" onclick="prevStep()" class="bg-gray-300 px-4 py-2 rounded-xl">Previous</button>
+<button type="submit" id="submitBtn" disabled
+class="bg-gray-300 text-white px-6 py-3 rounded-xl">
+Submit
+</button>
+</div>
 
 </form>
-
 </div>
 </section>
 
+<!-- Loading -->
+<div id="loadingScreen" class="fixed inset-0 bg-white hidden flex items-center justify-center z-50">
+  <h2 class="text-xl font-semibold">Joining your group...</h2>
+</div>
+
+<script>
+let currentStep=0;
+const steps=document.querySelectorAll(".step");
+const progressBar=document.getElementById("progressBar");
+const form=document.getElementById("multiStepForm");
+
+function showStep(step){
+steps.forEach((s,i)=>s.classList.toggle("active",i===step));
+progressBar.style.width=((step+1)/steps.length)*100+"%";
+}
+
+function liveValidate(field){
+const container=field.closest(".validation-field");
+if(!container)return;
+const validIcon=container.querySelector(".valid-icon");
+const invalidIcon=container.querySelector(".invalid-icon");
+
+if(field.type==="tel"){
+field.value=field.value.replace(/[^0-9]/g,'');
+}
+
+field.classList.remove("border-green-500","border-red-500");
+
+if(field.checkValidity()){
+field.classList.add("border-green-500");
+validIcon.classList.remove("hidden");
+invalidIcon.classList.add("hidden");
+}else{
+if(field.value.length>0){
+field.classList.add("border-red-500");
+invalidIcon.classList.remove("hidden");
+validIcon.classList.add("hidden");
+}else{
+validIcon.classList.add("hidden");
+invalidIcon.classList.add("hidden");
+}
+}
+checkStepValidity(currentStep);
+}
+
+function checkStepValidity(stepIndex){
+const step=steps[stepIndex];
+const requiredFields=step.querySelectorAll("input[required],select[required],textarea[required]");
+let allValid=true;
+
+requiredFields.forEach(f=>{
+if(!f.checkValidity())allValid=false;
+});
+
+if(stepIndex===0)toggleButton("nextBtn1",allValid);
+if(stepIndex===1)toggleButton("nextBtn2",allValid);
+if(stepIndex===2)toggleButton("submitBtn",allValid);
+}
+
+function toggleButton(id,valid){
+const btn=document.getElementById(id);
+if(!btn)return;
+btn.disabled=!valid;
+btn.classList.toggle("bg-accent-500",valid);
+btn.classList.toggle("bg-gray-300",!valid);
+}
+
+function nextStep(){currentStep++;showStep(currentStep);}
+function prevStep(){currentStep--;showStep(currentStep);}
+
+form.addEventListener("submit",function(e){
+e.preventDefault();
+const mobile=form["Mobile Number"].value;
+const alt=form["Alternative Mobile Number"].value;
+if(alt && mobile===alt){
+alert("Alternative number must be different.");
+return;
+}
+document.getElementById("loadingScreen").classList.remove("hidden");
+setTimeout(()=>{form.submit();},1500);
+});
+
+showStep(currentStep);
+</script>
 </body>
 </html>
