@@ -338,12 +338,14 @@ confetti({particleCount:150,spread:70,origin:{y:0.6}});
 window.downloadReceiptPDF=function(){
 
 const { jsPDF } = window.jspdf;
+const s = window.submittedStudent;
+const age = calcAge(s.dob);
 
-const s=window.submittedStudent;
+/* QR CODE DATA = ONLY ADMISSION NUMBER */
 
-const age=calcAge(s.dob);
+QRCode.toDataURL(s.admissionNo, function (err, qrImage) {
 
-const doc=new jsPDF();
+const doc = new jsPDF();
 
 doc.setFontSize(18);
 doc.text("Suraj English Academy",105,20,null,null,"center");
@@ -392,7 +394,14 @@ y+=10;
 doc.text("Address:",20,y);
 doc.text(s.address,80,y);
 
-y+=20;
+/* QR CODE */
+
+doc.addImage(qrImage,"PNG",150,45,40,40);
+
+doc.setFontSize(9);
+doc.text("Scan QR to verify admission",150,90);
+
+y+=30;
 
 doc.setTextColor(0,150,0);
 doc.setFontSize(20);
@@ -413,6 +422,8 @@ null,
 );
 
 doc.save(s.admissionNo+".pdf");
+
+});
 
 }
 </script>
