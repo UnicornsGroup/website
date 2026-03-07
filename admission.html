@@ -331,6 +331,22 @@ document.getElementById("formSection").style.display="none";
 document.getElementById("successSection").classList.remove("hidden");
 document.getElementById("courseName").innerText=course;
 
+/* SET WHATSAPP GROUP LINK BASED ON COURSE */
+
+let groupLink = "";
+
+if(course.includes("Std. 8")){
+groupLink = "https://chat.whatsapp.com/Ey3oS75X7eABknDHm74y67";
+}
+else if(course.includes("Std. 9")){
+groupLink = "https://chat.whatsapp.com/GArHkvW6DyaKTBN8JOfn5y";
+}
+else if(course.includes("Std. 10")){
+groupLink = "https://chat.whatsapp.com/BnE9rBlh99M248TwypftMt";
+}
+
+document.getElementById("whatsappBtn").href = groupLink;
+
 confetti({particleCount:150,spread:70,origin:{y:0.6}});
 
 });
