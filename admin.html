@@ -13,7 +13,7 @@
 
 <body class="bg-gray-100">
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 
 <div id="loginScreen" class="min-h-screen flex items-center justify-center p-6">
 
@@ -30,18 +30,16 @@ placeholder="Enter Admin Password"
 class="border p-3 rounded-lg w-full mb-4"
 />
 
-<button
-onclick="checkLogin()"
+<button onclick="checkLogin()"
 class="bg-green-600 text-white w-full py-3 rounded-lg">
 Login
 </button>
 
 </div>
-
 </div>
 
 
-<!-- ADMIN DASHBOARD -->
+<!-- ADMIN PANEL -->
 
 <div id="adminPanel" class="hidden p-6">
 
@@ -87,7 +85,8 @@ placeholder="Search student..."
 class="border p-3 rounded-lg w-full md:w-1/3"
 />
 
-<select id="courseFilter" class="border p-3 rounded-lg w-full md:w-1/4">
+<select id="courseFilter"
+class="border p-3 rounded-lg w-full md:w-1/4">
 
 <option value="">All Courses</option>
 <option value="Std. 8">Std 8</option>
@@ -96,8 +95,7 @@ class="border p-3 rounded-lg w-full md:w-1/3"
 
 </select>
 
-<button
-onclick="downloadExcel()"
+<button onclick="downloadExcel()"
 class="bg-blue-600 text-white px-4 py-3 rounded-lg">
 Download Excel
 </button>
@@ -109,15 +107,17 @@ Download Excel
 
 <div class="overflow-x-auto bg-white rounded-xl shadow">
 
-<table class="min-w-full">
+<table class="min-w-full text-sm">
 
 <thead class="bg-green-600 text-white">
 
 <tr>
-<th class="p-3 text-left">Admission No</th>
+<th class="p-3 text-left">Admission</th>
 <th class="p-3 text-left">Name</th>
 <th class="p-3 text-left">Course</th>
 <th class="p-3 text-left">Mobile</th>
+<th class="p-3 text-left">DOB</th>
+<th class="p-3 text-left">Age</th>
 <th class="p-3 text-left">School</th>
 <th class="p-3 text-left">Action</th>
 </tr>
@@ -133,6 +133,38 @@ Download Excel
 </div>
 
 
+<!-- PROFILE MODAL -->
+
+<div id="profileModal"
+class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-6">
+
+<div class="bg-white rounded-xl p-6 w-full max-w-lg">
+
+<h2 class="text-xl font-bold mb-4">
+Student Profile
+</h2>
+
+<div id="profileContent" class="space-y-2 text-sm"></div>
+
+<div class="flex gap-3 mt-4">
+
+<button onclick="printReceipt()"
+class="bg-green-600 text-white px-4 py-2 rounded">
+Print Receipt
+</button>
+
+<button onclick="closeProfile()"
+class="bg-gray-300 px-4 py-2 rounded">
+Close
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -142,7 +174,8 @@ getFirestore,
 collection,
 getDocs,
 deleteDoc,
-doc
+doc,
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
@@ -160,8 +193,26 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let allData=[];
+let currentStudent=null;
 
 const tableBody=document.getElementById("tableBody");
+
+function calcAge(dob){
+
+const birth=new Date(dob);
+const today=new Date();
+
+let age=today.getFullYear()-birth.getFullYear();
+
+const m=today.getMonth()-birth.getMonth();
+
+if(m<0 || (m===0 && today.getDate()<birth.getDate())){
+age--;
+}
+
+return age;
+
+}
 
 
 async function loadAdmissions(){
@@ -188,6 +239,8 @@ tableBody.innerHTML="";
 
 data.forEach(student=>{
 
+const age=calcAge(student.dob);
+
 const row=document.createElement("tr");
 
 row.classList.add("border-b");
@@ -198,13 +251,22 @@ row.innerHTML=`
 <td class="p-3">${student.surname} ${student.name}</td>
 <td class="p-3">${student.course}</td>
 <td class="p-3">${student.mobile}</td>
+<td class="p-3">${student.dob}</td>
+<td class="p-3">${age}</td>
 <td class="p-3">${student.school}</td>
 
-<td class="p-3">
-<button class="bg-red-500 text-white px-3 py-1 rounded"
-onclick="deleteStudent('${student.id}')">
+<td class="p-3 space-x-2">
+
+<button onclick="viewStudent('${student.id}')"
+class="bg-blue-600 text-white px-2 py-1 rounded">
+View
+</button>
+
+<button onclick="deleteStudent('${student.id}')"
+class="bg-red-500 text-white px-2 py-1 rounded">
 Delete
 </button>
+
 </td>
 
 `;
@@ -232,6 +294,81 @@ allData.filter(s=>s.course.includes("Std. 10")).length;
 }
 
 
+window.viewStudent=function(id){
+
+const student=allData.find(s=>s.id===id);
+
+currentStudent=student;
+
+const age=calcAge(student.dob);
+
+document.getElementById("profileContent").innerHTML=`
+
+<p><b>Admission No:</b> ${student.admissionNo}</p>
+<p><b>Name:</b> ${student.surname} ${student.name} ${student.lastname}</p>
+<p><b>Course:</b> ${student.course}</p>
+<p><b>DOB:</b> ${student.dob}</p>
+<p><b>Age:</b> ${age}</p>
+<p><b>School:</b> ${student.school}</p>
+<p><b>Mobile:</b> ${student.mobile}</p>
+<p><b>Alt Mobile:</b> ${student.altmobile}</p>
+<p><b>WhatsApp:</b> ${student.whatsapp}</p>
+<p><b>Email:</b> ${student.email}</p>
+<p><b>Address:</b> ${student.address}</p>
+
+`;
+
+document.getElementById("profileModal").classList.remove("hidden");
+
+};
+
+
+window.closeProfile=function(){
+document.getElementById("profileModal").classList.add("hidden");
+};
+
+
+window.printReceipt=function(){
+
+const s=currentStudent;
+
+const age=calcAge(s.dob);
+
+const receipt=`
+
+<html>
+
+<body style="font-family:Arial;padding:40px">
+
+<h2 style="text-align:center">Suraj English Academy</h2>
+<p style="text-align:center">Admission Receipt</p>
+
+<table border="1" cellpadding="10" width="100%">
+
+<tr><td>Admission No</td><td>${s.admissionNo}</td></tr>
+<tr><td>Name</td><td>${s.surname} ${s.name} ${s.lastname}</td></tr>
+<tr><td>Course</td><td>${s.course}</td></tr>
+<tr><td>DOB</td><td>${s.dob}</td></tr>
+<tr><td>Age</td><td>${age}</td></tr>
+<tr><td>Mobile</td><td>${s.mobile}</td></tr>
+<tr><td>School</td><td>${s.school}</td></tr>
+<tr><td>Address</td><td>${s.address}</td></tr>
+
+</table>
+
+</body>
+
+</html>
+
+`;
+
+const win=window.open("");
+win.document.write(receipt);
+win.print();
+
+};
+
+
 window.deleteStudent=async function(id){
 
 if(confirm("Delete this admission?")){
@@ -244,30 +381,29 @@ loadAdmissions();
 };
 
 
-document.getElementById("searchInput").addEventListener("keyup",filterData);
+document.getElementById("searchInput").addEventListener("keyup",function(){
 
-document.getElementById("courseFilter").addEventListener("change",filterData);
+const value=this.value.toLowerCase();
 
-
-function filterData(){
-
-const search=document.getElementById("searchInput").value.toLowerCase();
-const course=document.getElementById("courseFilter").value;
-
-let filtered=allData.filter(s=>{
-
-const matchSearch=
-(s.name+s.surname+s.mobile).toLowerCase().includes(search);
-
-const matchCourse=course=="" || s.course.includes(course);
-
-return matchSearch && matchCourse;
-
-});
+const filtered=allData.filter(s=>
+(s.name+s.surname+s.mobile).toLowerCase().includes(value)
+);
 
 renderTable(filtered);
 
-}
+});
+
+
+document.getElementById("courseFilter").addEventListener("change",function(){
+
+const course=this.value;
+
+const filtered=course=="" ? allData :
+allData.filter(s=>s.course.includes(course));
+
+renderTable(filtered);
+
+});
 
 
 window.downloadExcel=function(){
@@ -287,6 +423,7 @@ a.download="admissions.csv";
 a.click();
 
 };
+
 
 loadAdmissions();
 
