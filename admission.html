@@ -343,7 +343,7 @@ const age = calcAge(s.dob);
 
 /* QR CODE DATA = ONLY ADMISSION NUMBER */
 
-QRCode.toDataURL(s.admissionNo, function (err, qrImage) {
+QRCode.toDataURL("https://surajenglishacademy.in/verify.html?id="+s.admissionNo, function (err, qrImage) {
 
 const doc = new jsPDF();
 

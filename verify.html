@@ -1,0 +1,136 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admission Verification | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full text-center">
+
+<h1 class="text-2xl font-bold text-green-700 mb-2">
+Suraj English Academy, Palanpur
+</h1>
+
+<p class="text-gray-600 mb-6">
+Admission Verification
+</p>
+
+<input 
+id="admissionInput"
+type="text"
+placeholder="Enter Admission Number"
+class="border p-3 rounded-xl w-full mb-4 text-center uppercase"
+/>
+
+<button
+onclick="verifyAdmission()"
+class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl w-full"
+
+>
+
+Verify Admission </button>
+
+<div id="result" class="mt-6"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* READ ID FROM URL */
+
+const params = new URLSearchParams(window.location.search);
+const admissionId = params.get("id");
+
+if(admissionId){
+
+document.getElementById("admissionInput").value = admissionId;
+verifyAdmission();
+
+}
+
+
+window.verifyAdmission = async function(){
+
+const admissionNo = document.getElementById("admissionInput").value.trim().toUpperCase();
+const resultBox = document.getElementById("result");
+
+resultBox.innerHTML = "Checking admission...";
+
+const snapshot = await getDocs(collection(db,"admissions"));
+
+let found = null;
+
+snapshot.forEach(doc=>{
+const data = doc.data();
+if(data.admissionNo === admissionNo){
+found = data;
+}
+});
+
+
+if(found){
+
+resultBox.innerHTML = `
+<div class="bg-green-100 border border-green-400 text-green-800 p-4 rounded-xl">
+
+<h2 class="text-xl font-bold mb-2">
+✔ Valid Admission
+</h2>
+
+<p><strong>Name:</strong> ${found.surname} ${found.name} ${found.lastname}</p>
+<p><strong>Course:</strong> ${found.course}</p>
+<p><strong>School:</strong> ${found.school}</p>
+<p><strong>Mobile:</strong> ${found.mobile}</p>
+
+</div>
+`;
+
+}else{
+
+resultBox.innerHTML = `
+<div class="bg-red-100 border border-red-400 text-red-800 p-4 rounded-xl">
+
+<h2 class="text-xl font-bold">
+❌ Invalid Admission
+</h2>
+
+<p>This admission number does not exist.</p>
+
+</div>
+`;
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
