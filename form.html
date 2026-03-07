@@ -1,12 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Admission Form 2026-27 | Suraj English Academy</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
 .step{display:none;}
@@ -38,7 +41,6 @@ Home
 
 
 <!-- FORM SECTION -->
-
 <section id="formSection" class="py-16">
 
 <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8">
@@ -177,14 +179,21 @@ Your admission form has been submitted successfully.
 Course: <span id="courseName"></span>
 </p>
 
+<div class="flex flex-col gap-3">
+
 <a id="whatsappBtn"
 class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold inline-block">
 Join WhatsApp Group
 </a>
 
+<button onclick="printStudentForm()" class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+Print Admission Receipt
+</button>
+
+</div>
+
 </div>
 </section>
-
 
 
 <script>
@@ -234,6 +243,22 @@ function capitalizeText(el){
 el.value=el.value.toUpperCase();
 }
 
+function calcAge(dob){
+
+const birth=new Date(dob);
+const today=new Date();
+
+let age=today.getFullYear()-birth.getFullYear();
+const m=today.getMonth()-birth.getMonth();
+
+if(m<0 || (m===0 && today.getDate()<birth.getDate())){
+age--;
+}
+
+return age;
+
+}
+
 </script>
 
 
@@ -243,7 +268,7 @@ el.value=el.value.toUpperCase();
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
@@ -263,58 +288,147 @@ form.addEventListener("submit", async function(e){
 
 e.preventDefault();
 
+const name=form["Student Name"].value;
 const mobile=form["Mobile Number"].value;
-const alt=form["Alternative Mobile Number"].value;
 
-if(alt && mobile===alt){
-alert("Mobile Number and Alternative Mobile Number must be different.");
+const q=query(collection(db,"admissions"),where("name","==",name),where("mobile","==",mobile));
+const check=await getDocs(q);
+
+if(!check.empty){
+alert("This student already submitted the form.");
 return;
 }
 
+const all=await getDocs(collection(db,"admissions"));
+const admissionNo="SEA_202627_"+String(all.size+1).padStart(3,"0");
+
 const course=form["Course"].value;
 
-await addDoc(collection(db,"admissions"),{
+const studentData={
 
+admissionNo:admissionNo,
 course:course,
 surname:form["Student Surname"].value,
-name:form["Student Name"].value,
+name:name,
 lastname:form["Student Last Name"].value,
 dob:form["DOB"].value,
 school:form["School"].value,
 mobile:mobile,
-altmobile:alt,
+altmobile:form["Alternative Mobile Number"].value,
 whatsapp:form["Whatsapp Number"].value,
 email:form["Email ID"].value,
 address:form["Address"].value,
 createdAt:new Date()
 
-});
+};
+
+await addDoc(collection(db,"admissions"),studentData);
+
+window.submittedStudent=studentData;
 
 document.getElementById("formSection").style.display="none";
 document.getElementById("successSection").classList.remove("hidden");
 document.getElementById("courseName").innerText=course;
 
-confetti({
-particleCount:150,
-spread:70,
-origin:{y:0.6}
-});
-
-let groupLink="";
-
-if(course.includes("Std. 8")){
-groupLink="https://chat.whatsapp.com/YOUR_STD8_LINK";
-}
-else if(course.includes("Std. 9")){
-groupLink="https://chat.whatsapp.com/YOUR_STD9_LINK";
-}
-else if(course.includes("Std. 10")){
-groupLink="https://chat.whatsapp.com/YOUR_STD10_LINK";
-}
-
-document.getElementById("whatsappBtn").href=groupLink;
+confetti({particleCount:150,spread:70,origin:{y:0.6}});
 
 });
+
+window.printStudentForm=function(){
+
+const s=window.submittedStudent;
+const age=calcAge(s.dob);
+
+const html=`
+
+<html>
+
+<head>
+
+<style>
+
+body{font-family:Arial;padding:40px}
+
+.header{display:flex;justify-content:space-between;border-bottom:2px solid #000}
+
+.logo{width:80px}
+
+table{width:100%;border-collapse:collapse;margin-top:20px}
+
+td{border:1px solid #333;padding:10px}
+
+.label{font-weight:bold;background:#f3f3f3}
+
+.stamp{
+position:absolute;
+right:80px;
+top:200px;
+border:4px solid green;
+color:green;
+font-size:28px;
+font-weight:bold;
+padding:15px 25px;
+transform:rotate(-15deg)
+}
+
+.note{text-align:center;margin-top:40px;font-size:13px}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<img src="images/logo.png" class="logo">
+
+<div style="text-align:center;flex:1">
+<h2>Suraj English Academy</h2>
+<p>Palanpur</p>
+<p><b>Admission Form 2026-27</b></p>
+</div>
+
+<canvas id="qr"></canvas>
+
+</div>
+
+<div class="stamp">ADMITTED<br>${new Date().toLocaleDateString()}</div>
+
+<table>
+
+<tr><td class="label">Admission No</td><td>${s.admissionNo}</td></tr>
+<tr><td class="label">Student Name</td><td>${s.surname} ${s.name} ${s.lastname}</td></tr>
+<tr><td class="label">Course</td><td>${s.course}</td></tr>
+<tr><td class="label">DOB</td><td>${s.dob}</td></tr>
+<tr><td class="label">Age</td><td>${age}</td></tr>
+<tr><td class="label">School</td><td>${s.school}</td></tr>
+<tr><td class="label">Mobile</td><td>${s.mobile}</td></tr>
+<tr><td class="label">WhatsApp</td><td>${s.whatsapp}</td></tr>
+<tr><td class="label">Address</td><td>${s.address}</td></tr>
+
+</table>
+
+<div class="note">
+This is a computer generated admission receipt. No signature required.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"><\/script>
+
+<script>
+QRCode.toCanvas(document.getElementById("qr"),"${s.admissionNo}",{width:100});
+<\/script>
+
+</body>
+
+</html>
+`;
+
+const win=window.open("");
+win.document.write(html);
+win.print();
+
+};
 
 </script>
 
