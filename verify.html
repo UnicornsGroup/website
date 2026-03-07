@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="en">
 <head>
 
@@ -33,11 +32,9 @@ class="border p-3 rounded-xl w-full mb-4 text-center uppercase"
 
 <button
 onclick="verifyAdmission()"
-class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl w-full"
-
->
-
-Verify Admission </button>
+class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl w-full">
+Verify Admission
+</button>
 
 <div id="result" class="mt-6"></div>
 
@@ -46,7 +43,7 @@ Verify Admission </button>
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
 
@@ -69,33 +66,37 @@ const params = new URLSearchParams(window.location.search);
 const admissionId = params.get("id");
 
 if(admissionId){
-
-document.getElementById("admissionInput").value = admissionId;
-verifyAdmission();
-
+document.getElementById("admissionInput").value = admissionId.toUpperCase();
+setTimeout(() => verifyAdmission(), 500);
 }
 
+
+/* VERIFY FUNCTION */
 
 window.verifyAdmission = async function(){
 
 const admissionNo = document.getElementById("admissionInput").value.trim().toUpperCase();
 const resultBox = document.getElementById("result");
 
+if(!admissionNo){
+resultBox.innerHTML = "Please enter Admission Number";
+return;
+}
+
 resultBox.innerHTML = "Checking admission...";
 
-const snapshot = await getDocs(collection(db,"admissions"));
+try{
 
-let found = null;
+const q = query(
+collection(db,"admissions"),
+where("admissionNo","==",admissionNo)
+);
 
-snapshot.forEach(doc=>{
-const data = doc.data();
-if(data.admissionNo === admissionNo){
-found = data;
-}
-});
+const snapshot = await getDocs(q);
 
+if(!snapshot.empty){
 
-if(found){
+const found = snapshot.docs[0].data();
 
 resultBox.innerHTML = `
 <div class="bg-green-100 border border-green-400 text-green-800 p-4 rounded-xl">
@@ -122,6 +123,24 @@ resultBox.innerHTML = `
 </h2>
 
 <p>This admission number does not exist.</p>
+
+</div>
+`;
+
+}
+
+}catch(error){
+
+console.error(error);
+
+resultBox.innerHTML = `
+<div class="bg-red-100 border border-red-400 text-red-800 p-4 rounded-xl">
+
+<h2 class="text-xl font-bold">
+⚠ Error
+</h2>
+
+<p>Unable to verify admission right now.</p>
 
 </div>
 `;
