@@ -7,6 +7,7 @@
 
 <title>Admission Form 2026-27 | Suraj English Academy</title>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -186,8 +187,8 @@ class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semi
 Join WhatsApp Group
 </a>
 
-<button onclick="printStudentForm()" class="bg-blue-600 text-white px-6 py-3 rounded-xl">
-Print Admission Receipt
+<button onclick="downloadReceiptPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+Download Admission Receipt (PDF)
 </button>
 
 </div>
@@ -334,102 +335,86 @@ confetti({particleCount:150,spread:70,origin:{y:0.6}});
 
 });
 
-window.printStudentForm=function(){
+window.downloadReceiptPDF=function(){
+
+const { jsPDF } = window.jspdf;
 
 const s=window.submittedStudent;
+
 const age=calcAge(s.dob);
 
-const html=`
+const doc=new jsPDF();
 
-<html>
+doc.setFontSize(18);
+doc.text("Suraj English Academy",105,20,null,null,"center");
 
-<head>
+doc.setFontSize(12);
+doc.text("Palanpur",105,27,null,null,"center");
 
-<style>
+doc.text("Admission Form 2026-27",105,35,null,null,"center");
 
-body{font-family:Arial;padding:40px}
+doc.setFontSize(11);
 
-.header{display:flex;justify-content:space-between;border-bottom:2px solid #000}
+let y=50;
 
-.logo{width:80px}
+doc.text("Admission No:",20,y);
+doc.text(s.admissionNo,80,y);
 
-table{width:100%;border-collapse:collapse;margin-top:20px}
+y+=10;
+doc.text("Student Name:",20,y);
+doc.text(s.surname+" "+s.name+" "+s.lastname,80,y);
 
-td{border:1px solid #333;padding:10px}
+y+=10;
+doc.text("Course:",20,y);
+doc.text(s.course,80,y);
 
-.label{font-weight:bold;background:#f3f3f3}
+y+=10;
+doc.text("Date of Birth:",20,y);
+doc.text(s.dob,80,y);
 
-.stamp{
-position:absolute;
-right:80px;
-top:200px;
-border:4px solid green;
-color:green;
-font-size:28px;
-font-weight:bold;
-padding:15px 25px;
-transform:rotate(-15deg)
+y+=10;
+doc.text("Age:",20,y);
+doc.text(String(age),80,y);
+
+y+=10;
+doc.text("School:",20,y);
+doc.text(s.school,80,y);
+
+y+=10;
+doc.text("Mobile:",20,y);
+doc.text(s.mobile,80,y);
+
+y+=10;
+doc.text("WhatsApp:",20,y);
+doc.text(s.whatsapp,80,y);
+
+y+=10;
+doc.text("Address:",20,y);
+doc.text(s.address,80,y);
+
+y+=20;
+
+doc.setTextColor(0,150,0);
+doc.setFontSize(20);
+doc.text("ADMITTED",105,y,null,null,"center");
+
+y+=10;
+
+doc.setFontSize(10);
+doc.setTextColor(100);
+
+doc.text(
+"This is a computer generated admission receipt. No signature required.",
+105,
+y,
+null,
+null,
+"center"
+);
+
+doc.save(s.admissionNo+".pdf");
+
 }
-
-.note{text-align:center;margin-top:40px;font-size:13px}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="header">
-
-<img src="images/logo.png" class="logo">
-
-<div style="text-align:center;flex:1">
-<h2>Suraj English Academy</h2>
-<p>Palanpur</p>
-<p><b>Admission Form 2026-27</b></p>
-</div>
-
-<canvas id="qr"></canvas>
-
-</div>
-
-<div class="stamp">ADMITTED<br>${new Date().toLocaleDateString()}</div>
-
-<table>
-
-<tr><td class="label">Admission No</td><td>${s.admissionNo}</td></tr>
-<tr><td class="label">Student Name</td><td>${s.surname} ${s.name} ${s.lastname}</td></tr>
-<tr><td class="label">Course</td><td>${s.course}</td></tr>
-<tr><td class="label">DOB</td><td>${s.dob}</td></tr>
-<tr><td class="label">Age</td><td>${age}</td></tr>
-<tr><td class="label">School</td><td>${s.school}</td></tr>
-<tr><td class="label">Mobile</td><td>${s.mobile}</td></tr>
-<tr><td class="label">WhatsApp</td><td>${s.whatsapp}</td></tr>
-<tr><td class="label">Address</td><td>${s.address}</td></tr>
-
-</table>
-
-<div class="note">
-This is a computer generated admission receipt. No signature required.
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"><\/script>
-
-<script>
-QRCode.toCanvas(document.getElementById("qr"),"${s.admissionNo}",{width:100});
-<\/script>
-
-</body>
-
-</html>
-`;
-
-const win=window.open("");
-win.document.write(html);
-win.print();
-
-};
-
 </script>
 
 </body>
