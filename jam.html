@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For The Most Beautiful Girl In My World ❤️</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Quicksand:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #FFF5F7;
+      --color-surface: #FFFFFF;
+      --color-text: #5C4A5A;
+      --color-primary: #E8A4B8;
+      --color-secondary: #C9A4D9;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      overflow-x: hidden;
+    }
+    
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .main-wrapper {
+      width: 100%;
+      min-height: 100%;
+      background: var(--color-bg);
+      overflow-y: auto;
+    }
+    
+    /* Floating hearts animation */
+    .floating-hearts {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    
+    .heart {
+      position: absolute;
+      opacity: 0.15;
+      animation: float-up 15s infinite ease-in-out;
+    }
+    
+    .heart:nth-child(1) { left: 5%; animation-delay: 0s; font-size: 20px; }
+    .heart:nth-child(2) { left: 15%; animation-delay: 2s; font-size: 16px; }
+    .heart:nth-child(3) { left: 25%; animation-delay: 4s; font-size: 24px; }
+    .heart:nth-child(4) { left: 35%; animation-delay: 1s; font-size: 18px; }
+    .heart:nth-child(5) { left: 45%; animation-delay: 3s; font-size: 22px; }
+    .heart:nth-child(6) { left: 55%; animation-delay: 5s; font-size: 14px; }
+    .heart:nth-child(7) { left: 65%; animation-delay: 2.5s; font-size: 26px; }
+    .heart:nth-child(8) { left: 75%; animation-delay: 4.5s; font-size: 20px; }
+    .heart:nth-child(9) { left: 85%; animation-delay: 1.5s; font-size: 18px; }
+    .heart:nth-child(10) { left: 95%; animation-delay: 3.5s; font-size: 16px; }
+    
+    @keyframes float-up {
+      0% {
+        transform: translateY(100%) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.15;
+      }
+      90% {
+        opacity: 0.15;
+      }
+      100% {
+        transform: translateY(-100%) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Glow effect */
+    .glow {
+      box-shadow: 0 0 60px rgba(232, 164, 184, 0.3);
+    }
+    
+    .text-glow {
+      text-shadow: 0 0 30px rgba(232, 164, 184, 0.5);
+    }
+    
+    /* Fade in animations */
+    .fade-in {
+      animation: fadeIn 1s ease-out forwards;
+      opacity: 0;
+    }
+    
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+    .fade-in-delay-4 { animation-delay: 0.8s; }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Pulse animation for button */
+    .pulse-heart {
+      animation: pulseHeart 2s infinite;
+    }
+    
+    @keyframes pulseHeart {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    /* Card hover effect */
+    .love-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .love-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(232, 164, 184, 0.2);
+    }
+    
+    /* Photo placeholder styling */
+    .photo-placeholder {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .photo-placeholder::before {
+      content: '📷';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+    
+    /* Decorative flower */
+    .flower {
+      display: inline-block;
+      animation: sway 3s ease-in-out infinite;
+    }
+    
+    @keyframes sway {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+    
+    /* Forgiveness overlay */
+    .forgiveness-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 245, 247, 0.98);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeInOverlay 0.5s ease-out;
+    }
+    
+    .forgiveness-overlay.active {
+      display: flex;
+    }
+    
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .celebration-hearts {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .celebration-heart {
+      position: absolute;
+      font-size: 2rem;
+      animation: celebrate 3s ease-out forwards;
+    }
+    
+    @keyframes celebrate {
+      0% {
+        transform: translateY(0) scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-200px) scale(1.5);
+        opacity: 0;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--color-bg);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-primary);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-secondary);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <!-- Floating Hearts Background -->
+  <div class="floating-hearts">
+   <div class="heart">
+    💕
+   </div>
+   <div class="heart">
+    💗
+   </div>
+   <div class="heart">
+    💖
+   </div>
+   <div class="heart">
+    💝
+   </div>
+   <div class="heart">
+    💕
+   </div>
+   <div class="heart">
+    💗
+   </div>
+   <div class="heart">
+    💖
+   </div>
+   <div class="heart">
+    💝
+   </div>
+   <div class="heart">
+    💕
+   </div>
+   <div class="heart">
+    💗
+   </div>
+  </div>
+  <div class="main-wrapper">
+   <!-- Hero Section -->
+   <section class="relative py-16 md:py-24 px-4 text-center">
+    <div class="max-w-4xl mx-auto relative z-10">
+     <div class="fade-in">
+      <span class="text-4xl md:text-5xl flower">🌸</span> <span class="text-3xl md:text-4xl flower" style="animation-delay: 0.5s;">🌷</span> <span class="text-4xl md:text-5xl flower" style="animation-delay: 1s;">🌺</span>
+     </div>
+     <h1 id="site-title" class="font-display text-3xl md:text-5xl lg:text-6xl font-bold mt-6 mb-4 text-glow fade-in fade-in-delay-1" style="color: var(--color-text);">For The Most Beautiful Girl In My World ❤️</h1>
+     <div class="glow rounded-3xl p-8 md:p-12 mt-8 fade-in fade-in-delay-2" style="background: var(--color-surface);">
+      <h2 id="hero-headline" class="font-display text-2xl md:text-4xl font-semibold mb-4" style="color: var(--color-primary);">I'm Sorry &amp; I Love You So Much</h2>
+      <p id="hero-subtext" class="text-lg md:text-xl opacity-80">This little page is just for you, because you mean the world to me.</p>
+     </div>
+     <div class="mt-8 text-6xl fade-in fade-in-delay-3">
+      💝
+     </div>
+    </div>
+   </section><!-- Apology Message Section -->
+   <section class="py-12 md:py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+     <div class="love-card rounded-3xl p-8 md:p-12 text-center" style="background: var(--color-surface); box-shadow: 0 10px 40px rgba(232, 164, 184, 0.15);">
+      <div class="text-5xl mb-6">
+       💌
+      </div>
+      <h3 id="apology-title" class="font-display text-2xl md:text-3xl font-semibold mb-6" style="color: var(--color-primary);">From My Heart to Yours</h3>
+      <div class="space-y-4 text-lg leading-relaxed opacity-90">
+       <p>My dearest love,</p>
+       <p>I know I've hurt you, and seeing you sad breaks my heart into a million pieces. I never want to be the reason for your tears or the cause of any pain in your beautiful heart.</p>
+       <p>Please know that I care about you more than words could ever express. Your feelings matter to me deeply, and I'm truly sorry for anything I did that made you feel otherwise.</p>
+       <p>I want to make things right. I want to see your beautiful smile again. I want to hold you close and remind you every single day how precious you are to me.</p>
+       <p class="font-medium" style="color: var(--color-primary);">You deserve all the happiness in the world, and I promise to try my best to give that to you. 💕</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Reasons Why I Love You Section -->
+   <section class="py-12 md:py-16 px-4" style="background: linear-gradient(180deg, transparent 0%, rgba(201, 164, 217, 0.1) 50%, transparent 100%);">
+    <div class="max-w-4xl mx-auto">
+     <div class="text-center mb-10">
+      <div class="text-5xl mb-4">
+       ✨
+      </div>
+      <h3 class="font-display text-2xl md:text-3xl font-semibold" style="color: var(--color-primary);">Reasons Why I Love You</h3>
+      <p class="mt-2 opacity-70">Every little thing about you makes my heart flutter</p>
+     </div>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">😊</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Beautiful Smile</h4>
+        <p class="text-sm opacity-80">It lights up my entire world and makes every bad day instantly better.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">💖</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Kind Heart</h4>
+        <p class="text-sm opacity-80">The way you care for others shows how beautiful you are inside.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🎵</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Sweet Voice</h4>
+        <p class="text-sm opacity-80">Hearing you talk or laugh is my favorite sound in the universe.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🌟</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Unwavering Support</h4>
+        <p class="text-sm opacity-80">You believe in me even when I don't believe in myself.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🦋</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">The Way You Make Me Feel</h4>
+        <p class="text-sm opacity-80">Butterflies every time, even after all this time together.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🌈</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">You Make Life Brighter</h4>
+        <p class="text-sm opacity-80">Everything is more colorful and meaningful with you by my side.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🤗</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Warm Hugs</h4>
+        <p class="text-sm opacity-80">They feel like coming home, safe and full of love.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">💭</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Your Beautiful Mind</h4>
+        <p class="text-sm opacity-80">Your thoughts, dreams, and ideas inspire me every day.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">🌙</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Late Night Conversations</h4>
+        <p class="text-sm opacity-80">Talking with you for hours about everything and nothing.</p>
+       </div>
+      </div>
+      <div class="love-card rounded-2xl p-6 flex items-start gap-4" style="background: var(--color-surface);">
+       <span class="text-3xl">💫</span>
+       <div>
+        <h4 class="font-semibold mb-1" style="color: var(--color-text);">Simply Being You</h4>
+        <p class="text-sm opacity-80">You don't have to do anything special – just being yourself is enough.</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Promise Section -->
+   <section class="py-12 md:py-16 px-4" style="background: linear-gradient(180deg, transparent 0%, rgba(232, 164, 184, 0.1) 50%, transparent 100%);">
+    <div class="max-w-3xl mx-auto">
+     <div class="love-card rounded-3xl p-8 md:p-12 text-center" style="background: var(--color-surface); box-shadow: 0 10px 40px rgba(201, 164, 217, 0.2);">
+      <div class="text-5xl mb-6">
+       🤞
+      </div>
+      <h3 id="promise-title" class="font-display text-2xl md:text-3xl font-semibold mb-6" style="color: var(--color-secondary);">My Promise to You</h3>
+      <div class="space-y-4 text-lg leading-relaxed">
+       <p class="font-medium" style="color: var(--color-primary);">I promise...</p>
+       <p>To always respect your feelings and listen with my whole heart when you need to talk.</p>
+       <p>To be more thoughtful, more patient, and more understanding every single day.</p>
+       <p>To try my best to make you smile, even on your hardest days.</p>
+       <p>To never take your love for granted and to always remind you how special you are.</p>
+       <p>To grow and become a better person – not just for us, but for you.</p>
+       <p class="text-xl font-semibold mt-6" style="color: var(--color-secondary);">I choose you today, tomorrow, and always. 💍</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Final Love Note & Button Section -->
+   <section class="py-12 md:py-20 px-4 text-center">
+    <div class="max-w-2xl mx-auto">
+     <div class="text-6xl mb-6">
+      💝
+     </div>
+     <div class="font-display text-xl md:text-2xl italic leading-relaxed mb-8" style="color: var(--color-text);">
+      <p id="final-note">"No matter what happens, you will always be very special to me. I hope this little surprise makes you smile."</p>
+     </div>
+     <p class="text-lg mb-8 opacity-80">With all my love, forever and always ❤️</p><button id="forgive-btn" class="pulse-heart rounded-full px-10 py-4 text-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);"> <span id="button-text">Click If You Forgive Me</span> ❤️ </button>
+     <div class="mt-12 text-4xl">
+      <span class="flower">🌸</span> <span class="flower" style="animation-delay: 0.3s;">💐</span> <span class="flower" style="animation-delay: 0.6s;">🌺</span> <span class="flower" style="animation-delay: 0.9s;">🌷</span> <span class="flower" style="animation-delay: 1.2s;">🌸</span>
+     </div>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-6 text-center opacity-60 text-sm">
+    <p>Made with 💕 just for you</p>
+   </footer>
+  </div><!-- Forgiveness Overlay -->
+  <div id="forgiveness-overlay" class="forgiveness-overlay">
+   <div class="text-center p-8 max-w-lg">
+    <div id="celebration-container" class="celebration-hearts"></div>
+    <div class="text-8xl mb-6 animate-bounce">
+     🥰
+    </div>
+    <h2 class="font-display text-3xl md:text-4xl font-bold mb-4" style="color: var(--color-primary);">Thank You, My Love!</h2>
+    <p class="text-xl mb-6 opacity-90">You just made me the happiest person in the world! I promise to treasure your forgiveness and your heart forever.</p>
+    <p class="text-5xl">💕💖💕</p><button id="close-overlay" class="mt-8 rounded-full px-8 py-3 font-semibold text-white" style="background: var(--color-secondary);"> Back to Your Page 🌸 </button>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      // Colors
+      background_color: '#FFF5F7',
+      surface_color: '#FFFFFF',
+      text_color: '#5C4A5A',
+      primary_color: '#E8A4B8',
+      secondary_color: '#C9A4D9',
+      // Fonts
+      font_family: 'Quicksand',
+      font_size: 16,
+      // Text content
+      site_title: 'For The Most Beautiful Girl In My World ❤️',
+      hero_headline: "I'm Sorry & I Love You So Much",
+      hero_subtext: 'This little page is just for you, because you mean the world to me.',
+      apology_title: 'From My Heart to Yours',
+      promise_title: 'My Promise to You',
+      final_note: '"No matter what happens, you will always be very special to me. I hope this little surprise makes you smile."',
+      button_text: 'Click If You Forgive Me'
+    };
+
+    // Initialize forgiveness button
+    document.getElementById('forgive-btn').addEventListener('click', function() {
+      const overlay = document.getElementById('forgiveness-overlay');
+      overlay.classList.add('active');
+      
+      // Create celebration hearts
+      const container = document.getElementById('celebration-container');
+      container.innerHTML = '';
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'celebration-heart';
+        heart.textContent = ['💕', '💖', '💗', '💝', '❤️'][Math.floor(Math.random() * 5)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.top = Math.random() * 100 + '%';
+        heart.style.animationDelay = Math.random() * 2 + 's';
+        container.appendChild(heart);
+      }
+      
+      // Redirect after 10 seconds
+      setTimeout(function() {
+        window.open('https://wa.link/ilr818', '_blank');
+      }, 10000);
+    });
+
+    // Close overlay
+    document.getElementById('close-overlay').addEventListener('click', function() {
+      document.getElementById('forgiveness-overlay').classList.remove('active');
+    });
+
+    // Config change handler
+    async function onConfigChange(config) {
+      const root = document.documentElement;
+      
+      // Apply colors
+      root.style.setProperty('--color-bg', config.background_color || defaultConfig.background_color);
+      root.style.setProperty('--color-surface', config.surface_color || defaultConfig.surface_color);
+      root.style.setProperty('--color-text', config.text_color || defaultConfig.text_color);
+      root.style.setProperty('--color-primary', config.primary_color || defaultConfig.primary_color);
+      root.style.setProperty('--color-secondary', config.secondary_color || defaultConfig.secondary_color);
+      
+      // Apply font family
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      document.body.style.fontFamily = `'${fontFamily}', 'Quicksand', sans-serif`;
+      
+      // Apply font size scaling
+      const baseSize = config.font_size || defaultConfig.font_size;
+      document.body.style.fontSize = `${baseSize}px`;
+      
+      // Update text content
+      document.getElementById('site-title').textContent = config.site_title || defaultConfig.site_title;
+      document.getElementById('hero-headline').textContent = config.hero_headline || defaultConfig.hero_headline;
+      document.getElementById('hero-subtext').textContent = config.hero_subtext || defaultConfig.hero_subtext;
+      document.getElementById('apology-title').textContent = config.apology_title || defaultConfig.apology_title;
+      document.getElementById('promise-title').textContent = config.promise_title || defaultConfig.promise_title;
+      document.getElementById('final-note').textContent = config.final_note || defaultConfig.final_note;
+      document.getElementById('button-text').textContent = config.button_text || defaultConfig.button_text;
+    }
+
+    // Map to capabilities for color and font editing
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => { config.background_color = value; window.elementSdk.setConfig({ background_color: value }); }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => { config.surface_color = value; window.elementSdk.setConfig({ surface_color: value }); }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => { config.text_color = value; window.elementSdk.setConfig({ text_color: value }); }
+          },
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => { config.primary_color = value; window.elementSdk.setConfig({ primary_color: value }); }
+          },
+          {
+            get: () => config.secondary_color || defaultConfig.secondary_color,
+            set: (value) => { config.secondary_color = value; window.elementSdk.setConfig({ secondary_color: value }); }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => { config.font_family = value; window.elementSdk.setConfig({ font_family: value }); }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => { config.font_size = value; window.elementSdk.setConfig({ font_size: value }); }
+        }
+      };
+    }
+
+    // Map to edit panel values
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['site_title', config.site_title || defaultConfig.site_title],
+        ['hero_headline', config.hero_headline || defaultConfig.hero_headline],
+        ['hero_subtext', config.hero_subtext || defaultConfig.hero_subtext],
+        ['apology_title', config.apology_title || defaultConfig.apology_title],
+        ['promise_title', config.promise_title || defaultConfig.promise_title],
+        ['final_note', config.final_note || defaultConfig.final_note],
+        ['button_text', config.button_text || defaultConfig.button_text]
+      ]);
+    }
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d96efb6d03c4826',t:'MTc3MzAyNjM0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
