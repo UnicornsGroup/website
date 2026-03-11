@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Redirecting | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<script>
+setTimeout(function(){
+window.location.href="https://search.google.com/local/writereview?placeid=ChIJ88cJBlnpXDkRe6qyj0lgHwY";
+},1000);
+</script>
+
+<style>
+
+body{
+font-family: 'Inter', sans-serif;
+}
+
+.loader{
+border:4px solid #f3f3f3;
+border-top:4px solid #4CAF50;
+border-radius:50%;
+width:40px;
+height:40px;
+animation:spin 1s linear infinite;
+margin:auto;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+</style>
+
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+
+<div class="text-center max-w-md p-10 bg-white rounded-2xl shadow-xl">
+
+<img src="images/logo.png" class="w-16 mx-auto mb-6">
+
+<h1 class="font-poppins text-2xl font-bold text-gray-800 mb-3">
+Redirecting to Google Review
+</h1>
+
+<p class="text-gray-600 mb-6">
+Please wait while we open the review page.
+</p>
+
+<div class="loader mb-6"></div>
+
+<p class="text-sm text-gray-500">
+If you are not redirected automatically,
+<a href="https://search.google.com/local/writereview?placeid=ChIJ88cJBlnpXDkRe6qyj0lgHwY" class="text-green-600 font-semibold">click here</a>.
+</p>
+
+</div>
+
+</body>
+</html>
