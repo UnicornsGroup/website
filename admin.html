@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -8,14 +9,12 @@
 <title>Suraj English Academy ERP</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 </head>
 
 <body class="bg-gray-100">
 
-
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 
 <div id="loginPage" class="flex items-center justify-center h-screen">
 
@@ -72,10 +71,10 @@ Academy ERP
 </div>
 
 
+
 <!-- CONTENT -->
 
 <div class="flex-1 p-4 md:p-8">
-
 
 <!-- DASHBOARD -->
 
@@ -247,6 +246,14 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 
 import {
+getAuth,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+import {
 getFirestore,
 collection,
 getDocs,
@@ -256,22 +263,15 @@ doc
 }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-import {
-getAuth,
-signInWithEmailAndPassword,
-onAuthStateChanged,
-signOut
-}
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
 
 
 const firebaseConfig = {
-
-apiKey: "YOUR_API_KEY",
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
 authDomain: "suraj-english-academy-7141e.firebaseapp.com",
-projectId: "suraj-english-academy-7141e"
-
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
 };
 
 
@@ -442,13 +442,11 @@ const mobile=document.getElementById("mobile").value;
 const school=document.getElementById("school").value;
 
 await addDoc(collection(db,"students"),{
-
 admissionNo,
 name,
 course,
 mobile,
 school
-
 });
 
 loadStudents();
@@ -457,7 +455,7 @@ loadStudents();
 
 
 
-/* DELETE */
+/* DELETE STUDENT */
 
 window.deleteStudent=async function(id){
 
@@ -479,12 +477,10 @@ const amount=document.getElementById("feeAmount").value;
 const type=document.getElementById("paymentType").value;
 
 await addDoc(collection(db,"fees"),{
-
 admissionNo:admission,
 date,
 amount:Number(amount),
 paymentType:type
-
 });
 
 alert("Fee Saved");
@@ -495,7 +491,7 @@ loadDashboard();
 
 
 
-/* SAVE RESULT */
+/* SAVE RESULTS */
 
 window.saveResults=async function(){
 
