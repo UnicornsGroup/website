@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -9,7 +8,6 @@
 <title>Suraj English Academy ERP</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 </head>
@@ -39,55 +37,53 @@ class="bg-blue-600 text-white w-full py-3 rounded">
 Login
 </button>
 
-</div>
+<p id="loginError" class="text-red-500 mt-3 text-sm"></p>
 
 </div>
 
+</div>
 
-<!-- ADMIN APP -->
+
+
+<!-- ADMIN PANEL -->
 
 <div id="app" class="hidden">
 
-<div class="flex">
+<div class="flex flex-col md:flex-row">
 
 <!-- SIDEBAR -->
 
-<div class="w-60 bg-blue-900 text-white min-h-screen p-4">
+<div class="bg-blue-900 text-white p-4 md:w-60">
 
 <h2 class="text-xl font-bold mb-6">
 Academy ERP
 </h2>
 
-<ul class="space-y-3">
+<div class="flex md:flex-col gap-4">
 
-<li><button onclick="showPage('dashboard')">Dashboard</button></li>
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('students')">Students</button>
+<button onclick="showPage('fees')">Fees</button>
+<button onclick="showPage('results')">Results</button>
+<button onclick="logout()">Logout</button>
 
-<li><button onclick="showPage('students')">Students</button></li>
-
-<li><button onclick="showPage('fees')">Fees</button></li>
-
-<li><button onclick="showPage('results')">Results</button></li>
-
-<li><button onclick="logout()">Logout</button></li>
-
-</ul>
+</div>
 
 </div>
 
 
 <!-- CONTENT -->
 
-<div class="flex-1 p-6">
+<div class="flex-1 p-4 md:p-8">
+
 
 <!-- DASHBOARD -->
 
 <div id="dashboardPage">
 
-<h1 class="text-2xl font-bold mb-6">
-Dashboard
-</h1>
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
-<div class="grid md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
 <div class="bg-white p-6 rounded shadow">
 <p>Total Students</p>
@@ -109,13 +105,14 @@ Dashboard
 </div>
 
 
-<!-- STUDENTS PAGE -->
+
+<!-- STUDENTS -->
 
 <div id="studentsPage" class="hidden">
 
 <h2 class="text-xl font-bold mb-4">Add Student</h2>
 
-<div class="grid md:grid-cols-5 gap-2 mb-4">
+<div class="grid md:grid-cols-5 gap-3 mb-4">
 
 <input id="admissionNo" placeholder="Admission No"
 class="border p-2 rounded">
@@ -126,7 +123,6 @@ class="border p-2 rounded">
 <select id="course" class="border p-2 rounded">
 
 <option value="">Standard</option>
-
 <option>Std. 8 (English Medium)</option>
 <option>Std. 8 (Gujarati Medium)</option>
 <option>Std. 9 (Gujarati Medium)</option>
@@ -143,7 +139,7 @@ class="border p-2 rounded">
 </div>
 
 <button onclick="addStudent()"
-class="bg-green-600 text-white px-6 py-2 rounded mb-4">
+class="bg-green-600 text-white px-6 py-2 rounded mb-6">
 Add Student
 </button>
 
@@ -169,15 +165,16 @@ Add Student
 
 
 
-<!-- FEES PAGE -->
+<!-- FEES -->
 
 <div id="feesPage" class="hidden">
 
-<h2 class="text-xl font-bold mb-4">Fees Collection</h2>
+<h2 class="text-xl font-bold mb-4">Collect Fees</h2>
 
-<select id="feeStudent" class="border p-3 rounded w-full mb-4"></select>
+<select id="feeStudent"
+class="border p-3 rounded w-full mb-4"></select>
 
-<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
 
 <input type="date" id="feeDate"
 class="border p-3 rounded">
@@ -186,10 +183,11 @@ class="border p-3 rounded">
 placeholder="Amount"
 class="border p-3 rounded">
 
-<select id="paymentType" class="border p-3 rounded">
+<select id="paymentType"
+class="border p-3 rounded">
 
-<option>Cash</option>
-<option>UPI</option>
+<option value="Cash">Cash</option>
+<option value="UPI">UPI</option>
 
 </select>
 
@@ -204,7 +202,7 @@ Save Fee
 
 
 
-<!-- RESULT PAGE -->
+<!-- RESULTS -->
 
 <div id="resultsPage" class="hidden">
 
@@ -236,10 +234,9 @@ Save Results
 
 </div>
 
-</div>
 
 </div>
-
+</div>
 </div>
 
 
@@ -262,38 +259,36 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import {
 getAuth,
 signInWithEmailAndPassword,
+onAuthStateChanged,
 signOut
 }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
 
 
-const firebaseConfig={
+const firebaseConfig = {
 
-apiKey:"YOUR_API_KEY",
-authDomain:"suraj-english-academy-7141e.firebaseapp.com",
-projectId:"suraj-english-academy-7141e"
+apiKey: "YOUR_API_KEY",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e"
 
 };
 
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-const auth=getAuth(app);
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 let students=[];
 
 
 
-/* LOGIN */
+/* AUTH STATE */
 
-window.login=async function(){
+onAuthStateChanged(auth,(user)=>{
 
-const email=document.getElementById("email").value;
-const password=document.getElementById("password").value;
-
-await signInWithEmailAndPassword(auth,email,password);
+if(user){
 
 document.getElementById("loginPage").style.display="none";
 document.getElementById("app").style.display="block";
@@ -301,7 +296,31 @@ document.getElementById("app").style.display="block";
 loadDashboard();
 loadStudents();
 
+}
+
+});
+
+
+
+/* LOGIN */
+
+window.login = async function(){
+
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+try{
+
+await signInWithEmailAndPassword(auth,email,password);
+
+}catch(e){
+
+document.getElementById("loginError").innerText=e.message;
+
+}
+
 };
+
 
 
 /* LOGOUT */
@@ -309,7 +328,6 @@ loadStudents();
 window.logout=function(){
 
 signOut(auth);
-location.reload();
 
 };
 
@@ -319,10 +337,9 @@ location.reload();
 
 window.showPage=function(page){
 
-document.getElementById("dashboardPage").style.display="none";
-document.getElementById("studentsPage").style.display="none";
-document.getElementById("feesPage").style.display="none";
-document.getElementById("resultsPage").style.display="none";
+["dashboard","students","fees","results"].forEach(p=>{
+document.getElementById(p+"Page").style.display="none";
+});
 
 document.getElementById(page+"Page").style.display="block";
 
@@ -340,7 +357,9 @@ const r=await getDocs(collection(db,"results"));
 
 let feeTotal=0;
 
-f.forEach(d=>feeTotal+=d.data().amount||0);
+f.forEach(d=>{
+feeTotal+=Number(d.data().amount)||0;
+});
 
 document.getElementById("totalStudents").innerText=s.size;
 document.getElementById("totalFees").innerText="₹ "+feeTotal;
@@ -438,7 +457,7 @@ loadStudents();
 
 
 
-/* DELETE STUDENT */
+/* DELETE */
 
 window.deleteStudent=async function(id){
 
@@ -476,7 +495,7 @@ loadDashboard();
 
 
 
-/* SAVE RESULTS */
+/* SAVE RESULT */
 
 window.saveResults=async function(){
 
@@ -509,5 +528,4 @@ loadDashboard();
 </script>
 
 </body>
-
 </html>
