@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Students Management | Suraj English Academy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+<div class="max-w-7xl mx-auto">
+<h1 class="text-2xl md:text-3xl font-bold mb-6">Students Management</h1>
+
+<!-- TOP CONTROLS -->
+<div class="grid md:grid-cols-4 gap-3 mb-6">
+<select id="stdFilter" class="border p-2 rounded">
+<option value="">All Standards</option>
+<option>Std. 8 (English Medium)</option>
+<option>Std. 8 (Gujarati Medium)</option>
+<option>Std. 9 (Gujarati Medium)</option>
+<option>Std. 10 (Gujarati Medium)</option>
+</select>
+<input id="searchInput" placeholder="Search Name / Admission" class="border p-2 rounded">
+<button onclick="loadStudents()" class="bg-blue-600 text-white px-4 py-2 rounded">Load Students</button>
+<div class="bg-white border rounded p-2 text-center">
+<span class="text-gray-500 text-sm">Total Students</span>
+<div id="studentCount" class="text-xl font-bold">0</div>
+</div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="flex flex-wrap gap-3 mb-6">
+<button onclick="deleteSelected()" class="bg-red-600 text-white px-4 py-2 rounded">Delete Selected</button>
+<button onclick="deleteStandard()" class="bg-red-800 text-white px-4 py-2 rounded">Delete Standard</button>
+<button onclick="promoteStudents()" class="bg-green-700 text-white px-4 py-2 rounded">Promote Standard</button>
+<input type="file" id="csvFile" class="border p-2" />
+<button onclick="importCSV()" class="bg-purple-600 text-white px-4 py-2 rounded">Import CSV</button>
+<button onclick="exportExcel()" class="bg-indigo-600 text-white px-4 py-2 rounded">Export Excel</button>
+<button onclick="exportPDF()" class="bg-gray-700 text-white px-4 py-2 rounded">Export PDF</button>
+</div>
+
+<!-- ADD STUDENT -->
+<div class="bg-white p-4 md:p-6 rounded-xl shadow mb-8">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg md:text-xl font-bold">Add Student</h2>
+<button onclick="toggleAddForm()" class="text-sm bg-gray-200 px-3 py-1 rounded">Toggle</button>
+</div>
+<div id="addForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+<input id="admissionNo" placeholder="Admission No" class="border p-2 rounded">
+<input id="name" placeholder="Student Name" class="border p-2 rounded">
+<select id="course" class="border p-2 rounded">
+<option value="">Select Standard</option>
+<option>Std. 8 (English Medium)</option>
+<option>Std. 8 (Gujarati Medium)</option>
+<option>Std. 9 (Gujarati Medium)</option>
+<option>Std. 10 (Gujarati Medium)</option>
+</select>
+<input id="mobile" placeholder="Mobile" class="border p-2 rounded">
+<input id="school" placeholder="School" class="border p-2 rounded">
+<button onclick="addStudent()" class="bg-green-600 text-white px-4 py-2 rounded">Add Student</button>
+</div>
+</div>
+
+<!-- STUDENT TABLE -->
+<div class="overflow-x-auto">
+<table class="w-full bg-white border text-sm md:text-base">
+<thead class="bg-gray-200">
+<tr>
+<th class="p-2 border"></th>
+<th class="p-2 border">Admission</th>
+<th class="p-2 border">Name</th>
+<th class="p-2 border">Standard</th>
+<th class="p-2 border">Mobile</th>
+<th class="p-2 border">School</th>
+<th class="p-2 border">Action</th>
+</tr>
+</thead>
+<tbody id="studentTable"></tbody>
+</table>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center p-4">
+<div class="bg-white p-6 rounded-lg w-full max-w-md">
+<h2 class="text-xl font-bold mb-4">Edit Student</h2>
+<input type="hidden" id="editId">
+<div class="space-y-3">
+<input id="editAdmission" class="border p-2 rounded w-full">
+<input id="editName" class="border p-2 rounded w-full">
+<select id="editCourse" class="border p-2 rounded w-full">
+<option>Std. 8 (English Medium)</option>
+<option>Std. 8 (Gujarati Medium)</option>
+<option>Std. 9 (Gujarati Medium)</option>
+<option>Std. 10 (Gujarati Medium)</option>
+</select>
+<input id="editMobile" class="border p-2 rounded w-full">
+<input id="editSchool" class="border p-2 rounded w-full">
+</div>
+<div class="flex justify-end gap-3 mt-4">
+<button onclick="closeEdit()" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+<button onclick="updateStudent()" class="px-4 py-2 bg-green-600 text-white rounded">Update</button>
+</div>
+</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import {
+getFirestore,
+collection,
+getDocs,
+addDoc,
+query,
+where,
+deleteDoc,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let students=[];
+let filteredStudents=[];
+window.toggleAddForm=function(){
+const form=document.getElementById("addForm");
+form.classList.toggle("hidden");
+}
+
+/* LOAD STUDENTS */
+window.loadStudents = async function(){
+const std=document.getElementById("stdFilter").value;
+let q;
+if(std){
+q=query(collection(db,"students"),where("course","==",std));
+}else{
+q=collection(db,"students");
+}
+const snapshot=await getDocs(q);
+students=[];
+snapshot.forEach(d=>{
+students.push({id:d.id,...d.data()});
+});
+filteredStudents=[...students];
+renderTable();
+}
+
+/* RENDER TABLE */
+function renderTable(){
+const table=document.getElementById("studentTable");
+const search=document.getElementById("searchInput").value.toLowerCase();
+let data=filteredStudents.filter(s=>
+(s.name||"").toLowerCase().includes(search) ||
+(s.admissionNo||"").toLowerCase().includes(search)
+);
+document.getElementById("studentCount").innerText=data.length;
+table.innerHTML="";
+data.forEach(s=>{
+const row=`
+<tr>
+<td class="border p-2">
+<input type="checkbox" value="${s.id}" class="studentCheck">
+</td>
+<td class="border p-2">${s.admissionNo}</td>
+<td class="border p-2">${s.name}</td>
+<td class="border p-2">${s.course}</td>
+<td class="border p-2">${s.mobile}</td>
+<td class="border p-2">${s.school}</td>
+<td class="border p-2 space-x-2">
+<button onclick="editStudent('${s.id}')" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+<button onclick="deleteStudent('${s.id}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+</td>
+</tr>
+`;
+table.innerHTML+=row;
+});
+}
+
+/* SEARCH */
+document.getElementById("searchInput").addEventListener("input",renderTable);
+
+/* ADD STUDENT */
+window.addStudent = async function(){
+const admissionNo=document.getElementById("admissionNo").value;
+const name=document.getElementById("name").value;
+const course=document.getElementById("course").value;
+const mobile=document.getElementById("mobile").value;
+const school=document.getElementById("school").value;
+if(!admissionNo || !name || !course){
+alert("Fill required fields");
+return;
+}
+await addDoc(collection(db,"students"),{
+admissionNo,
+name,
+course,
+mobile,
+school
+});
+loadStudents();
+}
+
+/* DELETE */
+window.deleteStudent = async function(id){
+if(!confirm("Delete student?")) return;
+await deleteDoc(doc(db,"students",id));
+loadStudents();
+}
+
+/* DELETE SELECTED */
+window.deleteSelected = async function(){
+const checks=document.querySelectorAll(".studentCheck:checked");
+for(const c of checks){
+await deleteDoc(doc(db,"students",c.value));
+}
+loadStudents();
+}
+
+/* DELETE STANDARD */
+window.deleteStandard = async function(){
+const std=document.getElementById("stdFilter").value;
+if(!std) return alert("Select standard");
+if(!confirm("Delete all students of this standard?")) return;
+const q=query(collection(db,"students"),where("course","==",std));
+const snapshot=await getDocs(q);
+for(const d of snapshot.docs){
+await deleteDoc(doc(db,"students",d.id));
+}
+loadStudents();
+}
+
+/* PROMOTE */
+window.promoteStudents = async function(){
+const std=document.getElementById("stdFilter").value;
+if(!std) return alert("Select standard");
+let next;
+if(std.includes("Std. 8")) next="Std. 9 (Gujarati Medium)";
+else if(std.includes("Std. 9")) next="Std. 10 (Gujarati Medium)";
+else return alert("Std 10 cannot promote");
+const q=query(collection(db,"students"),where("course","==",std));
+const snapshot=await getDocs(q);
+for(const d of snapshot.docs){
+await updateDoc(doc(db,"students",d.id),{course:next});
+}
+loadStudents();
+}
+
+/* EXPORT EXCEL */
+window.exportExcel=function(){
+const data=filteredStudents.map(s=>({
+Admission:s.admissionNo,
+Name:s.name,
+Standard:s.course,
+Mobile:s.mobile,
+School:s.school
+}));
+const ws=XLSX.utils.json_to_sheet(data);
+const wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,"Students");
+XLSX.writeFile(wb,"students.xlsx");
+}
+
+/* EXPORT PDF */
+window.exportPDF=function(){
+const { jsPDF } = window.jspdf;
+const doc=new jsPDF();
+let y=20;
+doc.setFontSize(16);
+doc.text("Suraj English Academy - Student List",105,10,null,null,"center");
+doc.setFontSize(10);
+filteredStudents.forEach(s=>{
+if(y>280){
+doc.addPage();
+y=20;
+}
+const row=`${s.admissionNo} | ${s.name} | ${s.course} | ${s.mobile}`;
+doc.text(row,10,y);
+y+=7;
+});
+doc.save("students.pdf");
+}
+
+/* EDIT */
+window.editStudent=function(id){
+const student=students.find(s=>s.id===id);
+if(!student) return;
+document.getElementById("editId").value=id;
+document.getElementById("editAdmission").value=student.admissionNo;
+document.getElementById("editName").value=student.name;
+document.getElementById("editCourse").value=student.course;
+document.getElementById("editMobile").value=student.mobile;
+document.getElementById("editSchool").value=student.school;
+document.getElementById("editModal").classList.remove("hidden");
+document.getElementById("editModal").classList.add("flex");
+}
+window.closeEdit=function(){
+document.getElementById("editModal").classList.add("hidden");
+}
+window.updateStudent=async function(){
+const id=document.getElementById("editId").value;
+await updateDoc(doc(db,"students",id),{
+admissionNo:document.getElementById("editAdmission").value,
+name:document.getElementById("editName").value,
+course:document.getElementById("editCourse").value,
+mobile:document.getElementById("editMobile").value,
+school:document.getElementById("editSchool").value
+});
+closeEdit();
+loadStudents();
+}
+
+/* CSV IMPORT */
+window.importCSV=function(){
+const file=document.getElementById("csvFile").files[0];
+if(!file) return alert("Select CSV");
+Papa.parse(file,{
+header:true,
+complete:async function(results){
+for(const row of results.data){
+if(!row["Admission No"]) continue;
+await addDoc(collection(db,"students"),{
+admissionNo:row["Admission No"],
+name:row["Name"],
+course:row["Course"],
+mobile:row["Mobile"],
+school:row["School"]
+});
+}
+loadStudents();
+}
+});
+}
+</script>
+</body>
+</html>
