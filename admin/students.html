@@ -363,5 +363,56 @@ loadStudents();
 });
 }
 </script>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* CHECK LOGIN */
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+window.location="login.html";
+
+}
+
+});
+
+/* LOGOUT */
+
+window.logout=function(){
+
+signOut(auth).then(()=>{
+window.location="login.html";
+});
+
+}
+
+</script>
+
 </body>
 </html>
