@@ -1,161 +1,237 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Panel | Suraj English Academy</title>
+<title>Suraj English Academy ERP</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 </head>
 
 <body class="bg-gray-100">
 
-<!-- LOGIN -->
 
-<div id="loginScreen" class="min-h-screen flex items-center justify-center p-6">
+<!-- LOGIN PAGE -->
 
-<div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm">
+<div id="loginPage" class="flex items-center justify-center h-screen">
 
-<h2 class="text-2xl font-bold text-center mb-6 text-green-700">
+<div class="bg-white p-8 rounded-xl shadow w-80">
+
+<h2 class="text-xl font-bold mb-6 text-center">
 Admin Login
 </h2>
 
-<input
-type="password"
-id="adminPassword"
-placeholder="Enter Admin Password"
-class="border p-3 rounded-lg w-full mb-4"
-/>
+<input id="email" placeholder="Email"
+class="border p-3 w-full mb-4 rounded">
 
-<button onclick="checkLogin()"
-class="bg-green-600 text-white w-full py-3 rounded-lg">
+<input id="password" type="password"
+placeholder="Password"
+class="border p-3 w-full mb-4 rounded">
+
+<button onclick="login()"
+class="bg-blue-600 text-white w-full py-3 rounded">
 Login
 </button>
 
 </div>
+
 </div>
 
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN APP -->
 
-<div id="adminPanel" class="hidden p-6">
+<div id="app" class="hidden">
 
-<h1 class="text-3xl font-bold text-green-700 mb-6">
-Suraj English Academy – Admissions
-</h1>
+<div class="flex">
 
+<!-- SIDEBAR -->
+
+<div class="w-60 bg-blue-900 text-white min-h-screen p-4">
+
+<h2 class="text-xl font-bold mb-6">
+Academy ERP
+</h2>
+
+<ul class="space-y-3">
+
+<li><button onclick="showPage('dashboard')">Dashboard</button></li>
+
+<li><button onclick="showPage('students')">Students</button></li>
+
+<li><button onclick="showPage('fees')">Fees</button></li>
+
+<li><button onclick="showPage('results')">Results</button></li>
+
+<li><button onclick="logout()">Logout</button></li>
+
+</ul>
+
+</div>
+
+
+<!-- CONTENT -->
+
+<div class="flex-1 p-6">
 
 <!-- DASHBOARD -->
 
-<div class="grid md:grid-cols-4 gap-4 mb-6">
+<div id="dashboardPage">
 
-<div class="bg-white p-4 rounded-xl shadow text-center">
-<p class="text-gray-500 text-sm">Total Students</p>
-<p id="totalStudents" class="text-2xl font-bold text-green-700">0</p>
+<h1 class="text-2xl font-bold mb-6">
+Dashboard
+</h1>
+
+<div class="grid md:grid-cols-3 gap-6">
+
+<div class="bg-white p-6 rounded shadow">
+<p>Total Students</p>
+<p id="totalStudents" class="text-2xl font-bold">0</p>
 </div>
 
-<div class="bg-white p-4 rounded-xl shadow text-center">
-<p class="text-gray-500 text-sm">Std 8</p>
-<p id="std8Count" class="text-2xl font-bold">0</p>
+<div class="bg-white p-6 rounded shadow">
+<p>Total Fees Collected</p>
+<p id="totalFees" class="text-2xl font-bold">0</p>
 </div>
 
-<div class="bg-white p-4 rounded-xl shadow text-center">
-<p class="text-gray-500 text-sm">Std 9</p>
-<p id="std9Count" class="text-2xl font-bold">0</p>
+<div class="bg-white p-6 rounded shadow">
+<p>Total Results</p>
+<p id="totalResults" class="text-2xl font-bold">0</p>
 </div>
 
-<div class="bg-white p-4 rounded-xl shadow text-center">
-<p class="text-gray-500 text-sm">Std 10</p>
-<p id="std10Count" class="text-2xl font-bold">0</p>
 </div>
 
 </div>
 
 
-<!-- CONTROLS -->
+<!-- STUDENTS PAGE -->
 
-<div class="flex flex-col md:flex-row gap-4 mb-6">
+<div id="studentsPage" class="hidden">
 
-<input
-id="searchInput"
-placeholder="Search student..."
-class="border p-3 rounded-lg w-full md:w-1/3"
-/>
+<h2 class="text-xl font-bold mb-4">Add Student</h2>
 
-<select id="courseFilter"
-class="border p-3 rounded-lg w-full md:w-1/4">
+<div class="grid md:grid-cols-5 gap-2 mb-4">
 
-<option value="">All Courses</option>
-<option value="Std. 8">Std 8</option>
-<option value="Std. 9">Std 9</option>
-<option value="Std. 10">Std 10</option>
+<input id="admissionNo" placeholder="Admission No"
+class="border p-2 rounded">
+
+<input id="name" placeholder="Name"
+class="border p-2 rounded">
+
+<select id="course" class="border p-2 rounded">
+
+<option value="">Standard</option>
+
+<option>Std. 8 (English Medium)</option>
+<option>Std. 8 (Gujarati Medium)</option>
+<option>Std. 9 (Gujarati Medium)</option>
+<option>Std. 10 (Gujarati Medium)</option>
 
 </select>
 
-<button onclick="downloadExcel()"
-class="bg-blue-600 text-white px-4 py-3 rounded-lg">
-Download Excel
-</button>
+<input id="mobile" placeholder="Mobile"
+class="border p-2 rounded">
+
+<input id="school" placeholder="School"
+class="border p-2 rounded">
 
 </div>
 
+<button onclick="addStudent()"
+class="bg-green-600 text-white px-6 py-2 rounded mb-4">
+Add Student
+</button>
 
-<!-- TABLE -->
+<table class="w-full border bg-white">
 
-<div class="overflow-x-auto bg-white rounded-xl shadow">
-
-<table class="min-w-full text-sm">
-
-<thead class="bg-green-600 text-white">
+<thead class="bg-gray-200">
 
 <tr>
-<th class="p-3 text-left">Admission</th>
-<th class="p-3 text-left">Name</th>
-<th class="p-3 text-left">Course</th>
-<th class="p-3 text-left">Mobile</th>
-<th class="p-3 text-left">DOB</th>
-<th class="p-3 text-left">Age</th>
-<th class="p-3 text-left">School</th>
-<th class="p-3 text-left">Action</th>
+<th class="p-2 border">Admission</th>
+<th class="p-2 border">Name</th>
+<th class="p-2 border">Standard</th>
+<th class="p-2 border">Mobile</th>
+<th class="p-2 border">Action</th>
 </tr>
 
 </thead>
 
-<tbody id="tableBody"></tbody>
+<tbody id="studentTable"></tbody>
 
 </table>
 
 </div>
 
+
+
+<!-- FEES PAGE -->
+
+<div id="feesPage" class="hidden">
+
+<h2 class="text-xl font-bold mb-4">Fees Collection</h2>
+
+<select id="feeStudent" class="border p-3 rounded w-full mb-4"></select>
+
+<div class="grid grid-cols-3 gap-4 mb-4">
+
+<input type="date" id="feeDate"
+class="border p-3 rounded">
+
+<input type="number" id="feeAmount"
+placeholder="Amount"
+class="border p-3 rounded">
+
+<select id="paymentType" class="border p-3 rounded">
+
+<option>Cash</option>
+<option>UPI</option>
+
+</select>
+
 </div>
 
-
-<!-- PROFILE MODAL -->
-
-<div id="profileModal"
-class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-6">
-
-<div class="bg-white rounded-xl p-6 w-full max-w-lg">
-
-<h2 class="text-xl font-bold mb-4">
-Student Profile
-</h2>
-
-<div id="profileContent" class="space-y-2 text-sm"></div>
-
-<div class="flex gap-3 mt-4">
-
-<button onclick="printReceipt()"
-class="bg-green-600 text-white px-4 py-2 rounded">
-Print Receipt
+<button onclick="saveFee()"
+class="bg-blue-600 text-white px-6 py-2 rounded">
+Save Fee
 </button>
 
-<button onclick="closeProfile()"
-class="bg-gray-300 px-4 py-2 rounded">
-Close
+</div>
+
+
+
+<!-- RESULT PAGE -->
+
+<div id="resultsPage" class="hidden">
+
+<h2 class="text-xl font-bold mb-4">Enter Results</h2>
+
+<input id="examName" placeholder="Exam Name"
+class="border p-3 rounded mb-4">
+
+<table class="w-full border bg-white">
+
+<thead class="bg-gray-200">
+
+<tr>
+<th class="p-2 border">Admission</th>
+<th class="p-2 border">Name</th>
+<th class="p-2 border">Marks</th>
+</tr>
+
+</thead>
+
+<tbody id="resultTable"></tbody>
+
+</table>
+
+<button onclick="saveResults()"
+class="bg-green-600 text-white px-6 py-2 rounded mt-4">
+Save Results
 </button>
 
 </div>
@@ -163,295 +239,275 @@ Close
 </div>
 
 </div>
+
+</div>
+
 
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 
 import {
 getFirestore,
 collection,
 getDocs,
+addDoc,
 deleteDoc,
-doc,
-updateDoc
+doc
 }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+import {
+getAuth,
+signInWithEmailAndPassword,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
-const firebaseConfig = {
-apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
-authDomain: "suraj-english-academy-7141e.firebaseapp.com",
-projectId: "suraj-english-academy-7141e",
-storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
-messagingSenderId: "291322319555",
-appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+
+const firebaseConfig={
+
+apiKey:"YOUR_API_KEY",
+authDomain:"suraj-english-academy-7141e.firebaseapp.com",
+projectId:"suraj-english-academy-7141e"
+
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-let allData=[];
-let currentStudent=null;
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
 
-const tableBody=document.getElementById("tableBody");
 
-function calcAge(dob){
+let students=[];
 
-const birth=new Date(dob);
-const today=new Date();
 
-let age=today.getFullYear()-birth.getFullYear();
 
-const m=today.getMonth()-birth.getMonth();
+/* LOGIN */
 
-if(m<0 || (m===0 && today.getDate()<birth.getDate())){
-age--;
+window.login=async function(){
+
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+await signInWithEmailAndPassword(auth,email,password);
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="block";
+
+loadDashboard();
+loadStudents();
+
+};
+
+
+/* LOGOUT */
+
+window.logout=function(){
+
+signOut(auth);
+location.reload();
+
+};
+
+
+
+/* PAGE NAVIGATION */
+
+window.showPage=function(page){
+
+document.getElementById("dashboardPage").style.display="none";
+document.getElementById("studentsPage").style.display="none";
+document.getElementById("feesPage").style.display="none";
+document.getElementById("resultsPage").style.display="none";
+
+document.getElementById(page+"Page").style.display="block";
+
+};
+
+
+
+/* DASHBOARD */
+
+async function loadDashboard(){
+
+const s=await getDocs(collection(db,"students"));
+const f=await getDocs(collection(db,"fees"));
+const r=await getDocs(collection(db,"results"));
+
+let feeTotal=0;
+
+f.forEach(d=>feeTotal+=d.data().amount||0);
+
+document.getElementById("totalStudents").innerText=s.size;
+document.getElementById("totalFees").innerText="₹ "+feeTotal;
+document.getElementById("totalResults").innerText=r.size;
+
 }
 
-return age;
-
-}
 
 
-async function loadAdmissions(){
+/* LOAD STUDENTS */
 
-const snapshot=await getDocs(collection(db,"admissions"));
+async function loadStudents(){
 
-allData=[];
+const snapshot=await getDocs(collection(db,"students"));
 
-snapshot.forEach(docSnap=>{
-const data=docSnap.data();
-data.id=docSnap.id;
-allData.push(data);
-});
+students=[];
 
-renderTable(allData);
-updateDashboard();
+const table=document.getElementById("studentTable");
+const feeDropdown=document.getElementById("feeStudent");
+const resultTable=document.getElementById("resultTable");
 
-}
+table.innerHTML="";
+feeDropdown.innerHTML="";
+resultTable.innerHTML="";
+
+snapshot.forEach(d=>{
+
+const data=d.data();
+
+students.push({id:d.id,...data});
 
 
-function renderTable(data){
-
-tableBody.innerHTML="";
-
-data.forEach(student=>{
-
-const age=calcAge(student.dob);
-
-const row=document.createElement("tr");
-
-row.classList.add("border-b");
-
-row.innerHTML=`
-
-<td class="p-3">${student.admissionNo}</td>
-<td class="p-3">${student.surname} ${student.name}</td>
-<td class="p-3">${student.course}</td>
-<td class="p-3">${student.mobile}</td>
-<td class="p-3">${student.dob}</td>
-<td class="p-3">${age}</td>
-<td class="p-3">${student.school}</td>
-
-<td class="p-3 space-x-2">
-
-<button onclick="viewStudent('${student.id}')"
-class="bg-blue-600 text-white px-2 py-1 rounded">
-View
-</button>
-
-<button onclick="deleteStudent('${student.id}')"
+table.innerHTML+=`
+<tr>
+<td class="border p-2">${data.admissionNo}</td>
+<td class="border p-2">${data.name}</td>
+<td class="border p-2">${data.course}</td>
+<td class="border p-2">${data.mobile}</td>
+<td class="border p-2">
+<button onclick="deleteStudent('${d.id}')"
 class="bg-red-500 text-white px-2 py-1 rounded">
 Delete
 </button>
-
 </td>
-
+</tr>
 `;
 
-tableBody.appendChild(row);
+feeDropdown.innerHTML+=`
+<option value="${data.admissionNo}">
+${data.name} (${data.admissionNo})
+</option>
+`;
+
+resultTable.innerHTML+=`
+<tr>
+<td class="border p-2">${data.admissionNo}</td>
+<td class="border p-2">${data.name}</td>
+<td class="border p-2">
+<input type="number"
+class="border p-1 rounded"
+id="mark_${data.admissionNo}">
+</td>
+</tr>
+`;
 
 });
 
 }
 
 
-function updateDashboard(){
 
-document.getElementById("totalStudents").innerText=allData.length;
+/* ADD STUDENT */
 
-document.getElementById("std8Count").innerText=
-allData.filter(s=>s.course.includes("Std. 8")).length;
+window.addStudent=async function(){
 
-document.getElementById("std9Count").innerText=
-allData.filter(s=>s.course.includes("Std. 9")).length;
+const admissionNo=document.getElementById("admissionNo").value;
+const name=document.getElementById("name").value;
+const course=document.getElementById("course").value;
+const mobile=document.getElementById("mobile").value;
+const school=document.getElementById("school").value;
 
-document.getElementById("std10Count").innerText=
-allData.filter(s=>s.course.includes("Std. 10")).length;
+await addDoc(collection(db,"students"),{
 
-}
+admissionNo,
+name,
+course,
+mobile,
+school
 
+});
 
-window.viewStudent=function(id){
-
-const student=allData.find(s=>s.id===id);
-
-currentStudent=student;
-
-const age=calcAge(student.dob);
-
-document.getElementById("profileContent").innerHTML=`
-
-<p><b>Admission No:</b> ${student.admissionNo}</p>
-<p><b>Name:</b> ${student.surname} ${student.name} ${student.lastname}</p>
-<p><b>Course:</b> ${student.course}</p>
-<p><b>DOB:</b> ${student.dob}</p>
-<p><b>Age:</b> ${age}</p>
-<p><b>School:</b> ${student.school}</p>
-<p><b>Mobile:</b> ${student.mobile}</p>
-<p><b>Alt Mobile:</b> ${student.altmobile}</p>
-<p><b>WhatsApp:</b> ${student.whatsapp}</p>
-<p><b>Email:</b> ${student.email}</p>
-<p><b>Address:</b> ${student.address}</p>
-
-`;
-
-document.getElementById("profileModal").classList.remove("hidden");
+loadStudents();
 
 };
 
 
-window.closeProfile=function(){
-document.getElementById("profileModal").classList.add("hidden");
-};
 
-
-window.printReceipt=function(){
-
-const s=currentStudent;
-
-const age=calcAge(s.dob);
-
-const receipt=`
-
-<html>
-
-<body style="font-family:Arial;padding:40px">
-
-<h2 style="text-align:center">Suraj English Academy</h2>
-<p style="text-align:center">Admission Receipt</p>
-
-<table border="1" cellpadding="10" width="100%">
-
-<tr><td>Admission No</td><td>${s.admissionNo}</td></tr>
-<tr><td>Name</td><td>${s.surname} ${s.name} ${s.lastname}</td></tr>
-<tr><td>Course</td><td>${s.course}</td></tr>
-<tr><td>DOB</td><td>${s.dob}</td></tr>
-<tr><td>Age</td><td>${age}</td></tr>
-<tr><td>Mobile</td><td>${s.mobile}</td></tr>
-<tr><td>School</td><td>${s.school}</td></tr>
-<tr><td>Address</td><td>${s.address}</td></tr>
-
-</table>
-
-</body>
-
-</html>
-
-`;
-
-const win=window.open("");
-win.document.write(receipt);
-win.print();
-
-};
-
+/* DELETE STUDENT */
 
 window.deleteStudent=async function(id){
 
-if(confirm("Delete this admission?")){
+await deleteDoc(doc(db,"students",id));
 
-await deleteDoc(doc(db,"admissions",id));
-loadAdmissions();
-
-}
+loadStudents();
 
 };
 
 
-document.getElementById("searchInput").addEventListener("keyup",function(){
 
-const value=this.value.toLowerCase();
+/* SAVE FEE */
 
-const filtered=allData.filter(s=>
-(s.name+s.surname+s.mobile).toLowerCase().includes(value)
-);
+window.saveFee=async function(){
 
-renderTable(filtered);
+const admission=document.getElementById("feeStudent").value;
+const date=document.getElementById("feeDate").value;
+const amount=document.getElementById("feeAmount").value;
+const type=document.getElementById("paymentType").value;
 
-});
+await addDoc(collection(db,"fees"),{
 
-
-document.getElementById("courseFilter").addEventListener("change",function(){
-
-const course=this.value;
-
-const filtered=course=="" ? allData :
-allData.filter(s=>s.course.includes(course));
-
-renderTable(filtered);
+admissionNo:admission,
+date,
+amount:Number(amount),
+paymentType:type
 
 });
 
+alert("Fee Saved");
 
-window.downloadExcel=function(){
-
-let csv="Admission No,Name,Course,Mobile,School\n";
-
-allData.forEach(s=>{
-csv+=`${s.admissionNo},"${s.surname} ${s.name}",${s.course},${s.mobile},${s.school}\n`;
-});
-
-const blob=new Blob([csv],{type:"text/csv"});
-const url=URL.createObjectURL(blob);
-
-const a=document.createElement("a");
-a.href=url;
-a.download="admissions.csv";
-a.click();
+loadDashboard();
 
 };
 
 
-loadAdmissions();
 
-</script>
+/* SAVE RESULTS */
 
+window.saveResults=async function(){
 
-<script>
+const examName=document.getElementById("examName").value;
 
-function checkLogin(){
+for(const s of students){
 
-const password=document.getElementById("adminPassword").value;
+const marks=document.getElementById("mark_"+s.admissionNo).value;
 
-if(password==="SEA2026ADMIN"){
+if(!marks) continue;
 
-document.getElementById("loginScreen").style.display="none";
-document.getElementById("adminPanel").classList.remove("hidden");
+await addDoc(collection(db,"results"),{
+
+admissionNo:s.admissionNo,
+name:s.name,
+standard:s.course,
+marks:Number(marks),
+examName
+
+});
 
 }
 
-else{
+alert("Results Saved");
 
-alert("Wrong password");
+loadDashboard();
 
-}
-
-}
+};
 
 </script>
 
 </body>
+
 </html>

@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Panel | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100">
+
+<!-- LOGIN -->
+
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-6">
+
+<div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm">
+
+<h2 class="text-2xl font-bold text-center mb-6 text-green-700">
+Admin Login
+</h2>
+
+<input
+type="password"
+id="adminPassword"
+placeholder="Enter Admin Password"
+class="border p-3 rounded-lg w-full mb-4"
+/>
+
+<button onclick="checkLogin()"
+class="bg-green-600 text-white w-full py-3 rounded-lg">
+Login
+</button>
+
+</div>
+</div>
+
+
+<!-- ADMIN PANEL -->
+
+<div id="adminPanel" class="hidden p-6">
+
+<h1 class="text-3xl font-bold text-green-700 mb-6">
+Suraj English Academy – Admissions
+</h1>
+
+
+<!-- DASHBOARD -->
+
+<div class="grid md:grid-cols-4 gap-4 mb-6">
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+<p class="text-gray-500 text-sm">Total Students</p>
+<p id="totalStudents" class="text-2xl font-bold text-green-700">0</p>
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+<p class="text-gray-500 text-sm">Std 8</p>
+<p id="std8Count" class="text-2xl font-bold">0</p>
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+<p class="text-gray-500 text-sm">Std 9</p>
+<p id="std9Count" class="text-2xl font-bold">0</p>
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+<p class="text-gray-500 text-sm">Std 10</p>
+<p id="std10Count" class="text-2xl font-bold">0</p>
+</div>
+
+</div>
+
+
+<!-- CONTROLS -->
+
+<div class="flex flex-col md:flex-row gap-4 mb-6">
+
+<input
+id="searchInput"
+placeholder="Search student..."
+class="border p-3 rounded-lg w-full md:w-1/3"
+/>
+
+<select id="courseFilter"
+class="border p-3 rounded-lg w-full md:w-1/4">
+
+<option value="">All Courses</option>
+<option value="Std. 8">Std 8</option>
+<option value="Std. 9">Std 9</option>
+<option value="Std. 10">Std 10</option>
+
+</select>
+
+<button onclick="downloadExcel()"
+class="bg-blue-600 text-white px-4 py-3 rounded-lg">
+Download Excel
+</button>
+
+</div>
+
+
+<!-- TABLE -->
+
+<div class="overflow-x-auto bg-white rounded-xl shadow">
+
+<table class="min-w-full text-sm">
+
+<thead class="bg-green-600 text-white">
+
+<tr>
+<th class="p-3 text-left">Admission</th>
+<th class="p-3 text-left">Name</th>
+<th class="p-3 text-left">Course</th>
+<th class="p-3 text-left">Mobile</th>
+<th class="p-3 text-left">DOB</th>
+<th class="p-3 text-left">Age</th>
+<th class="p-3 text-left">School</th>
+<th class="p-3 text-left">Action</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- PROFILE MODAL -->
+
+<div id="profileModal"
+class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-6">
+
+<div class="bg-white rounded-xl p-6 w-full max-w-lg">
+
+<h2 class="text-xl font-bold mb-4">
+Student Profile
+</h2>
+
+<div id="profileContent" class="space-y-2 text-sm"></div>
+
+<div class="flex gap-3 mt-4">
+
+<button onclick="printReceipt()"
+class="bg-green-600 text-white px-4 py-2 rounded">
+Print Receipt
+</button>
+
+<button onclick="closeProfile()"
+class="bg-gray-300 px-4 py-2 rounded">
+Close
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+deleteDoc,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let allData=[];
+let currentStudent=null;
+
+const tableBody=document.getElementById("tableBody");
+
+function calcAge(dob){
+
+const birth=new Date(dob);
+const today=new Date();
+
+let age=today.getFullYear()-birth.getFullYear();
+
+const m=today.getMonth()-birth.getMonth();
+
+if(m<0 || (m===0 && today.getDate()<birth.getDate())){
+age--;
+}
+
+return age;
+
+}
+
+
+async function loadAdmissions(){
+
+const snapshot=await getDocs(collection(db,"admissions"));
+
+allData=[];
+
+snapshot.forEach(docSnap=>{
+const data=docSnap.data();
+data.id=docSnap.id;
+allData.push(data);
+});
+
+renderTable(allData);
+updateDashboard();
+
+}
+
+
+function renderTable(data){
+
+tableBody.innerHTML="";
+
+data.forEach(student=>{
+
+const age=calcAge(student.dob);
+
+const row=document.createElement("tr");
+
+row.classList.add("border-b");
+
+row.innerHTML=`
+
+<td class="p-3">${student.admissionNo}</td>
+<td class="p-3">${student.surname} ${student.name}</td>
+<td class="p-3">${student.course}</td>
+<td class="p-3">${student.mobile}</td>
+<td class="p-3">${student.dob}</td>
+<td class="p-3">${age}</td>
+<td class="p-3">${student.school}</td>
+
+<td class="p-3 space-x-2">
+
+<button onclick="viewStudent('${student.id}')"
+class="bg-blue-600 text-white px-2 py-1 rounded">
+View
+</button>
+
+<button onclick="deleteStudent('${student.id}')"
+class="bg-red-500 text-white px-2 py-1 rounded">
+Delete
+</button>
+
+</td>
+
+`;
+
+tableBody.appendChild(row);
+
+});
+
+}
+
+
+function updateDashboard(){
+
+document.getElementById("totalStudents").innerText=allData.length;
+
+document.getElementById("std8Count").innerText=
+allData.filter(s=>s.course.includes("Std. 8")).length;
+
+document.getElementById("std9Count").innerText=
+allData.filter(s=>s.course.includes("Std. 9")).length;
+
+document.getElementById("std10Count").innerText=
+allData.filter(s=>s.course.includes("Std. 10")).length;
+
+}
+
+
+window.viewStudent=function(id){
+
+const student=allData.find(s=>s.id===id);
+
+currentStudent=student;
+
+const age=calcAge(student.dob);
+
+document.getElementById("profileContent").innerHTML=`
+
+<p><b>Admission No:</b> ${student.admissionNo}</p>
+<p><b>Name:</b> ${student.surname} ${student.name} ${student.lastname}</p>
+<p><b>Course:</b> ${student.course}</p>
+<p><b>DOB:</b> ${student.dob}</p>
+<p><b>Age:</b> ${age}</p>
+<p><b>School:</b> ${student.school}</p>
+<p><b>Mobile:</b> ${student.mobile}</p>
+<p><b>Alt Mobile:</b> ${student.altmobile}</p>
+<p><b>WhatsApp:</b> ${student.whatsapp}</p>
+<p><b>Email:</b> ${student.email}</p>
+<p><b>Address:</b> ${student.address}</p>
+
+`;
+
+document.getElementById("profileModal").classList.remove("hidden");
+
+};
+
+
+window.closeProfile=function(){
+document.getElementById("profileModal").classList.add("hidden");
+};
+
+
+window.printReceipt=function(){
+
+const s=currentStudent;
+
+const age=calcAge(s.dob);
+
+const receipt=`
+
+<html>
+
+<body style="font-family:Arial;padding:40px">
+
+<h2 style="text-align:center">Suraj English Academy</h2>
+<p style="text-align:center">Admission Receipt</p>
+
+<table border="1" cellpadding="10" width="100%">
+
+<tr><td>Admission No</td><td>${s.admissionNo}</td></tr>
+<tr><td>Name</td><td>${s.surname} ${s.name} ${s.lastname}</td></tr>
+<tr><td>Course</td><td>${s.course}</td></tr>
+<tr><td>DOB</td><td>${s.dob}</td></tr>
+<tr><td>Age</td><td>${age}</td></tr>
+<tr><td>Mobile</td><td>${s.mobile}</td></tr>
+<tr><td>School</td><td>${s.school}</td></tr>
+<tr><td>Address</td><td>${s.address}</td></tr>
+
+</table>
+
+</body>
+
+</html>
+
+`;
+
+const win=window.open("");
+win.document.write(receipt);
+win.print();
+
+};
+
+
+window.deleteStudent=async function(id){
+
+if(confirm("Delete this admission?")){
+
+await deleteDoc(doc(db,"admissions",id));
+loadAdmissions();
+
+}
+
+};
+
+
+document.getElementById("searchInput").addEventListener("keyup",function(){
+
+const value=this.value.toLowerCase();
+
+const filtered=allData.filter(s=>
+(s.name+s.surname+s.mobile).toLowerCase().includes(value)
+);
+
+renderTable(filtered);
+
+});
+
+
+document.getElementById("courseFilter").addEventListener("change",function(){
+
+const course=this.value;
+
+const filtered=course=="" ? allData :
+allData.filter(s=>s.course.includes(course));
+
+renderTable(filtered);
+
+});
+
+
+window.downloadExcel=function(){
+
+let csv="Admission No,Name,Course,Mobile,School\n";
+
+allData.forEach(s=>{
+csv+=`${s.admissionNo},"${s.surname} ${s.name}",${s.course},${s.mobile},${s.school}\n`;
+});
+
+const blob=new Blob([csv],{type:"text/csv"});
+const url=URL.createObjectURL(blob);
+
+const a=document.createElement("a");
+a.href=url;
+a.download="admissions.csv";
+a.click();
+
+};
+
+
+loadAdmissions();
+
+</script>
+
+
+<script>
+
+function checkLogin(){
+
+const password=document.getElementById("adminPassword").value;
+
+if(password==="SEA2026ADMIN"){
+
+document.getElementById("loginScreen").style.display="none";
+document.getElementById("adminPanel").classList.remove("hidden");
+
+}
+
+else{
+
+alert("Wrong password");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
