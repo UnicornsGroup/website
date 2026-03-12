@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Suraj English Academy ERP</title>
+<title>Suraj English Academy Admin</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 </head>
 
 <body class="bg-gray-100">
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE -->
 
 <div id="loginPage" class="flex items-center justify-center h-screen">
 
@@ -44,21 +46,19 @@ Login
 
 
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN APP -->
 
-<div id="app" class="hidden">
-
-<div class="flex flex-col md:flex-row">
+<div id="app" class="hidden flex">
 
 <!-- SIDEBAR -->
 
-<div class="bg-blue-900 text-white p-4 md:w-60">
+<div class="bg-blue-900 text-white w-60 min-h-screen p-5">
 
 <h2 class="text-xl font-bold mb-6">
-Academy ERP
+Academy Admin
 </h2>
 
-<div class="flex md:flex-col gap-4">
+<div class="flex flex-col gap-3">
 
 <button onclick="showPage('dashboard')">Dashboard</button>
 <button onclick="showPage('students')">Students</button>
@@ -72,9 +72,10 @@ Academy ERP
 
 
 
-<!-- CONTENT -->
+<!-- MAIN CONTENT -->
 
-<div class="flex-1 p-4 md:p-8">
+<div class="flex-1 p-6">
+
 
 <!-- DASHBOARD -->
 
@@ -82,21 +83,21 @@ Academy ERP
 
 <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid md:grid-cols-3 gap-6">
 
 <div class="bg-white p-6 rounded shadow">
 <p>Total Students</p>
-<p id="totalStudents" class="text-2xl font-bold">0</p>
+<p id="dashStudents" class="text-2xl font-bold">0</p>
 </div>
 
 <div class="bg-white p-6 rounded shadow">
 <p>Total Fees Collected</p>
-<p id="totalFees" class="text-2xl font-bold">0</p>
+<p id="dashFees" class="text-2xl font-bold">0</p>
 </div>
 
 <div class="bg-white p-6 rounded shadow">
 <p>Total Results</p>
-<p id="totalResults" class="text-2xl font-bold">0</p>
+<p id="dashResults" class="text-2xl font-bold">0</p>
 </div>
 
 </div>
@@ -105,136 +106,35 @@ Academy ERP
 
 
 
-<!-- STUDENTS -->
-
+<!-- STUDENTS PAGE -->
 <div id="studentsPage" class="hidden">
 
-<h2 class="text-xl font-bold mb-4">Add Student</h2>
-
-<div class="grid md:grid-cols-5 gap-3 mb-4">
-
-<input id="admissionNo" placeholder="Admission No"
-class="border p-2 rounded">
-
-<input id="name" placeholder="Name"
-class="border p-2 rounded">
-
-<select id="course" class="border p-2 rounded">
-
-<option value="">Standard</option>
-<option>Std. 8 (English Medium)</option>
-<option>Std. 8 (Gujarati Medium)</option>
-<option>Std. 9 (Gujarati Medium)</option>
-<option>Std. 10 (Gujarati Medium)</option>
-
-</select>
-
-<input id="mobile" placeholder="Mobile"
-class="border p-2 rounded">
-
-<input id="school" placeholder="School"
-class="border p-2 rounded">
-
-</div>
-
-<button onclick="addStudent()"
-class="bg-green-600 text-white px-6 py-2 rounded mb-6">
-Add Student
-</button>
-
-<table class="w-full border bg-white">
-
-<thead class="bg-gray-200">
-
-<tr>
-<th class="p-2 border">Admission</th>
-<th class="p-2 border">Name</th>
-<th class="p-2 border">Standard</th>
-<th class="p-2 border">Mobile</th>
-<th class="p-2 border">Action</th>
-</tr>
-
-</thead>
-
-<tbody id="studentTable"></tbody>
-
-</table>
+<!-- PASTE YOUR FULL STUDENT PAGE CODE HERE
+EXCEPT <html>, <head>, <body> -->
 
 </div>
 
 
 
-<!-- FEES -->
-
+<!-- FEES PAGE -->
 <div id="feesPage" class="hidden">
 
-<h2 class="text-xl font-bold mb-4">Collect Fees</h2>
-
-<select id="feeStudent"
-class="border p-3 rounded w-full mb-4"></select>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-
-<input type="date" id="feeDate"
-class="border p-3 rounded">
-
-<input type="number" id="feeAmount"
-placeholder="Amount"
-class="border p-3 rounded">
-
-<select id="paymentType"
-class="border p-3 rounded">
-
-<option value="Cash">Cash</option>
-<option value="UPI">UPI</option>
-
-</select>
-
-</div>
-
-<button onclick="saveFee()"
-class="bg-blue-600 text-white px-6 py-2 rounded">
-Save Fee
-</button>
+<!-- PASTE YOUR FULL FEES PAGE CODE HERE
+EXCEPT <html>, <head>, <body> -->
 
 </div>
 
 
 
-<!-- RESULTS -->
-
+<!-- RESULT PAGE -->
 <div id="resultsPage" class="hidden">
 
-<h2 class="text-xl font-bold mb-4">Enter Results</h2>
-
-<input id="examName" placeholder="Exam Name"
-class="border p-3 rounded mb-4">
-
-<table class="w-full border bg-white">
-
-<thead class="bg-gray-200">
-
-<tr>
-<th class="p-2 border">Admission</th>
-<th class="p-2 border">Name</th>
-<th class="p-2 border">Marks</th>
-</tr>
-
-</thead>
-
-<tbody id="resultTable"></tbody>
-
-</table>
-
-<button onclick="saveResults()"
-class="bg-green-600 text-white px-6 py-2 rounded mt-4">
-Save Results
-</button>
+<!-- PASTE YOUR FULL RESULT PAGE CODE HERE
+EXCEPT <html>, <head>, <body> -->
 
 </div>
 
 
-</div>
 </div>
 </div>
 
@@ -256,49 +156,24 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
 getFirestore,
 collection,
-getDocs,
-addDoc,
-deleteDoc,
-doc
+getDocs
 }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-
-
 const firebaseConfig = {
+
 apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
 authDomain: "suraj-english-academy-7141e.firebaseapp.com",
 projectId: "suraj-english-academy-7141e",
 storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
 messagingSenderId: "291322319555",
 appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
 };
-
-
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
-let students=[];
-
-
-
-/* AUTH STATE */
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-document.getElementById("loginPage").style.display="none";
-document.getElementById("app").style.display="block";
-
-loadDashboard();
-loadStudents();
-
-}
-
-});
 
 
 
@@ -320,6 +195,23 @@ document.getElementById("loginError").innerText=e.message;
 }
 
 };
+
+
+
+/* AUTH STATE */
+
+onAuthStateChanged(auth,(user)=>{
+
+if(user){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="flex";
+
+loadDashboard();
+
+}
+
+});
 
 
 
@@ -347,179 +239,25 @@ document.getElementById(page+"Page").style.display="block";
 
 
 
-/* DASHBOARD */
+/* DASHBOARD DATA */
 
 async function loadDashboard(){
 
-const s=await getDocs(collection(db,"students"));
-const f=await getDocs(collection(db,"fees"));
-const r=await getDocs(collection(db,"results"));
+const students=await getDocs(collection(db,"students"));
+const fees=await getDocs(collection(db,"fees"));
+const results=await getDocs(collection(db,"results"));
 
-let feeTotal=0;
+let totalFees=0;
 
-f.forEach(d=>{
-feeTotal+=Number(d.data().amount)||0;
+fees.forEach(doc=>{
+totalFees+=Number(doc.data().amount||0);
 });
 
-document.getElementById("totalStudents").innerText=s.size;
-document.getElementById("totalFees").innerText="₹ "+feeTotal;
-document.getElementById("totalResults").innerText=r.size;
+document.getElementById("dashStudents").innerText=students.size;
+document.getElementById("dashFees").innerText="₹ "+totalFees;
+document.getElementById("dashResults").innerText=results.size;
 
 }
-
-
-
-/* LOAD STUDENTS */
-
-async function loadStudents(){
-
-const snapshot=await getDocs(collection(db,"students"));
-
-students=[];
-
-const table=document.getElementById("studentTable");
-const feeDropdown=document.getElementById("feeStudent");
-const resultTable=document.getElementById("resultTable");
-
-table.innerHTML="";
-feeDropdown.innerHTML="";
-resultTable.innerHTML="";
-
-snapshot.forEach(d=>{
-
-const data=d.data();
-
-students.push({id:d.id,...data});
-
-
-table.innerHTML+=`
-<tr>
-<td class="border p-2">${data.admissionNo}</td>
-<td class="border p-2">${data.name}</td>
-<td class="border p-2">${data.course}</td>
-<td class="border p-2">${data.mobile}</td>
-<td class="border p-2">
-<button onclick="deleteStudent('${d.id}')"
-class="bg-red-500 text-white px-2 py-1 rounded">
-Delete
-</button>
-</td>
-</tr>
-`;
-
-feeDropdown.innerHTML+=`
-<option value="${data.admissionNo}">
-${data.name} (${data.admissionNo})
-</option>
-`;
-
-resultTable.innerHTML+=`
-<tr>
-<td class="border p-2">${data.admissionNo}</td>
-<td class="border p-2">${data.name}</td>
-<td class="border p-2">
-<input type="number"
-class="border p-1 rounded"
-id="mark_${data.admissionNo}">
-</td>
-</tr>
-`;
-
-});
-
-}
-
-
-
-/* ADD STUDENT */
-
-window.addStudent=async function(){
-
-const admissionNo=document.getElementById("admissionNo").value;
-const name=document.getElementById("name").value;
-const course=document.getElementById("course").value;
-const mobile=document.getElementById("mobile").value;
-const school=document.getElementById("school").value;
-
-await addDoc(collection(db,"students"),{
-admissionNo,
-name,
-course,
-mobile,
-school
-});
-
-loadStudents();
-
-};
-
-
-
-/* DELETE STUDENT */
-
-window.deleteStudent=async function(id){
-
-await deleteDoc(doc(db,"students",id));
-
-loadStudents();
-
-};
-
-
-
-/* SAVE FEE */
-
-window.saveFee=async function(){
-
-const admission=document.getElementById("feeStudent").value;
-const date=document.getElementById("feeDate").value;
-const amount=document.getElementById("feeAmount").value;
-const type=document.getElementById("paymentType").value;
-
-await addDoc(collection(db,"fees"),{
-admissionNo:admission,
-date,
-amount:Number(amount),
-paymentType:type
-});
-
-alert("Fee Saved");
-
-loadDashboard();
-
-};
-
-
-
-/* SAVE RESULTS */
-
-window.saveResults=async function(){
-
-const examName=document.getElementById("examName").value;
-
-for(const s of students){
-
-const marks=document.getElementById("mark_"+s.admissionNo).value;
-
-if(!marks) continue;
-
-await addDoc(collection(db,"results"),{
-
-admissionNo:s.admissionNo,
-name:s.name,
-standard:s.course,
-marks:Number(marks),
-examName
-
-});
-
-}
-
-alert("Results Saved");
-
-loadDashboard();
-
-};
 
 </script>
 
