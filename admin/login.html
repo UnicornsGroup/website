@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Login</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+<div class="bg-white p-8 rounded-xl shadow w-80">
+
+<h2 class="text-xl font-bold mb-6 text-center">
+Suraj English Academy
+</h2>
+
+<input id="email" placeholder="Email"
+class="border p-3 w-full mb-4 rounded">
+
+<input id="password" type="password"
+placeholder="Password"
+class="border p-3 w-full mb-4 rounded">
+
+<button onclick="login()"
+class="bg-blue-600 text-white w-full py-3 rounded">
+Login
+</button>
+
+<p id="error" class="text-red-500 mt-3 text-sm"></p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getAuth,
+signInWithEmailAndPassword
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = async function(){
+
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+try{
+
+await signInWithEmailAndPassword(auth,email,password);
+
+window.location="students.html";
+
+}catch(e){
+
+document.getElementById("error").innerText=e.message;
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
