@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -12,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
 <script>
-tailwind.config={
+tailwind.config = {
 theme:{
 extend:{
 fontFamily:{
@@ -22,8 +23,7 @@ inter:['Inter']
 colors:{
 primary:{
 500:'#8CC63F',
-600:'#4CAF50',
-700:'#388E3C'
+600:'#4CAF50'
 },
 accent:{
 500:'#F7931E'
@@ -36,13 +36,14 @@ accent:{
 
 </head>
 
+
 <body class="bg-gray-50 font-inter">
 
 <!-- NAVBAR -->
 
 <nav class="bg-white shadow-md sticky top-0 z-50">
 
-<div class="max-w-7xl mx-auto px-4">
+<div class="max-w-6xl mx-auto px-4">
 
 <div class="flex justify-between items-center h-16">
 
@@ -51,20 +52,17 @@ accent:{
 <img src="images/logo.png" class="w-10">
 
 <div>
-
-<h1 class="font-poppins font-bold text-primary-700">
+<h1 class="font-poppins font-bold text-primary-600">
 Suraj English Academy
 </h1>
-
 <p class="text-xs text-gray-500">
 Palanpur
 </p>
-
 </div>
 
 </div>
 
-<a href="index.html" class="text-gray-700 hover:text-primary-600 font-medium">
+<a href="index.html" class="text-gray-600 hover:text-primary-600 font-medium">
 Home
 </a>
 
@@ -73,29 +71,29 @@ Home
 </nav>
 
 
+
 <!-- HEADER -->
 
-<section class="bg-gradient-to-r from-primary-600 to-primary-500 py-14 text-center text-white">
+<section class="bg-gradient-to-r from-primary-600 to-primary-500 text-white text-center py-14">
 
-<h1 class="text-4xl font-poppins font-bold mb-3">
+<h1 class="text-4xl font-poppins font-bold mb-2">
 Student Results
 </h1>
 
 <p class="text-white/90">
-Check latest exam performance
+Check exam results
 </p>
 
 </section>
 
 
-<!-- MAIN CONTENT -->
 
 <div class="max-w-5xl mx-auto px-4 py-10">
 
 
 <!-- SELECT STANDARD -->
 
-<div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
 
 <label class="font-semibold text-gray-700">
 Select Standard
@@ -104,9 +102,9 @@ Select Standard
 <select
 id="stdSelect"
 class="w-full border p-3 rounded-lg mt-2"
-onchange="loadResults()">
+onchange="loadExamDates()">
 
-<option value="">Choose Standard</option>
+<option value="">Select Standard</option>
 
 <option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
 <option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
@@ -116,6 +114,28 @@ onchange="loadResults()">
 </select>
 
 </div>
+
+
+
+<!-- SELECT DATE -->
+
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+
+<label class="font-semibold text-gray-700">
+Select Exam Date
+</label>
+
+<select
+id="dateSelect"
+class="w-full border p-3 rounded-lg mt-2"
+onchange="loadResults()">
+
+<option value="">Select Exam Date</option>
+
+</select>
+
+</div>
+
 
 
 <!-- RESULT CARD -->
@@ -138,7 +158,7 @@ Exam Date: <span id="examDate"></span>
 <tr>
 
 <th class="p-3">Sr No</th>
-<th class="p-3 text-left">Student Name</th>
+<th class="p-3 text-left">Name</th>
 <th class="p-3">Marks</th>
 
 </tr>
@@ -154,6 +174,7 @@ Exam Date: <span id="examDate"></span>
 </div>
 
 </div>
+
 
 
 <script type="module">
@@ -182,14 +203,70 @@ appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 
 
+/* FETCH EXAM DATES */
+
+window.loadExamDates = async function(){
+
+const std = document.getElementById("stdSelect").value;
+
+const q = query(
+collection(db,"results"),
+where("standard","==",std)
+);
+
+const snapshot = await getDocs(q);
+
+let dates=[];
+
+snapshot.forEach(doc=>{
+dates.push(doc.data().examDate);
+});
+
+/* UNIQUE DATES */
+
+dates=[...new Set(dates)];
+
+
+/* SORT DD/MM/YYYY LATEST → OLDEST */
+
+dates.sort((a,b)=>{
+
+let d1=a.split("/").reverse().join("");
+let d2=b.split("/").reverse().join("");
+
+return d2-d1;
+
+});
+
+
+const dropdown=document.getElementById("dateSelect");
+
+dropdown.innerHTML=`<option value="">Select Exam Date</option>`;
+
+dates.forEach(date=>{
+
+dropdown.innerHTML+=`
+<option value="${date}">
+${date}
+</option>
+`;
+
+});
+
+};
+
+
+
+/* LOAD RESULTS */
+
 window.loadResults = async function(){
 
 const std=document.getElementById("stdSelect").value;
+const date=document.getElementById("dateSelect").value;
 
 const q=query(
 collection(db,"results"),
@@ -201,7 +278,13 @@ const snapshot=await getDocs(q);
 let results=[];
 
 snapshot.forEach(doc=>{
-results.push(doc.data());
+
+const r=doc.data();
+
+if(r.examDate===date){
+results.push(r);
+}
+
 });
 
 if(results.length===0){
@@ -214,34 +297,23 @@ return;
 }
 
 
-/* FIND LATEST DATE */
-
-let latestDate = results
-.map(r=>r.examDate)
-.sort()
-.reverse()[0];
-
-
-let latestResults = results.filter(r=>r.examDate===latestDate);
-
-
 /* SORT HIGH → LOW */
 
-latestResults.sort((a,b)=>b.marks-a.marks);
+results.sort((a,b)=>b.marks-a.marks);
 
 
 /* SET TITLE */
 
 document.getElementById("examTitle").innerText =
-latestResults[0].examName;
+results[0].examName;
 
 document.getElementById("examDate").innerText =
-latestDate;
+date;
 
 
 /* TOP 3 UNIQUE MARKS */
 
-let uniqueMarks=[...new Set(latestResults.map(r=>r.marks))];
+let uniqueMarks=[...new Set(results.map(r=>r.marks))];
 
 uniqueMarks.sort((a,b)=>b-a);
 
@@ -256,7 +328,7 @@ table.innerHTML="";
 
 let sr=1;
 
-latestResults.forEach(r=>{
+results.forEach(r=>{
 
 let highlight = top3.includes(r.marks);
 
@@ -278,9 +350,10 @@ sr++;
 
 });
 
-}
+};
 
 </script>
+
 
 </body>
 </html>
