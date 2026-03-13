@@ -177,28 +177,43 @@ async function loadResults(){
 
 const std = document.getElementById("stdSelect").value;
 
-if(!std) return;
+if(!std){
+alert("Please select standard");
+return;
+}
 
 const q = query(
 collection(db,"results"),
-where("course","==",std),
-orderBy("examDate","desc"),
-limit(50)
+where("course","==",std)
 );
 
 const snapshot = await getDocs(q);
 
 const table = document.getElementById("resultTable");
 
-table.innerHTML = "";
+table.innerHTML="";
+
+if(snapshot.empty){
+
+table.innerHTML=`
+<tr>
+<td colspan="4" class="p-4 text-center text-gray-500">
+No results found
+</td>
+</tr>
+`;
+
+return;
+
+}
 
 snapshot.forEach(doc=>{
 
-const r = doc.data();
+const r=doc.data();
 
-table.innerHTML += `
+table.innerHTML+=`
 
-<tr class="border-b hover:bg-gray-50">
+<tr class="border-b">
 
 <td class="p-3 font-medium">${r.name}</td>
 
@@ -206,9 +221,7 @@ table.innerHTML += `
 
 <td class="p-3">${r.examDate}</td>
 
-<td class="p-3 font-bold text-primary-600">
-${r.marks}
-</td>
+<td class="p-3 font-bold text-green-600">${r.marks}</td>
 
 </tr>
 
