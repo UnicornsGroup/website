@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
 <script>
-tailwind.config = {
+tailwind.config={
 theme:{
 extend:{
 fontFamily:{
@@ -20,8 +20,14 @@ poppins:['Poppins'],
 inter:['Inter']
 },
 colors:{
-primary:{600:'#4CAF50'},
-accent:{500:'#F7931E'}
+primary:{
+500:'#8CC63F',
+600:'#4CAF50',
+700:'#388E3C'
+},
+accent:{
+500:'#F7931E'
+}
 }
 }
 }
@@ -45,42 +51,51 @@ accent:{500:'#F7931E'}
 <img src="images/logo.png" class="w-10">
 
 <div>
-<p class="font-bold text-primary-600">Suraj English Academy</p>
-<p class="text-xs text-gray-500">Palanpur</p>
-</div>
+
+<h1 class="font-poppins font-bold text-primary-700">
+Suraj English Academy
+</h1>
+
+<p class="text-xs text-gray-500">
+Palanpur
+</p>
 
 </div>
 
-<a href="index.html" class="text-gray-600 hover:text-primary-600">
+</div>
+
+<a href="index.html" class="text-gray-700 hover:text-primary-600 font-medium">
 Home
 </a>
 
 </div>
 </div>
-
 </nav>
 
 
-<!-- PAGE HEADER -->
+<!-- HEADER -->
 
-<section class="py-16 bg-gradient-to-r from-green-600 to-green-500 text-white text-center">
+<section class="bg-gradient-to-r from-primary-600 to-primary-500 py-14 text-center text-white">
 
-<h1 class="text-4xl font-poppins font-bold mb-2">
+<h1 class="text-4xl font-poppins font-bold mb-3">
 Student Results
 </h1>
 
 <p class="text-white/90">
-Check recently uploaded exam results
+Check latest exam performance
 </p>
 
 </section>
 
 
-<!-- RESULT SECTION -->
+<!-- MAIN CONTENT -->
 
-<div class="max-w-6xl mx-auto px-4 py-12">
+<div class="max-w-5xl mx-auto px-4 py-10">
 
-<div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+
+<!-- SELECT STANDARD -->
+
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
 
 <label class="font-semibold text-gray-700">
 Select Standard
@@ -88,7 +103,8 @@ Select Standard
 
 <select
 id="stdSelect"
-class="w-full mt-2 border p-3 rounded-lg">
+class="w-full border p-3 rounded-lg mt-2"
+onchange="loadResults()">
 
 <option value="">Choose Standard</option>
 
@@ -102,24 +118,28 @@ class="w-full mt-2 border p-3 rounded-lg">
 </div>
 
 
+<!-- RESULT CARD -->
+
 <div class="bg-white rounded-2xl shadow-lg p-6">
 
-<h2 class="text-xl font-bold mb-4">
-Latest Results
-</h2>
+<h2 id="examTitle" class="text-2xl font-poppins font-bold text-center"></h2>
+
+<p class="text-center text-gray-600 mb-6">
+Exam Date: <span id="examDate"></span>
+</p>
+
 
 <div class="overflow-x-auto">
 
-<table class="w-full">
+<table class="w-full border">
 
 <thead class="bg-gray-100">
 
 <tr>
 
-<th class="p-3 text-left">Student</th>
-<th class="p-3 text-left">Exam</th>
-<th class="p-3 text-left">Date</th>
-<th class="p-3 text-left">Marks</th>
+<th class="p-3">Sr No</th>
+<th class="p-3 text-left">Student Name</th>
+<th class="p-3">Marks</th>
 
 </tr>
 
@@ -136,7 +156,6 @@ Latest Results
 </div>
 
 
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -146,10 +165,9 @@ getFirestore,
 collection,
 query,
 where,
-orderBy,
-limit,
 getDocs
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 
 const firebaseConfig = {
@@ -169,58 +187,94 @@ const db = getFirestore(app);
 
 
 
-document.getElementById("stdSelect").addEventListener("change",loadResults);
+window.loadResults = async function(){
 
+const std=document.getElementById("stdSelect").value;
 
-
-async function loadResults(){
-
-const std = document.getElementById("stdSelect").value;
-
-const q = query(
+const q=query(
 collection(db,"results"),
 where("standard","==",std)
 );
 
-const snapshot = await getDocs(q);
+const snapshot=await getDocs(q);
 
-const table = document.getElementById("resultTable");
+let results=[];
 
-table.innerHTML="";
+snapshot.forEach(doc=>{
+results.push(doc.data());
+});
 
-if(snapshot.empty){
+if(results.length===0){
 
-table.innerHTML=`
-<tr>
-<td colspan="4" class="p-4 text-center text-gray-500">
-No results found
-</td>
-</tr>
-`;
+document.getElementById("resultTable").innerHTML=
+`<tr><td colspan="3" class="p-4 text-center">No results</td></tr>`;
 
 return;
 
 }
 
-snapshot.forEach(doc=>{
 
-const r=doc.data();
+/* FIND LATEST DATE */
+
+let latestDate = results
+.map(r=>r.examDate)
+.sort()
+.reverse()[0];
+
+
+let latestResults = results.filter(r=>r.examDate===latestDate);
+
+
+/* SORT HIGH → LOW */
+
+latestResults.sort((a,b)=>b.marks-a.marks);
+
+
+/* SET TITLE */
+
+document.getElementById("examTitle").innerText =
+latestResults[0].examName;
+
+document.getElementById("examDate").innerText =
+latestDate;
+
+
+/* TOP 3 UNIQUE MARKS */
+
+let uniqueMarks=[...new Set(latestResults.map(r=>r.marks))];
+
+uniqueMarks.sort((a,b)=>b-a);
+
+let top3=uniqueMarks.slice(0,3);
+
+
+/* CREATE TABLE */
+
+const table=document.getElementById("resultTable");
+
+table.innerHTML="";
+
+let sr=1;
+
+latestResults.forEach(r=>{
+
+let highlight = top3.includes(r.marks);
 
 table.innerHTML+=`
 
-<tr class="border-b hover:bg-gray-50">
+<tr class="${highlight ? 'bg-yellow-100 font-semibold' : ''}">
 
-<td class="p-3 font-medium">${r.name}</td>
+<td class="p-3 text-center">${sr}</td>
 
-<td class="p-3">${r.examName}</td>
+<td class="p-3">${r.name}</td>
 
-<td class="p-3">${r.examDate}</td>
-
-<td class="p-3 font-bold text-green-600">${r.marks}</td>
+<td class="p-3 text-center font-bold">${r.marks}</td>
 
 </tr>
 
 `;
+
+sr++;
 
 });
 
