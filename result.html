@@ -177,14 +177,9 @@ async function loadResults(){
 
 const std = document.getElementById("stdSelect").value;
 
-if(!std){
-alert("Please select standard");
-return;
-}
-
 const q = query(
 collection(db,"results"),
-where("course","==",standard)
+where("standard","==",std)
 );
 
 const snapshot = await getDocs(q);
@@ -213,7 +208,7 @@ const r=doc.data();
 
 table.innerHTML+=`
 
-<tr class="border-b">
+<tr class="border-b hover:bg-gray-50">
 
 <td class="p-3 font-medium">${r.name}</td>
 
