@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -16,12 +17,11 @@
 
 <body class="bg-gray-100 p-4 md:p-10">
 
-<div class="max-w-6xl mx-auto bg-white p-5 md:p-8 rounded-2xl shadow">
+<div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow">
 
 <h1 class="text-xl md:text-2xl font-bold mb-6">
 Result Entry Panel
 </h1>
-
 
 <!-- EXAM DETAILS -->
 
@@ -43,13 +43,9 @@ class="border p-3 rounded w-full">
 
 </div>
 
-
 <button onclick="loadStudents()"
 class="bg-green-600 text-white px-6 py-2 rounded mb-6 w-full md:w-auto">
-Load Students
-</button>
-
-
+Load Students </button>
 
 <!-- STUDENT TABLE -->
 
@@ -73,25 +69,19 @@ Load Students
 
 </div>
 
-
-
 <div class="flex flex-col md:flex-row gap-4 mt-6">
 
 <button onclick="saveResults()"
 class="bg-blue-600 text-white px-6 py-3 rounded w-full md:w-auto">
-Save All Results
-</button>
+Save All Results </button>
 
 <button onclick="downloadResultPDF()"
 class="bg-purple-600 text-white px-6 py-3 rounded w-full md:w-auto">
-Download Result PDF
-</button>
+Download Result PDF </button>
 
 </div>
 
 </div>
-
-
 
 <script type="module">
 
@@ -104,7 +94,8 @@ getDocs,
 query,
 where,
 orderBy,
-addDoc
+doc,
+writeBatch
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 import {
@@ -112,7 +103,6 @@ getAuth,
 onAuthStateChanged,
 signOut
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
 
 
 const firebaseConfig = {
@@ -129,56 +119,65 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-
-
 /* LOGIN CHECK */
 
 onAuthStateChanged(auth,(user)=>{
-
 if(!user){
 window.location="login.html";
 }
-
 });
-
-
 
 let students=[];
 
-
-
-/* LOAD STUDENTS */
+/* LOAD STUDENTS + PREVIOUS MARKS */
 
 window.loadStudents = async function(){
 
 const std=document.getElementById("stdSelect").value;
+const examDate=document.getElementById("examDate").value;
 
 if(!std){
 alert("Select Standard");
 return;
 }
 
-const q=query(
+const studentQuery=query(
 collection(db,"students"),
 where("course","==",std)
 );
 
-const snapshot=await getDocs(q);
+const studentSnap=await getDocs(studentQuery);
+
+const resultQuery=query(
+collection(db,"results"),
+where("standard","==",std),
+where("examDate","==",examDate)
+);
+
+const resultSnap=await getDocs(resultQuery);
+
+let resultMap={};
+
+resultSnap.forEach(doc=>{
+const r=doc.data();
+resultMap[r.admissionNo]=r.marks;
+});
 
 const table=document.getElementById("studentTable");
 
 table.innerHTML="";
-
 students=[];
 
-snapshot.forEach(doc=>{
+studentSnap.forEach(docSnap=>{
 
-const data=doc.data();
-
+const data=docSnap.data();
 students.push(data);
+
+const marks=resultMap[data.admissionNo] || "";
 
 const row=`
 <tr>
+
 <td class="border p-3">${data.admissionNo}</td>
 
 <td class="border p-3">
@@ -188,10 +187,12 @@ ${data.surname || ""} ${data.name || ""} ${data.lastname || ""}
 <td class="border p-3">
 <input type="number"
 step="0.01"
+value="${marks}"
 class="border p-2 rounded w-24"
 id="mark_${data.admissionNo}"
 onkeydown="moveNext(event,this)">
 </td>
+
 </tr>
 `;
 
@@ -202,8 +203,7 @@ table.innerHTML+=row;
 };
 
 
-
-/* FAST ENTER KEY NAVIGATION */
+/* ENTER KEY NAVIGATION */
 
 window.moveNext=function(e,input){
 
@@ -224,15 +224,12 @@ inputs[index+1].focus();
 };
 
 
-
-/* SAVE RESULTS */
+/* BULK SAVE RESULTS */
 
 window.saveResults = async function(){
 
 const examName=document.getElementById("examName").value;
-
 const examDate=document.getElementById("examDate").value;
-
 const std=document.getElementById("stdSelect").value;
 
 if(!examName || !examDate || !std){
@@ -240,18 +237,46 @@ alert("Enter exam details");
 return;
 }
 
+const batch = writeBatch(db);
+
 let saved=0;
+let updated=0;
 
 for(const s of students){
 
 const markInput=document.getElementById("mark_"+s.admissionNo);
-
 const marks=markInput.value;
 
 if(marks==="") continue;
 
-await addDoc(collection(db,"results"),{
+const q=query(
+collection(db,"results"),
+where("admissionNo","==",s.admissionNo),
+where("standard","==",std),
+where("examDate","==",examDate)
+);
 
+const snap=await getDocs(q);
+
+if(!snap.empty){
+
+const docId=snap.docs[0].id;
+
+const ref = doc(db,"results",docId);
+
+batch.update(ref,{
+marks:Number(marks),
+examName:examName,
+updatedAt:new Date()
+});
+
+updated++;
+
+}else{
+
+const newRef = doc(collection(db,"results"));
+
+batch.set(newRef,{
 admissionNo:s.admissionNo,
 name:(s.surname || "")+" "+(s.name || "")+" "+(s.lastname || ""),
 standard:std,
@@ -259,17 +284,22 @@ marks:Number(marks),
 examName:examName,
 examDate:examDate,
 createdAt:new Date()
-
 });
 
 saved++;
 
 }
 
-alert(saved+" results saved successfully");
+}
+
+await batch.commit();
+
+alert(saved+" new results saved, "+updated+" updated");
+
+document.getElementById("studentTable").innerHTML="";
+students=[];
 
 };
-
 
 
 /* DOWNLOAD RESULT PDF */
@@ -301,28 +331,28 @@ alert("No results found");
 return;
 }
 
-const doc=new jsPDF();
+const docPDF=new jsPDF();
 
-doc.setFontSize(18);
-doc.text("Suraj English Academy",105,20,null,null,"center");
+docPDF.setFontSize(18);
+docPDF.text("Suraj English Academy",105,20,null,null,"center");
 
-doc.setFontSize(12);
-doc.text("Palanpur",105,28,null,null,"center");
+docPDF.setFontSize(12);
+docPDF.text("Palanpur",105,28,null,null,"center");
 
-doc.text("English Test Result",105,36,null,null,"center");
+docPDF.text("English Test Result",105,36,null,null,"center");
 
-doc.setFontSize(11);
+docPDF.setFontSize(11);
 
-doc.text("Standard: "+std,20,50);
-doc.text("Exam: "+examName,100,50);
-doc.text("Date: "+examDate,160,50);
+docPDF.text("Standard: "+std,20,50);
+docPDF.text("Exam: "+examName,100,50);
+docPDF.text("Date: "+examDate,160,50);
 
 let y=65;
 
-doc.text("Rank",20,y);
-doc.text("Admission No",40,y);
-doc.text("Name",90,y);
-doc.text("Marks",170,y);
+docPDF.text("Rank",20,y);
+docPDF.text("Admission No",40,y);
+docPDF.text("Name",90,y);
+docPDF.text("Marks",170,y);
 
 y+=8;
 
@@ -332,10 +362,10 @@ snapshot.forEach(docSnap=>{
 
 const d=docSnap.data();
 
-doc.text(String(rank),20,y);
-doc.text(d.admissionNo,40,y);
-doc.text(d.name,90,y);
-doc.text(String(d.marks),170,y);
+docPDF.text(String(rank),20,y);
+docPDF.text(d.admissionNo,40,y);
+docPDF.text(d.name,90,y);
+docPDF.text(String(d.marks),170,y);
 
 y+=8;
 rank++;
@@ -344,9 +374,9 @@ rank++;
 
 y+=10;
 
-doc.setFontSize(10);
+docPDF.setFontSize(10);
 
-doc.text(
+docPDF.text(
 "This is a computer generated result sheet.",
 105,
 y,
@@ -355,10 +385,9 @@ null,
 "center"
 );
 
-doc.save(std+"_Result_"+examDate+".pdf");
+docPDF.save(std+"_Result_"+examDate+".pdf");
 
 };
-
 
 
 /* LOGOUT */
