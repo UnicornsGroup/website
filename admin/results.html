@@ -434,5 +434,47 @@ document.getElementById("navbar").innerHTML = data;
 
 </script>
 
+<script>
+
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+
+document.getElementById("navbar").innerHTML = data;
+
+/* highlight active page */
+
+const links = document.querySelectorAll(".nav-link");
+
+const currentPage = window.location.pathname.split("/").pop();
+
+links.forEach(link => {
+
+if(link.getAttribute("href") === currentPage){
+
+link.style.background = "#1e40af";
+link.style.padding = "6px 10px";
+link.style.borderRadius = "6px";
+
+}
+
+});
+
+});
+
+/* mobile menu */
+
+function toggleMenu(){
+
+const menu=document.getElementById("mobileMenu");
+
+if(menu){
+menu.classList.toggle("hidden");
+}
+
+}
+
+</script>
+  
 </body>
 </html>
