@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fees Management | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 p-10">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-3xl font-bold mb-6">
+Fees Management Panel
+</h1>
+
+
+<!-- MENU -->
+
+<div class="flex gap-4 mb-8">
+
+<button onclick="showSection('collection')" class="bg-green-600 text-white px-6 py-2 rounded">
+Fees Collection
+</button>
+
+<button onclick="showSection('dashboard')" class="bg-blue-600 text-white px-6 py-2 rounded">
+Fees Dashboard
+</button>
+
+<button onclick="showSection('due')" class="bg-red-600 text-white px-6 py-2 rounded">
+Due Fees List
+</button>
+
+</div>
+
+
+<!-- ====================== -->
+<!-- FEES COLLECTION -->
+<!-- ====================== -->
+
+<div id="collectionSection">
+
+<div class="bg-white p-8 rounded-xl shadow mb-10">
+
+<h2 class="text-xl font-bold mb-6">Collect Fees</h2>
+
+<div class="grid grid-cols-2 gap-4 mb-6">
+
+<select id="stdSelect" class="border p-3 rounded">
+
+<option value="">Select Standard</option>
+<option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
+<option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
+<option value="Std. 9 (Gujarati Medium)">Std. 9 (Gujarati Medium)</option>
+<option value="Std. 10 (Gujarati Medium)">Std. 10 (Gujarati Medium)</option>
+
+</select>
+
+<button onclick="loadStudents()" class="bg-green-600 text-white px-4 py-2 rounded">
+Load Students
+</button>
+
+</div>
+
+
+<select id="studentSelect" class="border p-3 rounded w-full mb-6">
+<option value="">Select Student</option>
+</select>
+
+
+<div id="studentBox" class="hidden bg-gray-50 p-4 rounded mb-6">
+
+<p><strong>Name:</strong> <span id="sName"></span></p>
+<p><strong>Admission:</strong> <span id="sAdmission"></span></p>
+<p><strong>Mobile:</strong> <span id="sMobile"></span></p>
+
+</div>
+
+
+<div id="feeSummary" class="hidden bg-yellow-50 p-4 rounded mb-6">
+
+<p>Total Fees: ₹ <span id="totalFee">10000</span></p>
+<p>Paid Fees: ₹ <span id="paidFee">0</span></p>
+<p>Due Fees: ₹ <span id="dueFee">10000</span></p>
+
+</div>
+
+
+<div id="feesForm" class="hidden grid grid-cols-3 gap-4 mb-6">
+
+<input type="date" id="feeDate" class="border p-3 rounded">
+
+<input type="number" id="feeAmount" placeholder="Amount" class="border p-3 rounded">
+
+<select id="paymentType" class="border p-3 rounded">
+
+<option value="">Payment Type</option>
+<option value="Cash">Cash</option>
+<option value="UPI">UPI</option>
+
+</select>
+
+</div>
+
+
+<button onclick="saveFee()" id="saveBtn" class="bg-blue-600 text-white px-6 py-3 rounded hidden">
+Submit Fees
+</button>
+
+
+<h3 class="text-lg font-bold mt-8 mb-4">Payment History</h3>
+
+<table class="w-full border bg-white">
+
+<thead class="bg-gray-200">
+
+<tr>
+<th class="p-3 border">Date</th>
+<th class="p-3 border">Amount</th>
+<th class="p-3 border">Type</th>
+</tr>
+
+</thead>
+
+<tbody id="historyTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+
+<!-- ====================== -->
+<!-- DASHBOARD -->
+<!-- ====================== -->
+
+<div id="dashboardSection" class="hidden">
+
+<div class="grid grid-cols-4 gap-6 mb-8">
+
+<div class="bg-white p-6 rounded shadow">
+<p>Total Students</p>
+<p id="totalStudents" class="text-2xl font-bold">0</p>
+</div>
+
+<div class="bg-white p-6 rounded shadow">
+<p>Total Fees</p>
+<p id="totalFees" class="text-2xl font-bold">0</p>
+</div>
+
+<div class="bg-white p-6 rounded shadow">
+<p>Collected</p>
+<p id="paidFees" class="text-2xl font-bold text-green-600">0</p>
+</div>
+
+<div class="bg-white p-6 rounded shadow">
+<p>Pending</p>
+<p id="dueFees" class="text-2xl font-bold text-red-600">0</p>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ====================== -->
+<!-- DUE STUDENTS -->
+<!-- ====================== -->
+
+<div id="dueSection" class="hidden">
+
+<h2 class="text-xl font-bold mb-4">Students With Pending Fees</h2>
+
+<table class="w-full border bg-white">
+
+<thead class="bg-gray-200">
+
+<tr>
+
+<th class="p-3 border">Student</th>
+<th class="p-3 border">Standard</th>
+<th class="p-3 border">Mobile</th>
+<th class="p-3 border">Due Fees</th>
+<th class="p-3 border">Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="dueTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+query,
+where,
+getDocs,
+addDoc
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const yearlyFee = 10000;
+
+let students = [];
+let studentData = null;
+
+
+
+window.showSection = function(section){
+
+document.getElementById("collectionSection").style.display = section==="collection" ? "block":"none";
+document.getElementById("dashboardSection").style.display = section==="dashboard" ? "block":"none";
+document.getElementById("dueSection").style.display = section==="due" ? "block":"none";
+
+if(section==="dashboard") loadDashboard();
+if(section==="due") loadDueStudents();
+
+};
+
+
+
+window.loadStudents = async function(){
+
+const std=document.getElementById("stdSelect").value;
+
+const q=query(collection(db,"admissions"),where("course","==",std));
+
+const snapshot=await getDocs(q);
+
+students=[];
+
+const dropdown=document.getElementById("studentSelect");
+
+dropdown.innerHTML='<option>Select Student</option>';
+
+snapshot.forEach(doc=>{
+
+const data=doc.data();
+
+students.push(data);
+
+const option=document.createElement("option");
+
+option.value=data.admissionNo;
+
+option.text=data.surname+" "+data.name+" "+data.lastname;
+
+dropdown.appendChild(option);
+
+});
+
+};
+
+
+
+document.getElementById("studentSelect").addEventListener("change",function(){
+
+const admission=this.value;
+
+studentData=students.find(s=>s.admissionNo===admission);
+
+if(!studentData) return;
+
+document.getElementById("sName").innerText =
+studentData.surname+" "+studentData.name+" "+studentData.lastname;
+
+document.getElementById("sAdmission").innerText = studentData.admissionNo;
+document.getElementById("sMobile").innerText = studentData.mobile;
+
+document.getElementById("studentBox").classList.remove("hidden");
+document.getElementById("feesForm").classList.remove("hidden");
+document.getElementById("saveBtn").classList.remove("hidden");
+
+loadHistory(admission);
+
+});
+
+
+
+window.saveFee = async function(){
+
+const date=document.getElementById("feeDate").value;
+const amount=document.getElementById("feeAmount").value;
+const type=document.getElementById("paymentType").value;
+
+if(!date || !amount || !type){
+
+alert("Enter fee details");
+return;
+
+}
+
+await addDoc(collection(db,"fees"),{
+
+admissionNo:studentData.admissionNo,
+course:studentData.course,
+amount:Number(amount),
+paymentType:type,
+date:date
+
+});
+
+alert("Fee Saved");
+
+loadHistory(studentData.admissionNo);
+
+};
+
+async function loadHistory(admission){
+const q=query(collection(db,"fees"),where("admissionNo","==",admission));
+const snapshot=await getDocs(q);
+const table=document.getElementById("historyTable");
+table.innerHTML="";
+let paid=0;
+snapshot.forEach(doc=>{
+const d=doc.data();
+paid+=Number(d.amount);
+table.innerHTML+=`
+<tr>
+<td class="border p-3">${d.date}</td>
+<td class="border p-3">₹ ${d.amount}</td>
+<td class="border p-3">${d.paymentType}</td>
+</tr>
+`;
+});
+const due=yearlyFee-paid;
+document.getElementById("paidFee").innerText=paid;
+document.getElementById("dueFee").innerText=due;
+document.getElementById("feeSummary").classList.remove("hidden");
+}
+async function loadDashboard(){
+const admissions=await getDocs(collection(db,"admissions"));
+const fees=await getDocs(collection(db,"fees"));
+let studentsCount=admissions.size;
+let totalFees=studentsCount*yearlyFee;
+let paid=0;
+fees.forEach(doc=>{
+paid+=Number(doc.data().amount);
+});
+document.getElementById("totalStudents").innerText=studentsCount;
+document.getElementById("totalFees").innerText="₹ "+totalFees;
+document.getElementById("paidFees").innerText="₹ "+paid;
+document.getElementById("dueFees").innerText="₹ "+(totalFees-paid);
+}
+async function loadDueStudents(){
+const admissionsSnap = await getDocs(collection(db,"admissions"));
+const feesSnap = await getDocs(collection(db,"fees"));
+const students=[];
+const payments={};
+admissionsSnap.forEach(doc=>{
+students.push(doc.data());
+});
+feesSnap.forEach(doc=>{
+const d=doc.data();
+if(!payments[d.admissionNo]){
+payments[d.admissionNo]=0;
+}
+payments[d.admissionNo]+=Number(d.amount);
+});
+const table=document.getElementById("dueTable");
+table.innerHTML="";
+students.forEach(s=>{
+const paid=payments[s.admissionNo]||0;
+const due=yearlyFee-paid;
+if(due<=0) return;
+const name=s.surname+" "+s.name+" "+s.lastname;
+const message=`Dear Parent,%0A%0A${name} fees ₹${due} is pending.%0A%0A- Suraj English Academy, Palanpur`;
+const whatsapp=`https://wa.me/91${s.mobile}?text=${message}`;
+table.innerHTML+=`
+<tr>
+<td class="border p-3">${name}</td>
+<td class="border p-3">${s.course}</td>
+<td class="border p-3">${s.mobile}</td>
+<td class="border p-3 text-red-600">₹ ${due}</td>
+<td class="border p-3">
+<a href="${whatsapp}" target="_blank"
+class="bg-green-600 text-white px-4 py-1 rounded">
+WhatsApp
+</a>
+</td>
+</tr>
+`;
+});
+}
+</script>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* CHECK LOGIN */
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+window.location="login.html";
+
+}
+
+});
+
+/* LOGOUT */
+
+window.logout=function(){
+
+signOut(auth).then(()=>{
+window.location="login.html";
+});
+
+}
+
+</script>
+
+</body>
+</html>

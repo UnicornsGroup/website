@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Result Admin Panel</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body class="bg-gray-100 p-10">
+
+<div class="max-w-6xl mx-auto bg-white p-8 rounded-2xl shadow">
+
+<h1 class="text-2xl font-bold mb-6">
+Result Entry Panel
+</h1>
+
+
+<!-- EXAM DETAILS -->
+
+<div class="grid grid-cols-3 gap-4 mb-6">
+
+<select id="stdSelect" class="border p-3 rounded">
+
+<option value="">Select Standard</option>
+
+<option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
+
+<option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
+
+<option value="Std. 9 (Gujarati Medium)">Std. 9 (Gujarati Medium)</option>
+
+<option value="Std. 10 (Gujarati Medium)">Std. 10 (Gujarati Medium)</option>
+
+</select>
+
+<input id="examName" placeholder="Exam Name"
+class="border p-3 rounded">
+
+<input type="date" id="examDate"
+class="border p-3 rounded">
+
+</div>
+
+
+<button onclick="loadStudents()"
+class="bg-green-600 text-white px-6 py-2 rounded mb-6">
+Load Students
+</button>
+
+
+
+<!-- STUDENT TABLE -->
+
+<table class="w-full border bg-white">
+
+<thead class="bg-gray-200">
+
+<tr>
+
+<th class="p-3 border">Admission No</th>
+
+<th class="p-3 border">Name</th>
+
+<th class="p-3 border">Marks</th>
+
+</tr>
+
+</thead>
+
+<tbody id="studentTable"></tbody>
+
+</table>
+
+
+
+<div class="flex gap-4 mt-6">
+
+<button onclick="saveResults()"
+class="bg-blue-600 text-white px-6 py-3 rounded">
+Save All Results
+</button>
+
+<button onclick="downloadResultPDF()"
+class="bg-purple-600 text-white px-6 py-3 rounded">
+Download Result PDF
+</button>
+
+</div>
+
+</div>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+
+getFirestore,
+collection,
+getDocs,
+query,
+where,
+orderBy,
+addDoc
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+
+let students=[];
+
+
+
+/* LOAD STUDENTS */
+
+window.loadStudents = async function(){
+
+const std=document.getElementById("stdSelect").value;
+
+if(!std){
+
+alert("Select Standard");
+
+return;
+
+}
+
+
+
+const q=query(
+
+collection(db,"admissions"),
+
+where("course","==",std)
+
+);
+
+
+
+const snapshot=await getDocs(q);
+
+const table=document.getElementById("studentTable");
+
+table.innerHTML="";
+
+students=[];
+
+
+
+snapshot.forEach(doc=>{
+
+const data=doc.data();
+
+students.push(data);
+
+
+
+const row=`
+
+<tr>
+
+<td class="border p-3">${data.admissionNo}</td>
+
+<td class="border p-3">
+
+${data.surname} ${data.name} ${data.lastname}
+
+</td>
+
+<td class="border p-3">
+
+<input type="number"
+
+step="0.01"
+
+class="border p-2 rounded w-24"
+
+id="mark_${data.admissionNo}"
+
+onkeydown="moveNext(event,this)">
+
+</td>
+
+</tr>
+
+`;
+
+
+
+table.innerHTML+=row;
+
+});
+
+};
+
+
+
+/* FAST KEYBOARD NAVIGATION */
+
+window.moveNext=function(e,input){
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+
+
+const inputs=[...document.querySelectorAll("#studentTable input")];
+
+const index=inputs.indexOf(input);
+
+
+
+if(index+1<inputs.length){
+
+inputs[index+1].focus();
+
+}
+
+}
+
+};
+
+
+
+/* SAVE RESULTS */
+
+window.saveResults = async function(){
+
+const examName=document.getElementById("examName").value;
+
+const examDate=document.getElementById("examDate").value;
+
+const std=document.getElementById("stdSelect").value;
+
+
+
+if(!examName || !examDate || !std){
+
+alert("Enter exam details");
+
+return;
+
+}
+
+
+
+let saved=0;
+
+
+
+for(const s of students){
+
+const markInput=document.getElementById("mark_"+s.admissionNo);
+
+const marks=markInput.value;
+
+
+
+if(marks==="") continue;
+
+
+
+await addDoc(collection(db,"results"),{
+
+admissionNo:s.admissionNo,
+
+name:s.surname+" "+s.name+" "+s.lastname,
+
+standard:std,
+
+marks:Number(marks),
+
+examName:examName,
+
+examDate:examDate,
+
+createdAt:new Date()
+
+});
+
+
+
+saved++;
+
+}
+
+
+
+alert(saved+" results saved successfully");
+
+};
+
+
+
+/* DOWNLOAD RESULT PDF */
+
+window.downloadResultPDF = async function(){
+
+const { jsPDF } = window.jspdf;
+
+
+
+const std=document.getElementById("stdSelect").value;
+
+const examDate=document.getElementById("examDate").value;
+
+const examName=document.getElementById("examName").value;
+
+
+
+if(!std || !examDate){
+
+alert("Select Standard and Exam Date");
+
+return;
+
+}
+
+
+
+const q=query(
+
+collection(db,"results"),
+
+where("standard","==",std),
+
+where("examDate","==",examDate),
+
+orderBy("marks","desc")
+
+);
+
+
+
+const snapshot=await getDocs(q);
+
+
+
+if(snapshot.empty){
+
+alert("No results found");
+
+return;
+
+}
+
+
+
+const doc=new jsPDF();
+
+
+
+doc.addImage("images/logo.png","PNG",90,5,30,20);
+
+
+
+doc.setFontSize(18);
+
+doc.text("Suraj English Academy",105,30,null,null,"center");
+
+
+
+doc.setFontSize(12);
+
+doc.text("Palanpur",105,37,null,null,"center");
+
+doc.text("English Test Result",105,45,null,null,"center");
+
+
+
+doc.setFontSize(11);
+
+
+
+doc.text("Standard: "+std,20,55);
+
+doc.text("Exam: "+examName,100,55);
+
+doc.text("Date: "+examDate,160,55);
+
+
+
+let y=70;
+
+
+
+doc.setFontSize(12);
+
+
+
+doc.text("Rank",20,y);
+
+doc.text("Admission No",40,y);
+
+doc.text("Name",90,y);
+
+doc.text("Marks",170,y);
+
+
+
+y+=8;
+
+
+
+let rank=1;
+
+
+
+snapshot.forEach(docSnap=>{
+
+const d=docSnap.data();
+
+
+
+doc.text(String(rank),20,y);
+
+doc.text(d.admissionNo,40,y);
+
+doc.text(d.name,90,y);
+
+doc.text(String(d.marks),170,y);
+
+
+
+y+=8;
+
+rank++;
+
+});
+
+
+
+y+=10;
+
+
+
+doc.setFontSize(10);
+
+doc.text(
+
+"This is a computer generated result sheet.",
+
+105,
+
+y,
+
+null,
+
+null,
+
+"center"
+);
+doc.save(std+"_Result_"+examDate+".pdf");
+};
+</script>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* CHECK LOGIN */
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+window.location="login.html";
+
+}
+
+});
+
+/* LOGOUT */
+
+window.logout=function(){
+
+signOut(auth).then(()=>{
+window.location="login.html";
+});
+
+}
+
+</script>
+
+</body>
+</html>
