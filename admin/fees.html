@@ -244,7 +244,7 @@ window.loadStudents = async function(){
 
 const std=document.getElementById("stdSelect").value;
 
-const q=query(collection(db,"admissions"),where("course","==",std));
+const q=query(collection(db,"students"),where("course","==",std));
 
 const snapshot=await getDocs(q);
 
@@ -350,9 +350,9 @@ document.getElementById("dueFee").innerText=due;
 document.getElementById("feeSummary").classList.remove("hidden");
 }
 async function loadDashboard(){
-const admissions=await getDocs(collection(db,"admissions"));
+const students=await getDocs(collection(db,"students"));
 const fees=await getDocs(collection(db,"fees"));
-let studentsCount=admissions.size;
+let studentsCount=students.size;
 let totalFees=studentsCount*yearlyFee;
 let paid=0;
 fees.forEach(doc=>{
@@ -364,11 +364,11 @@ document.getElementById("paidFees").innerText="₹ "+paid;
 document.getElementById("dueFees").innerText="₹ "+(totalFees-paid);
 }
 async function loadDueStudents(){
-const admissionsSnap = await getDocs(collection(db,"admissions"));
+const studentsSnap = await getDocs(collection(db,"students"));
 const feesSnap = await getDocs(collection(db,"fees"));
 const students=[];
 const payments={};
-admissionsSnap.forEach(doc=>{
+studentsSnap.forEach(doc=>{
 students.push(doc.data());
 });
 feesSnap.forEach(doc=>{
