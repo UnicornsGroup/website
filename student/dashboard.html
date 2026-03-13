@@ -56,14 +56,14 @@ Student Dashboard
 <div class="bg-white p-4 rounded-xl shadow text-center">
 
 <p class="text-gray-500 text-sm">Paid Fees</p>
-<p id="paid" class="text-xl font-bold text-green-600"></p>
+<p id="paid" class="text-xl font-bold text-green-600">₹</p>
 
 </div>
 
 <div class="bg-white p-4 rounded-xl shadow text-center">
 
 <p class="text-gray-500 text-sm">Due Fees</p>
-<p id="due" class="text-xl font-bold text-red-600"></p>
+<p id="due" class="text-xl font-bold text-red-600">₹</p>
 
 </div>
 
@@ -168,8 +168,7 @@ const yearlyFee=10000;
 onAuthStateChanged(auth,async user=>{
 
 if(!user){
-
-window.location="student-login.html";
+window.location="index.html";
 return;
 
 }
@@ -190,8 +189,7 @@ const studentSnap=await getDocs(studentQuery);
 
 const student=studentSnap.docs[0].data();
 
-document.getElementById("name").innerText=
-student.surname+" "+student.name+" "+student.lastname;
+document.getElementById("name").innerText=student.name;
 
 document.getElementById("admission").innerText=student.admissionNo;
 
@@ -252,7 +250,7 @@ window.logout=function(){
 
 signOut(auth).then(()=>{
 
-window.location="student-login.html";
+window.location="index.html";
 
 });
 
