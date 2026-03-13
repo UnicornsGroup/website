@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Results | Suraj English Academy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+theme:{
+extend:{
+fontFamily:{
+poppins:['Poppins'],
+inter:['Inter']
+},
+colors:{
+primary:{600:'#4CAF50'},
+accent:{500:'#F7931E'}
+}
+}
+}
+}
+</script>
+
+</head>
+
+<body class="bg-gray-50 font-inter">
+
+<!-- NAVBAR -->
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-4">
+
+<div class="flex justify-between items-center h-16">
+
+<div class="flex items-center space-x-3">
+
+<img src="images/logo.png" class="w-10">
+
+<div>
+<p class="font-bold text-primary-600">Suraj English Academy</p>
+<p class="text-xs text-gray-500">Palanpur</p>
+</div>
+
+</div>
+
+<a href="index.html" class="text-gray-600 hover:text-primary-600">
+Home
+</a>
+
+</div>
+</div>
+
+</nav>
+
+
+<!-- PAGE HEADER -->
+
+<section class="py-16 bg-gradient-to-r from-green-600 to-green-500 text-white text-center">
+
+<h1 class="text-4xl font-poppins font-bold mb-2">
+Student Results
+</h1>
+
+<p class="text-white/90">
+Check recently uploaded exam results
+</p>
+
+</section>
+
+
+<!-- RESULT SECTION -->
+
+<div class="max-w-6xl mx-auto px-4 py-12">
+
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+
+<label class="font-semibold text-gray-700">
+Select Standard
+</label>
+
+<select
+id="stdSelect"
+class="w-full mt-2 border p-3 rounded-lg">
+
+<option value="">Choose Standard</option>
+
+<option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
+<option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
+<option value="Std. 9 (Gujarati Medium)">Std. 9 (Gujarati Medium)</option>
+<option value="Std. 10 (Gujarati Medium)">Std. 10 (Gujarati Medium)</option>
+
+</select>
+
+</div>
+
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+<h2 class="text-xl font-bold mb-4">
+Latest Results
+</h2>
+
+<div class="overflow-x-auto">
+
+<table class="w-full">
+
+<thead class="bg-gray-100">
+
+<tr>
+
+<th class="p-3 text-left">Student</th>
+<th class="p-3 text-left">Exam</th>
+<th class="p-3 text-left">Date</th>
+<th class="p-3 text-left">Marks</th>
+
+</tr>
+
+</thead>
+
+<tbody id="resultTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+query,
+where,
+orderBy,
+limit,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.appspot.com",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+
+document.getElementById("stdSelect").addEventListener("change",loadResults);
+
+
+
+async function loadResults(){
+
+const std = document.getElementById("stdSelect").value;
+
+if(!std) return;
+
+const q = query(
+collection(db,"results"),
+where("course","==",std),
+orderBy("examDate","desc"),
+limit(50)
+);
+
+const snapshot = await getDocs(q);
+
+const table = document.getElementById("resultTable");
+
+table.innerHTML = "";
+
+snapshot.forEach(doc=>{
+
+const r = doc.data();
+
+table.innerHTML += `
+
+<tr class="border-b hover:bg-gray-50">
+
+<td class="p-3 font-medium">${r.name}</td>
+
+<td class="p-3">${r.examName}</td>
+
+<td class="p-3">${r.examDate}</td>
+
+<td class="p-3 font-bold text-primary-600">
+${r.marks}
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
