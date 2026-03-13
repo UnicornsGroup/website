@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Student Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body class="bg-gray-100">
+
+<nav class="bg-blue-900 text-white p-4 flex justify-between">
+
+<h1 class="font-bold">
+Student Portal
+</h1>
+
+<button onclick="logout()" class="bg-red-500 px-4 py-1 rounded">
+Logout
+</button>
+
+</nav>
+
+<div class="max-w-5xl mx-auto p-4">
+
+<h1 class="text-2xl font-bold mb-6">
+Student Dashboard
+</h1>
+
+<!-- DASHBOARD CARDS -->
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+
+<p class="text-gray-500 text-sm">Admission</p>
+<p id="admission" class="text-xl font-bold"></p>
+
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+
+<p class="text-gray-500 text-sm">Standard</p>
+<p id="course" class="text-xl font-bold"></p>
+
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+
+<p class="text-gray-500 text-sm">Paid Fees</p>
+<p id="paid" class="text-xl font-bold text-green-600"></p>
+
+</div>
+
+<div class="bg-white p-4 rounded-xl shadow text-center">
+
+<p class="text-gray-500 text-sm">Due Fees</p>
+<p id="due" class="text-xl font-bold text-red-600"></p>
+
+</div>
+
+</div>
+
+<!-- PROFILE -->
+
+<div class="bg-white p-6 rounded-xl shadow mb-6">
+
+<h2 class="text-xl font-bold mb-4">
+Student Profile
+</h2>
+
+<p><strong>Name:</strong> <span id="name"></span></p>
+
+</div>
+
+<!-- RESULTS -->
+
+<div class="bg-white p-6 rounded-xl shadow">
+
+<div class="flex justify-between items-center mb-4">
+
+<h2 class="text-xl font-bold">
+Results
+</h2>
+
+<button
+onclick="downloadReport()"
+class="bg-blue-600 text-white px-4 py-2 rounded">
+
+Download Report Card
+
+</button>
+
+</div>
+
+<div class="overflow-x-auto">
+
+<table class="w-full border">
+
+<thead class="bg-gray-200">
+
+<tr>
+
+<th class="p-3 border">Exam</th>
+<th class="p-3 border">Date</th>
+<th class="p-3 border">Marks</th>
+
+</tr>
+
+</thead>
+
+<tbody id="resultTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+query,
+where,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const auth = getAuth(app);
+
+const yearlyFee=10000;
+
+
+onAuthStateChanged(auth,async user=>{
+
+if(!user){
+
+window.location="student-login.html";
+return;
+
+}
+
+const email=user.email;
+
+const mobile=email.split("@")[0];
+
+
+/* STUDENT INFO */
+
+const studentQuery=query(
+collection(db,"students"),
+where("mobile","==",mobile)
+);
+
+const studentSnap=await getDocs(studentQuery);
+
+const student=studentSnap.docs[0].data();
+
+document.getElementById("name").innerText=
+student.surname+" "+student.name+" "+student.lastname;
+
+document.getElementById("admission").innerText=student.admissionNo;
+
+document.getElementById("course").innerText=student.course;
+
+
+/* FEES */
+
+const feeQuery=query(
+collection(db,"fees"),
+where("admissionNo","==",student.admissionNo)
+);
+
+const feeSnap=await getDocs(feeQuery);
+
+let paid=0;
+
+feeSnap.forEach(doc=>{
+paid+=Number(doc.data().amount);
+});
+
+document.getElementById("paid").innerText=paid;
+
+document.getElementById("due").innerText=yearlyFee-paid;
+
+
+/* RESULTS */
+
+const resultQuery=query(
+collection(db,"results"),
+where("admissionNo","==",student.admissionNo)
+);
+
+const resultSnap=await getDocs(resultQuery);
+
+const table=document.getElementById("resultTable");
+
+resultSnap.forEach(doc=>{
+
+const r=doc.data();
+
+table.innerHTML+=`
+<tr>
+
+<td class="border p-3">${r.examName}</td>
+<td class="border p-3">${r.examDate}</td>
+<td class="border p-3">${r.marks}</td>
+
+</tr>
+`;
+
+});
+
+});
+
+
+window.logout=function(){
+
+signOut(auth).then(()=>{
+
+window.location="student-login.html";
+
+});
+
+};
+
+
+/* REPORT CARD PDF */
+
+window.downloadReport=function(){
+
+const { jsPDF } = window.jspdf;
+
+const pdf=new jsPDF();
+
+const name=document.getElementById("name").innerText;
+const admission=document.getElementById("admission").innerText;
+const course=document.getElementById("course").innerText;
+const paid=document.getElementById("paid").innerText;
+const due=document.getElementById("due").innerText;
+
+pdf.setFontSize(18);
+
+pdf.text("Suraj English Academy",105,20,null,null,"center");
+
+pdf.setFontSize(12);
+
+pdf.text("Student Report Card",105,30,null,null,"center");
+
+pdf.text("Name: "+name,20,50);
+pdf.text("Admission No: "+admission,20,60);
+pdf.text("Standard: "+course,20,70);
+
+pdf.text("Paid Fees: ₹"+paid,20,90);
+pdf.text("Due Fees: ₹"+due,20,100);
+
+let y=120;
+
+pdf.text("Results",20,y);
+
+y+=10;
+
+const rows=document.querySelectorAll("#resultTable tr");
+
+rows.forEach(row=>{
+
+const cols=row.querySelectorAll("td");
+
+pdf.text(cols[0].innerText,20,y);
+pdf.text(cols[1].innerText,90,y);
+pdf.text(cols[2].innerText,170,y);
+
+y+=10;
+
+});
+
+pdf.save("report-card.pdf");
+
+};
+
+</script>
+
+</body>
+</html>

@@ -4,9 +4,14 @@
 </head>
 <body class="bg-gray-100">
 <!-- LOAD NAVBAR -->
-<div id="navbar"></div><div class="max-w-4xl mx-auto p-4 md:p-8"><h1 class="text-2xl font-bold mb-6">
+<div id="navbar"></div>
+<div class="max-w-4xl mx-auto p-4 md:p-8">
+<h1 class="text-2xl font-bold mb-6">
 Student Profile
-</h1><!-- SELECT STANDARD + STUDENT --><div class="bg-white p-6 rounded-xl shadow mb-6"><div class="grid md:grid-cols-2 gap-4"><select id="stdSelect" class="border p-3 rounded"><option value="">Select Standard</option><option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
+</h1>
+<!-- SELECT STANDARD + STUDENT -->
+ <div class="bg-white p-6 rounded-xl shadow mb-6">
+<div class="grid md:grid-cols-2 gap-4"><select id="stdSelect" class="border p-3 rounded"><option value="">Select Standard</option><option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
 <option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
 <option value="Std. 9 (Gujarati Medium)">Std. 9 (Gujarati Medium)</option>
 <option value="Std. 10 (Gujarati Medium)">Std. 10 (Gujarati Medium)</option></select><select id="studentSelect" class="border p-3 rounded"><option value="">Select Student</option></select></div></div><!-- STUDENT PROFILE --><div id="profileBox" class="hidden bg-white p-6 rounded-xl shadow"><h2 class="text-xl font-bold mb-4">Student Details</h2><div class="grid md:grid-cols-2 gap-4 text-lg"><p><strong>Name:</strong> <span id="pName"></span></p><p><strong>Admission No:</strong> <span id="pAdmission"></span></p><p><strong>Mobile:</strong> <span id="pMobile"></span></p><p><strong>Standard:</strong> <span id="pCourse"></span></p></div></div><!-- FEES SUMMARY --><div id="feesBox" class="hidden bg-white p-6 rounded-xl shadow mt-6"><h2 class="text-xl font-bold mb-4">Fees Summary</h2><p>Total Fees: ₹ <span id="totalFee">10000</span></p><p>Paid Fees: ₹ <span id="paidFee">0</span></p><p>Due Fees: ₹ <span id="dueFee">0</span></p></div><!-- RESULT HISTORY --><div id="resultBox" class="hidden bg-white p-6 rounded-xl shadow mt-6"><h2 class="text-xl font-bold mb-4">Result History</h2><div class="overflow-x-auto"><table class="w-full border"><thead class="bg-gray-200"><tr><th class="p-3 border">Exam</th>
@@ -71,7 +76,7 @@ const option=document.createElement("option");
 
 option.value=data.admissionNo;
 
-option.text=data.surname+" "+data.name+" "+data.lastname;
+option.text=data.name;
 
 dropdown.appendChild(option);
 
@@ -93,8 +98,7 @@ if(!student) return;
 
 /* PROFILE */
 
-document.getElementById("pName").innerText =
-student.surname+" "+student.name+" "+student.lastname;
+document.getElementById("pName").innerText = student.name;
 
 document.getElementById("pAdmission").innerText=student.admissionNo;
 
