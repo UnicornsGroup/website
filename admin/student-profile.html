@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Student Profile | Suraj English Academy</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100"><!-- LOAD NAVBAR --><div id="navbar"></div><div class="max-w-4xl mx-auto p-4 md:p-8"><h1 class="text-2xl font-bold mb-6">
+Student Profile
+</h1><!-- SELECT STANDARD + STUDENT --><div class="bg-white p-6 rounded-xl shadow mb-6"><div class="grid md:grid-cols-2 gap-4"><select id="stdSelect" class="border p-3 rounded"><option value="">Select Standard</option><option value="Std. 8 (English Medium)">Std. 8 (English Medium)</option>
+<option value="Std. 8 (Gujarati Medium)">Std. 8 (Gujarati Medium)</option>
+<option value="Std. 9 (Gujarati Medium)">Std. 9 (Gujarati Medium)</option>
+<option value="Std. 10 (Gujarati Medium)">Std. 10 (Gujarati Medium)</option></select><select id="studentSelect" class="border p-3 rounded"><option value="">Select Student</option></select></div></div><!-- STUDENT PROFILE --><div id="profileBox" class="hidden bg-white p-6 rounded-xl shadow"><h2 class="text-xl font-bold mb-4">Student Details</h2><div class="grid md:grid-cols-2 gap-4 text-lg"><p><strong>Name:</strong> <span id="pName"></span></p><p><strong>Admission No:</strong> <span id="pAdmission"></span></p><p><strong>Mobile:</strong> <span id="pMobile"></span></p><p><strong>Standard:</strong> <span id="pCourse"></span></p></div></div><!-- FEES SUMMARY --><div id="feesBox" class="hidden bg-white p-6 rounded-xl shadow mt-6"><h2 class="text-xl font-bold mb-4">Fees Summary</h2><p>Total Fees: ₹ <span id="totalFee">10000</span></p><p>Paid Fees: ₹ <span id="paidFee">0</span></p><p>Due Fees: ₹ <span id="dueFee">0</span></p></div><!-- RESULT HISTORY --><div id="resultBox" class="hidden bg-white p-6 rounded-xl shadow mt-6"><h2 class="text-xl font-bold mb-4">Result History</h2><div class="overflow-x-auto"><table class="w-full border"><thead class="bg-gray-200"><tr><th class="p-3 border">Exam</th>
+<th class="p-3 border">Date</th>
+<th class="p-3 border">Marks</th></tr></thead><tbody id="resultTable"></tbody></table></div></div></div><script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+query,
+where,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const yearlyFee = 10000;
+
+let students=[];
+
+
+/* LOAD STUDENTS */
+
+document.getElementById("stdSelect").addEventListener("change",async function(){
+
+const std=this.value;
+
+const q=query(collection(db,"students"),where("course","==",std));
+
+const snapshot=await getDocs(q);
+
+students=[];
+
+const dropdown=document.getElementById("studentSelect");
+
+dropdown.innerHTML='<option value="">Select Student</option>';
+
+snapshot.forEach(doc=>{
+
+const data=doc.data();
+
+students.push(data);
+
+const option=document.createElement("option");
+
+option.value=data.admissionNo;
+
+option.text=data.surname+" "+data.name+" "+data.lastname;
+
+dropdown.appendChild(option);
+
+});
+
+});
+
+
+/* STUDENT SELECTED */
+
+document.getElementById("studentSelect").addEventListener("change",async function(){
+
+const admission=this.value;
+
+const student=students.find(s=>s.admissionNo===admission);
+
+if(!student) return;
+
+
+/* PROFILE */
+
+document.getElementById("pName").innerText =
+student.surname+" "+student.name+" "+student.lastname;
+
+document.getElementById("pAdmission").innerText=student.admissionNo;
+
+document.getElementById("pMobile").innerText=student.mobile;
+
+document.getElementById("pCourse").innerText=student.course;
+
+document.getElementById("profileBox").classList.remove("hidden");
+
+
+/* FEES */
+
+const feeQuery=query(
+collection(db,"fees"),
+where("admissionNo","==",admission)
+);
+
+const feeSnap=await getDocs(feeQuery);
+
+let paid=0;
+
+feeSnap.forEach(doc=>{
+paid+=Number(doc.data().amount);
+});
+
+const due=yearlyFee-paid;
+
+document.getElementById("paidFee").innerText=paid;
+
+document.getElementById("dueFee").innerText=due;
+
+document.getElementById("feesBox").classList.remove("hidden");
+
+
+/* RESULTS */
+
+const resultQuery=query(
+collection(db,"results"),
+where("admissionNo","==",admission)
+);
+
+const resultSnap=await getDocs(resultQuery);
+
+const table=document.getElementById("resultTable");
+
+table.innerHTML="";
+
+resultSnap.forEach(doc=>{
+
+const r=doc.data();
+
+table.innerHTML+=`
+<tr>
+
+<td class="border p-3">${r.examName}</td>
+<td class="border p-3">${r.examDate}</td>
+<td class="border p-3 font-bold">${r.marks}</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("resultBox").classList.remove("hidden");
+
+});
+
+</script><script>
+
+/* LOAD NAVBAR */
+
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+document.getElementById("navbar").innerHTML = data;
+});
+
+</script></body>
+                                                                                                                                                                                                                                                                                                                                                                                                              </html>
