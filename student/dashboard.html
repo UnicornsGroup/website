@@ -259,54 +259,108 @@ window.location="index.html";
 
 /* REPORT CARD PDF */
 
-window.downloadReport=function(){
+window.downloadReport = function(){
 
 const { jsPDF } = window.jspdf;
 
-const pdf=new jsPDF();
+const pdf = new jsPDF();
 
-const name=document.getElementById("name").innerText;
-const admission=document.getElementById("admission").innerText;
-const course=document.getElementById("course").innerText;
-const paid=document.getElementById("paid").innerText;
-const due=document.getElementById("due").innerText;
+const name = document.getElementById("name").innerText;
+const admission = document.getElementById("admission").innerText;
+const course = document.getElementById("course").innerText;
+
+
+/* LOGO */
+
+try{
+pdf.addImage("images/logo.png","PNG",90,5,30,20);
+}catch(e){}
+
+
+/* HEADER */
 
 pdf.setFontSize(18);
+pdf.text("Suraj English Academy",105,30,null,null,"center");
 
-pdf.text("Suraj English Academy",105,20,null,null,"center");
+pdf.setFontSize(12);
+pdf.text("Student Report Card",105,38,null,null,"center");
+
+
+/* STUDENT DETAILS */
+
+pdf.setFontSize(11);
+
+pdf.text("Student Name : "+name,20,55);
+pdf.text("Admission No : "+admission,20,65);
+pdf.text("Standard : "+course,20,75);
+
+
+/* RESULT TABLE HEADER */
+
+let y = 95;
 
 pdf.setFontSize(12);
 
-pdf.text("Student Report Card",105,30,null,null,"center");
+pdf.text("Exam Name",20,y);
+pdf.text("Exam Date",100,y);
+pdf.text("Marks",170,y);
 
-pdf.text("Name: "+name,20,50);
-pdf.text("Admission No: "+admission,20,60);
-pdf.text("Standard: "+course,20,70);
+y += 5;
 
-pdf.text("Paid Fees: ₹"+paid,20,90);
-pdf.text("Due Fees: ₹"+due,20,100);
+/* LINE */
 
-let y=120;
+pdf.line(20,y,190,y);
 
-pdf.text("Results",20,y);
+y += 10;
 
-y+=10;
 
-const rows=document.querySelectorAll("#resultTable tr");
+/* RESULTS DATA */
+
+const rows = document.querySelectorAll("#resultTable tr");
 
 rows.forEach(row=>{
 
 const cols=row.querySelectorAll("td");
 
+pdf.setFontSize(11);
+
 pdf.text(cols[0].innerText,20,y);
-pdf.text(cols[1].innerText,90,y);
+pdf.text(cols[1].innerText,100,y);
 pdf.text(cols[2].innerText,170,y);
 
-y+=10;
+y += 10;
+
+/* PAGE BREAK */
+
+if(y > 270){
+
+pdf.addPage();
+y = 30;
+
+}
 
 });
 
-pdf.save("report-card.pdf");
+
+/* FOOTER */
+
+y += 10;
+
+pdf.setFontSize(10);
+
+pdf.text(
+"This is a computer generated report. For any query WhatsApp us.",
+105,
+y,
+null,
+null,
+"center"
+);
+
+
+/* DOWNLOAD */
+
+pdf.save("student-report-card.pdf");
 
 };
 
