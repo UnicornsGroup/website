@@ -302,7 +302,7 @@ students=[];
 };
 
 
-/* DOWNLOAD RESULT PDF */
+/* DOWNLOAD PROFESSIONAL RESULT PDF */
 
 window.downloadResultPDF = async function(){
 
@@ -312,8 +312,8 @@ const std=document.getElementById("stdSelect").value;
 const examDate=document.getElementById("examDate").value;
 const examName=document.getElementById("examName").value;
 
-if(!std || !examDate){
-alert("Select Standard and Exam Date");
+if(!std || !examDate || !examName){
+alert("Select Standard, Exam Name and Date");
 return;
 }
 
@@ -331,28 +331,37 @@ alert("No results found");
 return;
 }
 
-const docPDF=new jsPDF();
+const pdf=new jsPDF();
 
-docPDF.setFontSize(18);
-docPDF.text("Suraj English Academy",105,20,null,null,"center");
+let y=20;
 
-docPDF.setFontSize(12);
-docPDF.text("Palanpur",105,28,null,null,"center");
+try{
+pdf.addImage("images/logo.png","PNG",90,5,30,20);
+}catch(e){}
 
-docPDF.text("English Test Result",105,36,null,null,"center");
+pdf.setFontSize(18);
+pdf.text("Suraj English Academy",105,30,null,null,"center");
 
-docPDF.setFontSize(11);
+pdf.setFontSize(12);
+pdf.text("Palanpur",105,37,null,null,"center");
 
-docPDF.text("Standard: "+std,20,50);
-docPDF.text("Exam: "+examName,100,50);
-docPDF.text("Date: "+examDate,160,50);
+pdf.setFontSize(14);
+pdf.text("Result Sheet",105,45,null,null,"center");
 
-let y=65;
+pdf.setFontSize(11);
 
-docPDF.text("Rank",20,y);
-docPDF.text("Admission No",40,y);
-docPDF.text("Name",90,y);
-docPDF.text("Marks",170,y);
+pdf.text("Standard: "+std,20,55);
+pdf.text("Exam: "+examName,90,55);
+pdf.text("Date: "+examDate,160,55);
+
+y=70;
+
+pdf.setFontSize(12);
+
+pdf.text("Rank",20,y);
+pdf.text("Admission No",40,y);
+pdf.text("Student Name",90,y);
+pdf.text("Marks",180,y);
 
 y+=8;
 
@@ -362,10 +371,32 @@ snapshot.forEach(docSnap=>{
 
 const d=docSnap.data();
 
-docPDF.text(String(rank),20,y);
-docPDF.text(d.admissionNo,40,y);
-docPDF.text(d.name,90,y);
-docPDF.text(String(d.marks),170,y);
+if(y>270){
+
+pdf.addPage();
+
+y=20;
+
+pdf.setFontSize(14);
+pdf.text("Result Sheet (Continued)",105,20,null,null,"center");
+
+y=35;
+
+pdf.text("Rank",20,y);
+pdf.text("Admission No",40,y);
+pdf.text("Student Name",90,y);
+pdf.text("Marks",180,y);
+
+y+=8;
+
+}
+
+pdf.setFontSize(11);
+
+pdf.text(String(rank),20,y);
+pdf.text(String(d.admissionNo),40,y);
+pdf.text(String(d.name),90,y);
+pdf.text(String(d.marks),180,y);
 
 y+=8;
 rank++;
@@ -374,10 +405,10 @@ rank++;
 
 y+=10;
 
-docPDF.setFontSize(10);
+pdf.setFontSize(10);
 
-docPDF.text(
-"This is a computer generated result sheet.",
+pdf.text(
+"This is a computer generated result sheet. If you have any query whatsapp us.",
 105,
 y,
 null,
@@ -385,20 +416,9 @@ null,
 "center"
 );
 
-docPDF.save(std+"_Result_"+examDate+".pdf");
+pdf.save(std+"_Result_"+examDate+".pdf");
 
 };
-
-
-/* LOGOUT */
-
-window.logout=function(){
-
-signOut(auth).then(()=>{
-window.location="login.html";
-});
-
-}
 
 </script>
 
