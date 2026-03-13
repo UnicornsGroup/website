@@ -1,51 +1,21 @@
-<nav style="position:sticky;top:0;width:100%;z-index:1000;" class="bg-blue-900 text-white">
-
-<div class="flex items-center justify-between px-4 py-3">
-
-<h1 class="font-bold text-lg">
+<nav style="position:sticky;top:0;width:100%;z-index:1000;" class="bg-blue-900 text-white"><div class="flex items-center justify-between px-4 py-3"><h1 class="font-bold text-lg">
 Suraj English Academy
-</h1>
-
-<button onclick="toggleMenu()" class="md:hidden text-2xl">
+</h1><button onclick="toggleMenu()" class="md:hidden text-2xl">
 ☰
-</button>
+</button><div class="hidden md:flex space-x-6 items-center"><a href="students.html" class="nav-link hover:text-gray-300">Students</a>
 
-<div class="hidden md:flex space-x-6 items-center">
+<a href="fees.html" class="nav-link hover:text-gray-300">Fees</a>
 
-<a href="students.html">Students</a>
-
-<a href="fees.html">Fees</a>
-
-<a href="results.html">Results</a>
+<a href="results.html" class="nav-link hover:text-gray-300">Results</a>
 
 <button onclick="logout()" class="bg-red-500 px-3 py-1 rounded">
 Logout
-</button>
+</button></div></div><!-- Mobile Menu --><div id="mobileMenu" class="hidden md:hidden flex flex-col bg-blue-800 px-4 pb-4 space-y-3"><a href="students.html" class="nav-link">Students</a>
 
-</div>
+<a href="fees.html" class="nav-link">Fees</a>
 
-</div>
-
-<div id="mobileMenu" class="hidden md:hidden flex flex-col bg-blue-800 px-4 pb-4 space-y-3">
-
-<a href="students.html">Students</a>
-
-<a href="fees.html">Fees</a>
-
-<a href="results.html">Results</a>
+<a href="results.html" class="nav-link">Results</a>
 
 <button onclick="logout()" class="bg-red-500 px-3 py-1 rounded w-fit">
 Logout
-</button>
-
-</div>
-
-</nav>
-
-<script>
-
-function toggleMenu(){
-document.getElementById("mobileMenu").classList.toggle("hidden");
-}
-
-</script>
+</button></div></nav>
