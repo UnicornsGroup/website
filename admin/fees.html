@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -12,45 +13,45 @@
 
 </head>
 
-<body class="bg-gray-100 p-10">
+<body class="bg-gray-100 p-4 md:p-10">
 
 <div class="max-w-6xl mx-auto">
 
-<h1 class="text-3xl font-bold mb-6">
+<h1 class="text-2xl md:text-3xl font-bold mb-6">
 Fees Management Panel
 </h1>
 
-
 <!-- MENU -->
 
-<div class="flex gap-4 mb-8">
+<div class="flex flex-col md:flex-row gap-3 mb-8">
 
-<button onclick="showSection('collection')" class="bg-green-600 text-white px-6 py-2 rounded">
+<button onclick="showSection('collection')" class="bg-green-600 text-white px-6 py-2 rounded w-full md:w-auto">
 Fees Collection
 </button>
 
-<button onclick="showSection('dashboard')" class="bg-blue-600 text-white px-6 py-2 rounded">
+<button onclick="showSection('dashboard')" class="bg-blue-600 text-white px-6 py-2 rounded w-full md:w-auto">
 Fees Dashboard
 </button>
 
-<button onclick="showSection('due')" class="bg-red-600 text-white px-6 py-2 rounded">
+<button onclick="showSection('due')" class="bg-red-600 text-white px-6 py-2 rounded w-full md:w-auto">
 Due Fees List
 </button>
 
 </div>
 
-
 <!-- ====================== -->
+
 <!-- FEES COLLECTION -->
+
 <!-- ====================== -->
 
 <div id="collectionSection">
 
-<div class="bg-white p-8 rounded-xl shadow mb-10">
+<div class="bg-white p-5 md:p-8 rounded-xl shadow mb-10">
 
-<h2 class="text-xl font-bold mb-6">Collect Fees</h2>
+<h2 class="text-lg md:text-xl font-bold mb-6">Collect Fees</h2>
 
-<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
 <select id="stdSelect" class="border p-3 rounded">
 
@@ -68,13 +69,11 @@ Load Students
 
 </div>
 
-
 <select id="studentSelect" class="border p-3 rounded w-full mb-6">
 <option value="">Select Student</option>
 </select>
 
-
-<div id="studentBox" class="hidden bg-gray-50 p-4 rounded mb-6">
+<div id="studentBox" class="hidden bg-gray-50 p-4 rounded mb-6 text-sm md:text-base">
 
 <p><strong>Name:</strong> <span id="sName"></span></p>
 <p><strong>Admission:</strong> <span id="sAdmission"></span></p>
@@ -82,8 +81,7 @@ Load Students
 
 </div>
 
-
-<div id="feeSummary" class="hidden bg-yellow-50 p-4 rounded mb-6">
+<div id="feeSummary" class="hidden bg-yellow-50 p-4 rounded mb-6 text-sm md:text-base">
 
 <p>Total Fees: ₹ <span id="totalFee">10000</span></p>
 <p>Paid Fees: ₹ <span id="paidFee">0</span></p>
@@ -91,8 +89,7 @@ Load Students
 
 </div>
 
-
-<div id="feesForm" class="hidden grid grid-cols-3 gap-4 mb-6">
+<div id="feesForm" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
 <input type="date" id="feeDate" class="border p-3 rounded">
 
@@ -108,15 +105,15 @@ Load Students
 
 </div>
 
-
-<button onclick="saveFee()" id="saveBtn" class="bg-blue-600 text-white px-6 py-3 rounded hidden">
+<button onclick="saveFee()" id="saveBtn" class="bg-blue-600 text-white px-6 py-3 rounded hidden w-full md:w-auto">
 Submit Fees
 </button>
 
-
 <h3 class="text-lg font-bold mt-8 mb-4">Payment History</h3>
 
-<table class="w-full border bg-white">
+<div class="overflow-x-auto">
+
+<table class="w-full border bg-white text-sm md:text-base">
 
 <thead class="bg-gray-200">
 
@@ -136,51 +133,55 @@ Submit Fees
 
 </div>
 
-
+</div>
 
 <!-- ====================== -->
+
 <!-- DASHBOARD -->
+
 <!-- ====================== -->
 
 <div id="dashboardSection" class="hidden">
 
-<div class="grid grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
 
-<div class="bg-white p-6 rounded shadow">
+<div class="bg-white p-4 md:p-6 rounded shadow">
 <p>Total Students</p>
-<p id="totalStudents" class="text-2xl font-bold">0</p>
+<p id="totalStudents" class="text-xl md:text-2xl font-bold">0</p>
 </div>
 
-<div class="bg-white p-6 rounded shadow">
+<div class="bg-white p-4 md:p-6 rounded shadow">
 <p>Total Fees</p>
-<p id="totalFees" class="text-2xl font-bold">0</p>
+<p id="totalFees" class="text-xl md:text-2xl font-bold">0</p>
 </div>
 
-<div class="bg-white p-6 rounded shadow">
+<div class="bg-white p-4 md:p-6 rounded shadow">
 <p>Collected</p>
-<p id="paidFees" class="text-2xl font-bold text-green-600">0</p>
+<p id="paidFees" class="text-xl md:text-2xl font-bold text-green-600">0</p>
 </div>
 
-<div class="bg-white p-6 rounded shadow">
+<div class="bg-white p-4 md:p-6 rounded shadow">
 <p>Pending</p>
-<p id="dueFees" class="text-2xl font-bold text-red-600">0</p>
+<p id="dueFees" class="text-xl md:text-2xl font-bold text-red-600">0</p>
 </div>
 
 </div>
 
 </div>
-
-
 
 <!-- ====================== -->
+
 <!-- DUE STUDENTS -->
+
 <!-- ====================== -->
 
 <div id="dueSection" class="hidden">
 
-<h2 class="text-xl font-bold mb-4">Students With Pending Fees</h2>
+<h2 class="text-lg md:text-xl font-bold mb-4">Students With Pending Fees</h2>
 
-<table class="w-full border bg-white">
+<div class="overflow-x-auto">
+
+<table class="w-full border bg-white text-sm md:text-base">
 
 <thead class="bg-gray-200">
 
@@ -204,7 +205,7 @@ Submit Fees
 
 </div>
 
-
+</div>
 
 <script type="module">
 
@@ -217,17 +218,45 @@ query,
 where,
 getDocs,
 addDoc
-}
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+
+const firebaseConfig = {
+apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
+authDomain: "suraj-english-academy-7141e.firebaseapp.com",
+projectId: "suraj-english-academy-7141e",
+storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
+messagingSenderId: "291322319555",
+appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 const yearlyFee = 10000;
 
 let students = [];
 let studentData = null;
 
+/* LOGIN CHECK */
 
+onAuthStateChanged(auth,(user)=>{
+if(!user){
+window.location="login.html";
+}
+});
 
-window.showSection = function(section){
+/* MENU SWITCH */
+
+window.showSection=function(section){
 
 document.getElementById("collectionSection").style.display = section==="collection" ? "block":"none";
 document.getElementById("dashboardSection").style.display = section==="dashboard" ? "block":"none";
@@ -238,7 +267,7 @@ if(section==="due") loadDueStudents();
 
 };
 
-
+/* LOAD STUDENTS */
 
 window.loadStudents = async function(){
 
@@ -252,7 +281,7 @@ students=[];
 
 const dropdown=document.getElementById("studentSelect");
 
-dropdown.innerHTML='<option>Select Student</option>';
+dropdown.innerHTML='<option value="">Select Student</option>';
 
 snapshot.forEach(doc=>{
 
@@ -272,7 +301,7 @@ dropdown.appendChild(option);
 
 };
 
-
+/* SELECT STUDENT */
 
 document.getElementById("studentSelect").addEventListener("change",function(){
 
@@ -296,7 +325,7 @@ loadHistory(admission);
 
 });
 
-
+/* SAVE FEES */
 
 window.saveFee = async function(){
 
@@ -327,15 +356,26 @@ loadHistory(studentData.admissionNo);
 
 };
 
+/* PAYMENT HISTORY */
+
 async function loadHistory(admission){
+
 const q=query(collection(db,"fees"),where("admissionNo","==",admission));
+
 const snapshot=await getDocs(q);
+
 const table=document.getElementById("historyTable");
+
 table.innerHTML="";
+
 let paid=0;
+
 snapshot.forEach(doc=>{
+
 const d=doc.data();
+
 paid+=Number(d.amount);
+
 table.innerHTML+=`
 <tr>
 <td class="border p-3">${d.date}</td>
@@ -343,34 +383,55 @@ table.innerHTML+=`
 <td class="border p-3">${d.paymentType}</td>
 </tr>
 `;
+
 });
+
 const due=yearlyFee-paid;
+
 document.getElementById("paidFee").innerText=paid;
 document.getElementById("dueFee").innerText=due;
+
 document.getElementById("feeSummary").classList.remove("hidden");
+
 }
+
+/* DASHBOARD */
+
 async function loadDashboard(){
-const students=await getDocs(collection(db,"students"));
-const fees=await getDocs(collection(db,"fees"));
-let studentsCount=students.size;
+
+const studentsSnap=await getDocs(collection(db,"students"));
+const feesSnap=await getDocs(collection(db,"fees"));
+
+let studentsCount=studentsSnap.size;
 let totalFees=studentsCount*yearlyFee;
+
 let paid=0;
-fees.forEach(doc=>{
+
+feesSnap.forEach(doc=>{
 paid+=Number(doc.data().amount);
 });
+
 document.getElementById("totalStudents").innerText=studentsCount;
 document.getElementById("totalFees").innerText="₹ "+totalFees;
 document.getElementById("paidFees").innerText="₹ "+paid;
 document.getElementById("dueFees").innerText="₹ "+(totalFees-paid);
+
 }
+
+/* DUE LIST */
+
 async function loadDueStudents(){
+
 const studentsSnap = await getDocs(collection(db,"students"));
 const feesSnap = await getDocs(collection(db,"fees"));
+
 const students=[];
 const payments={};
+
 studentsSnap.forEach(doc=>{
 students.push(doc.data());
 });
+
 feesSnap.forEach(doc=>{
 const d=doc.data();
 if(!payments[d.admissionNo]){
@@ -378,15 +439,24 @@ payments[d.admissionNo]=0;
 }
 payments[d.admissionNo]+=Number(d.amount);
 });
+
 const table=document.getElementById("dueTable");
+
 table.innerHTML="";
+
 students.forEach(s=>{
+
 const paid=payments[s.admissionNo]||0;
 const due=yearlyFee-paid;
+
 if(due<=0) return;
+
 const name=s.surname+" "+s.name+" "+s.lastname;
+
 const message=`Dear Parent,%0A%0A${name} fees ₹${due} is pending.%0A%0A- Suraj English Academy, Palanpur`;
+
 const whatsapp=`https://wa.me/91${s.mobile}?text=${message}`;
+
 table.innerHTML+=`
 <tr>
 <td class="border p-3">${name}</td>
@@ -401,47 +471,10 @@ WhatsApp
 </td>
 </tr>
 `;
-});
-}
-</script>
-
-<script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-
-import {
-getAuth,
-onAuthStateChanged,
-signOut
-}
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyACOURK_ZQEuxuZqP5Xfv_lZ29Nj59uHj8",
-authDomain: "suraj-english-academy-7141e.firebaseapp.com",
-projectId: "suraj-english-academy-7141e",
-storageBucket: "suraj-english-academy-7141e.firebasestorage.app",
-messagingSenderId: "291322319555",
-appId: "1:291322319555:web:9ad5bb47e56ee27b9dc876"
-
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-/* CHECK LOGIN */
-
-onAuthStateChanged(auth,(user)=>{
-
-if(!user){
-
-window.location="login.html";
-
-}
 
 });
+
+}
 
 /* LOGOUT */
 
