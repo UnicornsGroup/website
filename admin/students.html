@@ -10,27 +10,9 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-gray-100 p-4 md:p-8">
-<nav class="bg-blue-900 text-white p-4 flex justify-between items-center">
 
-<h1 class="font-bold">
-Suraj English Academy
-</h1>
+<div id="navbar"></div>
 
-<div class="space-x-4">
-
-<a href="students.html">Students</a>
-
-<a href="fees.html">Fees</a>
-
-<a href="results.html">Results</a>
-
-<button onclick="logout()" class="bg-red-500 px-3 py-1 rounded">
-Logout
-</button>
-
-</div>
-
-</nav>
 <div class="max-w-7xl mx-auto">
 <!-- <h1 class="text-2xl md:text-3xl font-bold mb-6">Students Management</h1> -->
 
@@ -156,7 +138,7 @@ let students=[];
 let filteredStudents=[];
 window.toggleAddForm=function(){
 const form=document.getElementById("addForm");
-form.classList.toggle("show");
+form.classList.toggle("hidden");
 }
 
 /* LOAD STUDENTS */
@@ -397,6 +379,16 @@ window.location="login.html";
 });
 
 }
+
+</script>
+
+<script>
+
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+document.getElementById("navbar").innerHTML = data;
+});
 
 </script>
 
