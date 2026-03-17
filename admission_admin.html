@@ -411,7 +411,7 @@ window.downloadExcel=function(){
 let csv="Admission No,Name,Course,Mobile,School\n";
 
 allData.forEach(s=>{
-csv+=`${s.admissionNo},"${s.surname} ${s.name}",${s.course},${s.mobile},${s.school}\n`;
+csv+=`${s.admissionNo},"${s.surname} ${s.name}",${s.course},${s.whatsapp},${s.school}\n`;
 });
 
 const blob=new Blob([csv],{type:"text/csv"});
