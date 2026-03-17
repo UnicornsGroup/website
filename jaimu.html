@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Well Do You Know Us? ❤️</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17">
+
+// Sound effects
+const correctSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+const wrongSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3');
+
+function vibrate(pattern = [100]) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function handleAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  const q = quizData[currentQ];
+  const buttons = document.querySelectorAll('.option-btn');
+
+  buttons.forEach((b, i) => {
+    if (i === q.correct) {
+      b.classList.add('correct');
+    } else {
+      b.classList.add('wrong');
+    }
+  });
+
+  if (idx === q.correct) {
+    score++;
+    correctSound.play();
+    vibrate([100, 50, 100]);
+  } else {
+    wrongSound.play();
+    vibrate([200]);
+  }
+
+  document.getElementById('reward-text').textContent = q.reward;
+  setTimeout(() => {
+    document.getElementById('reward-popup').classList.add('visible');
+  }, 400);
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < quizData.length) {
+      loadQuestion();
+    } else {
+      showFinalScore();
+    }
+  }, 2200);
+}
+
+function showFinalScore() {
+  const total = quizData.length;
+  const msg = `You got ${score}/${total} 💕`;
+  const finalMsg = document.getElementById('el-final-msg');
+  finalMsg.innerHTML = msg + '<br><br>You didn\'t just pass the quiz…<br>You built all these memories with me.';
+  showScreen('screen-final');
+}
+
+// Reset score on restart
+const restartBtn = document.getElementById('btn-restart');
+if (restartBtn) {
+  restartBtn.addEventListener('click', () => {
+    score = 0;
+  });
+}
+
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    * { box-sizing: border-box; }
+
+    .screen { 
+      opacity: 0; 
+      transform: translateY(20px); 
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow-y: auto;
+    }
+    .screen.active { 
+      opacity: 1; 
+      transform: translateY(0); 
+      pointer-events: all;
+    }
+
+    .option-btn {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .option-btn:active { transform: scale(0.97); }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #7c3aed, #ec4899) !important;
+      border-color: #ec4899 !important;
+    }
+    .option-btn.wrong {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .reward-popup {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+      transition: all 0.4s ease;
+    }
+    .reward-popup.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      transition: all 0.4s ease;
+    }
+    .dot.filled { width: 24px; border-radius: 4px; }
+
+    .start-btn {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.8rem !important; }
+      h2 { font-size: 1.4rem !important; }
+      .option-btn { font-size: 0.85rem; padding: 12px; }
+    }
+  </style>
+ </head>
+ <body class="h-full">
+
+<script>
+let score = 0;
+
+const quizData = [
+  {
+    question: "Who fell first?",
+    options: ["You 😇", "Me 😎", "Still in denial"],
+    correct: 0,
+    reward: "Okay but I fell harder ❤️"
+  },
+  {
+    question: "What do I always say before sleeping?",
+    options: [
+      "Good night",
+      "Good Night, Jam SD MS SPECIAL TC Love you Jay ambe",
+      "Sleep well, I love you ❤️"
+    ],
+    correct: 1,
+    reward: "That line is special every single night ❤️"
+  },
+  {
+    question: "What's our most used topic?",
+    options: ["Food 🍔", "Random nonsense 😂", "Life plans"],
+    correct: 1,
+    reward: "And somehow it always makes sense to us."
+  },
+  {
+    question: "Who is more dramatic?",
+    options: ["Me 😌", "You 😏", "Equal chaos"],
+    correct: 0,
+    reward: "Yes… you win this one 😄"
+  },
+  {
+    question: "What do we do best together?",
+    options: ["Laugh at nothing 😂", "Plan things we don't do", "Bully each other lovingly"],
+    correct: 0,
+    reward: "My favorite hobby is still you."
+  },
+  {
+    question: "What's the hardest part of us?",
+    options: ["Time zones ⏰", "Distance 💔", "Saying goodbye"],
+    correct: 1,
+    reward: "And yet… we're still here."
+  },
+  {
+    question: "Do you think I love you?",
+    options: ["Yes ❤️", "Obviously yes", "Always yes"],
+    correct: 0,
+    reward: "Correct answer forever."
+  }
+];
+</script>
+
+ </body>
+</html>
