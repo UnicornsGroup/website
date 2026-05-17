@@ -23,7 +23,19 @@ async function fetchUserByAdmission(admissionNumber) {
 }
 
 async function fetchUserByEmail(email) {
-  return queryUserDocument(CONFIG.emailField, email);
+  const exact = await queryUserDocument(CONFIG.emailField, email);
+  if (exact) {
+    return exact;
+  }
+  const lowerEmail = String(email || '').trim().toLowerCase();
+  if (!lowerEmail) {
+    return null;
+  }
+  const fallback = await db.collection(CONFIG.studentsCollection)
+    .where('emailLower', '==', lowerEmail)
+    .limit(1)
+    .get();
+  return fallback.docs.length ? fallback.docs[0] : null;
 }
 
 async function signInUser(identifier, password) {
@@ -31,11 +43,10 @@ async function signInUser(identifier, password) {
     throw new Error('Please provide both fields.');
   }
 
-  let signInPromise;
+  let authEmail = identifier;
   let fallbackProfile = null;
-  if (identifier.includes('@')) {
-    signInPromise = auth.signInWithEmailAndPassword(identifier, password);
-  } else {
+
+  if (!identifier.includes('@')) {
     const userDoc = await fetchUserByAdmission(identifier);
     if (!userDoc) {
       throw new Error('Admission number not found.');
@@ -44,11 +55,11 @@ async function signInUser(identifier, password) {
     if (!userEmail) {
       throw new Error('Student email is missing in database.');
     }
+    authEmail = userEmail;
     fallbackProfile = userDoc;
-    signInPromise = auth.signInWithEmailAndPassword(userEmail, password);
   }
 
-  const credential = await signInPromise;
+  const credential = await auth.signInWithEmailAndPassword(authEmail, password);
   await handlePostSignIn(credential.user, fallbackProfile);
 }
 
