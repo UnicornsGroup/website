@@ -10,8 +10,14 @@ window.addEventListener('load', () => {
 
 async function loadStudentExams(user) {
   const now = Date.now();
-  const examSnapshot = await db.collection(CONFIG.examsCollection)
-    .where(CONFIG.standardField, '==', user[CONFIG.standardField])
+  const studentStandard = String(user[CONFIG.standardField] || '').trim();
+  if (!studentStandard) {
+    document.getElementById('activeExams').innerHTML = '<p class="text-sm text-slate-500">Unable to determine your standard.</p>';
+    document.getElementById('upcomingExams').innerHTML = '<p class="text-sm text-slate-500">Unable to determine your standard.</p>';
+    return;
+  }
+
+  const publishedSnapshot = await db.collection(CONFIG.examsCollection)
     .where('published', '==', true)
     .get();
 
@@ -26,13 +32,19 @@ async function loadStudentExams(user) {
   const upcomingExams = [];
   const completedExams = [];
 
-  examSnapshot.docs.forEach((doc) => {
+  const normalizedStandard = normalizeText(studentStandard);
+  publishedSnapshot.docs.forEach((doc) => {
     const exam = { id: doc.id, ...doc.data() };
+    if (normalizeText(exam[CONFIG.standardField]) !== normalizedStandard) {
+      return;
+    }
+
     const hasSubmitted = submittedExams.has(exam.id);
     if (hasSubmitted) {
       completedExams.push({ exam, submission: submittedExams.get(exam.id) });
       return;
     }
+
     const start = new Date(exam.startTime).getTime();
     const end = new Date(exam.endTime).getTime();
     if (now < start) {
@@ -49,6 +61,10 @@ async function loadStudentExams(user) {
   renderExamCards('activeExams', activeExams, 'Start Exam');
   renderExamCards('upcomingExams', upcomingExams, 'Not Started');
   renderCompletedExams(completedExams);
+}
+
+function normalizeText(value) {
+  return String(value || '').trim().toLowerCase();
 }
 
 function renderExamCards(containerId, exams, buttonText) {
