@@ -101,17 +101,29 @@ async function getCurrentUserProfile() {
   if (!user || !user.email) {
     return null;
   }
+
+  const exactEmail = user.email.trim();
+  const lowerEmail = exactEmail.toLowerCase();
+
   let snapshot = await db.collection(CONFIG.studentsCollection)
-    .where(CONFIG.emailField, '==', user.email)
+    .where(CONFIG.emailField, '==', exactEmail)
     .limit(1)
     .get();
+
   if (!snapshot.docs.length) {
-    const normalizedEmail = user.email.trim().toLowerCase();
     snapshot = await db.collection(CONFIG.studentsCollection)
-      .where('emailLower', '==', normalizedEmail)
+      .where(CONFIG.emailField, '==', lowerEmail)
       .limit(1)
       .get();
   }
+
+  if (!snapshot.docs.length) {
+    snapshot = await db.collection(CONFIG.studentsCollection)
+      .where('emailLower', '==', lowerEmail)
+      .limit(1)
+      .get();
+  }
+
   return snapshot.docs.length ? snapshot.docs[0] : null;
 }
 
