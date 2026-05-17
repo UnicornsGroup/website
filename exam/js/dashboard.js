@@ -32,10 +32,10 @@ async function loadStudentExams(user) {
   const upcomingExams = [];
   const completedExams = [];
 
-  const normalizedStandard = normalizeText(studentStandard);
+  const normalizedStandard = normalizeStandard(studentStandard);
   publishedSnapshot.docs.forEach((doc) => {
     const exam = { id: doc.id, ...doc.data() };
-    if (normalizeText(exam[CONFIG.standardField]) !== normalizedStandard) {
+    if (normalizeStandard(exam[CONFIG.standardField]) !== normalizedStandard) {
       return;
     }
 
@@ -63,8 +63,16 @@ async function loadStudentExams(user) {
   renderCompletedExams(completedExams);
 }
 
-function normalizeText(value) {
-  return String(value || '').trim().toLowerCase();
+function normalizeStandard(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/std\.?/g, '')
+    .replace(/standard\.?/g, '')
+    .replace(/class\.?/g, '')
+    .replace(/[\s\-\._]/g, '')
+    .replace(/[()]/g, '')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function renderExamCards(containerId, exams, buttonText) {

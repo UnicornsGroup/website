@@ -24,7 +24,7 @@ async function loadExamPage(profile, examId) {
     return showError('Exam not found.');
   }
   const exam = examDoc.data();
-  if (exam[CONFIG.standardField] !== profile[CONFIG.standardField]) {
+  if (normalizeStandard(exam[CONFIG.standardField]) !== normalizeStandard(profile[CONFIG.standardField])) {
     return showError('You are not allowed to access this exam.');
   }
   const now = Date.now();
@@ -377,6 +377,18 @@ function registerViolation(message) {
     const examId = getQueryParam('examId');
     setTimeout(() => autoSubmitExamOnTimeout(examId), 500);
   }
+}
+
+function normalizeStandard(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/std\.?/g, '')
+    .replace(/standard\.?/g, '')
+    .replace(/class\.?/g, '')
+    .replace(/[\s\-\._]/g, '')
+    .replace(/[()]/g, '')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function showError(message) {
