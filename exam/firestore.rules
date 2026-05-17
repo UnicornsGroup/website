@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  function isStudent() {
+    return isSignedIn() && request.auth.token.email != null;
+  }
+
+  function isAdmin() {
+    return isSignedIn() && request.auth.token.email != null;
+  }
+
+  match /users/{userId} {
+    allow read: if isSignedIn() && resource.data.email == request.auth.token.email;
+    allow create: if isAdmin();
+    allow update: if isAdmin() || (isSignedIn() && resource.data.email == request.auth.token.email);
+    allow delete: if isAdmin();
+  }
+
+  match /exams/{examId} {
+    allow read: if resource.data.published == true || isAdmin();
+    allow create, update, delete: if isAdmin();
+  }
+
+  match /questions/{questionId} {
+    allow read: if isSignedIn();
+    allow create, update, delete: if isAdmin();
+  }
+
+  match /submissions/{submissionId} {
+    allow read: if isSignedIn() && resource.data.email == request.auth.token.email || isAdmin();
+    allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;
+    allow update: if false;
+    allow delete: if isAdmin();
+  }
+
+  match /results/{resultId} {
+    allow read: if isSignedIn() && resource.data.email == request.auth.token.email || isAdmin();
+    allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;
+    allow update, delete: if isAdmin();
+  }
+}

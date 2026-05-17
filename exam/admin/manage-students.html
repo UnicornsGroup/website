@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Students | Online Exam System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/custom.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50">
+    <div class="min-h-screen">
+      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img id="pageLogo" class="logo-image" src="../assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
+            <div>
+              <h1 class="text-xl font-semibold">Manage Students</h1>
+              <p class="text-sm text-slate-500">Add or update admission records for students.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="admin-dashboard.html" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Back</a>
+            <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Logout</button>
+          </div>
+        </div>
+      </header>
+      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div class="rounded-3xl bg-white p-6 card-shadow">
+            <h2 class="text-lg font-semibold">Student List</h2>
+            <div id="studentTable" class="mt-6 overflow-hidden rounded-3xl border border-slate-200"></div>
+          </div>
+          <div class="rounded-3xl bg-white p-6 card-shadow">
+            <h2 class="text-lg font-semibold">Add New Student</h2>
+            <form id="studentForm" class="mt-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Admission Number</label>
+                <input id="studentAdmission" type="text" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Student Name</label>
+                <input id="studentName" type="text" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Standard</label>
+                <select id="studentStandard" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required>
+                  <option value="">Select standard</option>
+                  <option value="STD 09 (GM)">STD 09 (GM)</option>
+                  <option value="STD 10 (GM)">STD 10 (GM)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Email</label>
+                <input id="studentEmail" type="email" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Mobile Number</label>
+                <input id="studentPhone" type="tel" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
+              </div>
+              <div class="space-y-2">
+                <button type="submit" class="btn-primary w-full rounded-2xl px-6 py-3 text-white">Save Student</button>
+                <p id="studentMessage" class="text-sm text-slate-600"></p>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+  </body>
+</html>

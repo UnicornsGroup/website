@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Online Exam System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/custom.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50">
+    <div class="flex min-h-screen items-center justify-center px-4 py-10">
+      <div class="w-full max-w-3xl rounded-3xl bg-white p-8 shadow-2xl card-shadow">
+        <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div class="space-y-4">
+            <img id="pageLogo" class="logo-image" src="assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
+            <div id="logoText" class="hidden text-2xl font-bold text-slate-900">Suraj English Academy</div>
+            <h1 class="text-3xl font-semibold tracking-tight">Secure Login</h1>
+            <p class="text-slate-600">Use your admission number or registered email and password to access the exam portal.</p>
+          </div>
+          <div class="rounded-3xl bg-slate-900 p-6 text-white shadow-xl sm:p-10">
+            <p class="text-xl font-semibold">Need help?</p>
+            <p class="mt-3 text-slate-200">Students use admission number. Teachers use email. Reset password anytime using our secure link.</p>
+          </div>
+        </div>
+
+        <form id="loginForm" class="mt-10 space-y-5">
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">Email or Admission Number</label>
+            <input id="loginIdentifier" type="text" placeholder="SEA20260002 or admin@school.com" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm" required />
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">Password</label>
+            <input id="loginPassword" type="password" placeholder="Enter your password" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm" required />
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <button type="submit" class="btn-primary inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-white">Login</button>
+            <button id="resetPasswordBtn" type="button" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-3 text-slate-700 transition hover:bg-slate-50">Reset</button>
+          </div>
+          <p id="loginMessage" class="text-sm text-red-600"></p>
+        </form>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      window.addEventListener('load', () => {
+        initFirebase();
+        const logo = document.getElementById('pageLogo');
+        logo.onerror = () => {
+          logo.style.display = 'none';
+          document.getElementById('logoText').classList.remove('hidden');
+        };
+
+        const loginForm = document.getElementById('loginForm');
+        const resetButton = document.getElementById('resetPasswordBtn');
+        const message = document.getElementById('loginMessage');
+
+        loginForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          message.textContent = '';
+          const identifier = document.getElementById('loginIdentifier').value.trim();
+          const password = document.getElementById('loginPassword').value.trim();
+          if (!identifier || !password) {
+            message.textContent = 'Please enter both fields.';
+            return;
+          }
+
+          try {
+            await signInUser(identifier, password);
+          } catch (error) {
+            message.textContent = error.message || 'Login failed. Check credentials.';
+          }
+        });
+
+        resetButton.addEventListener('click', async () => {
+          const identifier = document.getElementById('loginIdentifier').value.trim();
+          if (!identifier) {
+            message.textContent = 'Enter your admission number or email first.';
+            return;
+          }
+          message.textContent = '';
+          try {
+            await passwordReset(identifier);
+            message.textContent = 'Password reset link sent if the account exists.';
+            message.classList.remove('text-red-600');
+            message.classList.add('text-emerald-600');
+          } catch (error) {
+            message.textContent = error.message || 'Unable to send reset email.';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

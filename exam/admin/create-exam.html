@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Exam | Online Exam System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/custom.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50">
+    <div class="min-h-screen">
+      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img id="pageLogo" class="logo-image" src="../assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
+            <div>
+              <h1 class="text-xl font-semibold">Create New Exam</h1>
+              <p class="text-sm text-slate-500">Enter metadata and add MCQ questions for your exam.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="admin-dashboard.html" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Back</a>
+            <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <form id="examForm" class="space-y-6 rounded-3xl bg-white p-6 card-shadow">
+          <div class="grid gap-5 lg:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Exam Title</label>
+              <input id="examTitle" type="text" placeholder="Term 1 Maths Test" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Subject</label>
+              <input id="examSubject" type="text" placeholder="Mathematics" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Standard / Class</label>
+              <select id="examStandard" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required>
+                <option value="">Select standard</option>
+                <option value="STD 09 (GM)">STD 09 (GM)</option>
+                <option value="STD 10 (GM)">STD 10 (GM)</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Duration (minutes)</label>
+              <input id="examDuration" type="number" min="5" max="180" value="15" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">Start Date / Time</label>
+              <input id="examStart" type="datetime-local" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700">End Date / Time</label>
+              <input id="examEnd" type="datetime-local" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            </div>
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">Instructions</label>
+            <textarea id="examInstructions" rows="4" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" placeholder="Read all questions carefully before submitting."></textarea>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-slate-700">Publish exam now?</label>
+            <input id="examPublished" type="checkbox" class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+          </div>
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-semibold">Questions</h2>
+              <button id="addQuestionBtn" type="button" class="btn-primary rounded-2xl px-4 py-2 text-sm">Add Question</button>
+            </div>
+            <div id="questionList" class="mt-4 space-y-4"></div>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
+            <button id="saveExamBtn" type="submit" class="btn-primary rounded-2xl px-6 py-3 text-white">Save Exam</button>
+            <p id="examMessage" class="text-sm text-slate-600"></p>
+          </div>
+        </form>
+      </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="56" viewBox="0 0 160 56" fill="none">
+  <rect width="160" height="56" rx="16" fill="#2563EB" />
+  <path d="M28 18H34L42 36L50 18H56L46.5 44H39L28 18Z" fill="white" />
+  <path d="M72 20H85V24H76V30H84V34H76V44H72V20Z" fill="white" />
+  <path d="M102 20H117V24H106V30H116V34H106V44H102V20Z" fill="white" />
+  <text x="16" y="52" fill="white" font-family="Inter, sans-serif" font-size="12">SEA Online Exam</text>
+</svg>

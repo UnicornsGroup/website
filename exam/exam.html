@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam | Online Exam System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/custom.css" />
+  </head>
+  <body class="min-h-screen bg-slate-50">
+    <div class="min-h-screen">
+      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img id="pageLogo" class="logo-image" src="assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
+            <div>
+              <h1 class="text-xl font-semibold">Live Exam</h1>
+              <p class="text-sm text-slate-500">Use full screen and avoid switching tabs during the test.</p>
+            </div>
+          </div>
+          <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Exit</button>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <section class="grid gap-6 xl:grid-cols-[1fr_320px]">
+          <div class="space-y-6">
+            <div id="examBanner" class="rounded-3xl bg-white p-6 card-shadow"></div>
+            <div id="examContainer" class="space-y-6"></div>
+          </div>
+          <aside class="space-y-6">
+            <div class="rounded-3xl bg-white p-6 card-shadow">
+              <h2 class="text-lg font-semibold">Exam Timer</h2>
+              <p id="timerValue" class="mt-4 text-5xl font-semibold text-slate-900">00:00</p>
+              <div id="examStatus" class="mt-4 text-sm text-slate-600"></div>
+            </div>
+            <div id="cheatWarning" class="rounded-3xl bg-amber-50 p-6 text-amber-800 hidden card-shadow"></div>
+            <div class="rounded-3xl bg-white p-6 card-shadow">
+              <h3 class="text-base font-semibold">Exam Rules</h3>
+              <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                <li>- Do not switch tabs during exam.</li>
+                <li>- Copy/paste and right-click are disabled.</li>
+                <li>- Answers auto-save every 10 seconds.</li>
+                <li>- Timer continues after refresh.</li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/exam.js"></script>
+  </body>
+</html>

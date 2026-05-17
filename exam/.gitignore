@@ -1,0 +1,14 @@
+# Ignore local dependency and environment files
+.DS_Store
+firebase-debug.log
+
+# Ignore node modules if present
+node_modules/
+
+# Ignore OS files
+Thumbs.db
+
+# Ignore editor backups
+*.swp
+
+# Keep generated files if needed
