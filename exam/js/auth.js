@@ -135,7 +135,13 @@ async function getCurrentUserProfile() {
   return fetchUserByEmail(user.email);
 }
 
+function normalizeRoles(roles) {
+  if (!roles) return [];
+  return Array.isArray(roles) ? roles : [roles];
+}
+
 function monitorAuthState(requiredRoles = [], onReady) {
+  const allowedRoles = normalizeRoles(requiredRoles);
   auth.onAuthStateChanged(async (user) => {
     if (!user) {
       window.location.href = 'login.html';
@@ -150,7 +156,7 @@ function monitorAuthState(requiredRoles = [], onReady) {
     }
 
     const profile = profileDoc.data();
-    if (requiredRoles.length && !requiredRoles.includes(profile[CONFIG.roleField])) {
+    if (allowedRoles.length && !allowedRoles.includes(profile[CONFIG.roleField])) {
       if (profile[CONFIG.roleField] === CONFIG.studentRoleValue) {
         window.location.href = '../dashboard.html';
       } else {
