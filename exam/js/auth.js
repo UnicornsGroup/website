@@ -23,19 +23,39 @@ async function fetchUserByAdmission(admissionNumber) {
 }
 
 async function fetchUserByEmail(email) {
-  const exact = await queryUserDocument(CONFIG.emailField, email);
-  if (exact) {
-    return exact;
+  const exactEmail = String(email || '').trim();
+  const lowerEmail = exactEmail.toLowerCase();
+
+  let snapshot = await db.collection(CONFIG.studentsCollection)
+    .where(CONFIG.emailField, '==', exactEmail)
+    .limit(1)
+    .get();
+  if (snapshot.docs.length) {
+    return snapshot.docs[0];
   }
-  const lowerEmail = String(email || '').trim().toLowerCase();
-  if (!lowerEmail) {
-    return null;
+
+  snapshot = await db.collection(CONFIG.studentsCollection)
+    .where(CONFIG.emailField, '==', lowerEmail)
+    .limit(1)
+    .get();
+  if (snapshot.docs.length) {
+    return snapshot.docs[0];
   }
-  const fallback = await db.collection(CONFIG.studentsCollection)
+
+  snapshot = await db.collection(CONFIG.studentsCollection)
     .where('emailLower', '==', lowerEmail)
     .limit(1)
     .get();
-  return fallback.docs.length ? fallback.docs[0] : null;
+  if (snapshot.docs.length) {
+    return snapshot.docs[0];
+  }
+
+  const allSnapshot = await db.collection(CONFIG.studentsCollection).get();
+  const matchDoc = allSnapshot.docs.find((doc) => {
+    const storedEmail = String(doc.data()[CONFIG.emailField] || '').trim().toLowerCase();
+    return storedEmail === lowerEmail;
+  });
+  return matchDoc || null;
 }
 
 async function signInUser(identifier, password) {
@@ -112,30 +132,7 @@ async function getCurrentUserProfile() {
   if (!user || !user.email) {
     return null;
   }
-
-  const exactEmail = user.email.trim();
-  const lowerEmail = exactEmail.toLowerCase();
-
-  let snapshot = await db.collection(CONFIG.studentsCollection)
-    .where(CONFIG.emailField, '==', exactEmail)
-    .limit(1)
-    .get();
-
-  if (!snapshot.docs.length) {
-    snapshot = await db.collection(CONFIG.studentsCollection)
-      .where(CONFIG.emailField, '==', lowerEmail)
-      .limit(1)
-      .get();
-  }
-
-  if (!snapshot.docs.length) {
-    snapshot = await db.collection(CONFIG.studentsCollection)
-      .where('emailLower', '==', lowerEmail)
-      .limit(1)
-      .get();
-  }
-
-  return snapshot.docs.length ? snapshot.docs[0] : null;
+  return fetchUserByEmail(user.email);
 }
 
 function monitorAuthState(requiredRoles = [], onReady) {
