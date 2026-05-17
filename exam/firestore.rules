@@ -4,41 +4,50 @@ service cloud.firestore {
     return request.auth != null;
   }
 
-  function isStudent() {
-    return isSignedIn() && request.auth.token.email != null;
+  function userEmail() {
+    return request.auth.token.email != null ? request.auth.token.email : '';
   }
 
-  function isAdmin() {
-    return isSignedIn() && request.auth.token.email != null;
+  function isTeacher() {
+    return isSignedIn() && request.auth.token.role == 'TEACHER';
+  }
+
+  function isStudent() {
+    return isSignedIn() && request.auth.token.role == 'STUDENT';
+  }
+
+  function isOwnUser(userId) {
+    return isSignedIn() && resource.data.email == userEmail();
   }
 
   match /users/{userId} {
-    allow read: if isSignedIn() && resource.data.email == request.auth.token.email;
-    allow create: if isAdmin();
-    allow update: if isAdmin() || (isSignedIn() && resource.data.email == request.auth.token.email);
-    allow delete: if isAdmin();
+    allow read: if isSignedIn() && resource.data.email == userEmail();
+    allow create: if isTeacher();
+    allow update: if isTeacher() || (isSignedIn() && resource.data.email == userEmail());
+    allow delete: if isTeacher();
   }
 
   match /exams/{examId} {
-    allow read: if resource.data.published == true || isAdmin();
-    allow create, update, delete: if isAdmin();
+    allow read: if isSignedIn() && resource.data.published == true;
+    allow create, update, delete: if isTeacher();
   }
 
   match /questions/{questionId} {
     allow read: if isSignedIn();
-    allow create, update, delete: if isAdmin();
+    allow create, update, delete: if isTeacher();
   }
 
   match /submissions/{submissionId} {
-    allow read: if isSignedIn() && resource.data.email == request.auth.token.email || isAdmin();
-    allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;
+    allow create: if isSignedIn() && request.resource.data.email == userEmail();
+    allow read: if isSignedIn() && (resource.data.email == userEmail() || isTeacher());
     allow update: if false;
-    allow delete: if isAdmin();
+    allow delete: if isTeacher();
   }
 
   match /results/{resultId} {
-    allow read: if isSignedIn() && resource.data.email == request.auth.token.email || isAdmin();
-    allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;
-    allow update, delete: if isAdmin();
+    allow create: if isSignedIn() && request.resource.data.email == userEmail();
+    allow read: if isSignedIn() && (resource.data.email == userEmail() || isTeacher());
+    allow update: if isTeacher();
+    allow delete: if isTeacher();
   }
 }

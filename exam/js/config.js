@@ -4,7 +4,7 @@ const CONFIG = {
   standardField: "standard",
   roleField: "role",
   studentRoleValue: "STUDENT",
-  teacherRoleValues: ["TEACHER", "ADMIN"],
+  teacherRoleValues: "TEACHER",
   nameField: "studentName",
   emailField: "email",
   phoneField: "mobileNumber",
