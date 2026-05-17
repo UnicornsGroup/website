@@ -191,17 +191,30 @@ function setupStudentManagement() {
 }
 
 async function renderStudentTable() {
-  const snapshot = await db.collection(CONFIG.studentsCollection)
+  let snapshot = await db.collection(CONFIG.studentsCollection)
     .where(CONFIG.roleField, '==', CONFIG.studentRoleValue)
     .orderBy(CONFIG.admissionField)
     .get();
-  const tableContainer = document.getElementById('studentTable');
+
   if (!snapshot.docs.length) {
+    // Fallback: if role metadata is missing, show any user records with an admission number
+    snapshot = await db.collection(CONFIG.studentsCollection)
+      .orderBy(CONFIG.admissionField)
+      .get();
+  }
+
+  const tableContainer = document.getElementById('studentTable');
+  const studentDocs = snapshot.docs.filter((doc) => {
+    const data = doc.data();
+    return String(data[CONFIG.admissionField] || '').trim();
+  });
+
+  if (!studentDocs.length) {
     tableContainer.innerHTML = '<p class="p-6 text-sm text-slate-500">No students found.</p>';
     return;
   }
 
-  const rows = snapshot.docs.map((doc) => {
+  const rows = studentDocs.map((doc) => {
     const student = doc.data();
     return `
       <tr class="border-b border-slate-200 last:border-none">
