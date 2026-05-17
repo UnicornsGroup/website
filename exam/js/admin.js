@@ -279,6 +279,7 @@ async function saveStudentRecord() {
     [CONFIG.nameField]: studentName,
     [CONFIG.standardField]: standard,
     [CONFIG.emailField]: email,
+    emailLower: email.trim().toLowerCase(),
     [CONFIG.phoneField]: mobileNumber,
     [CONFIG.roleField]: CONFIG.studentRoleValue,
     [CONFIG.photoField]: '',

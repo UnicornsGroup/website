@@ -32,6 +32,7 @@ async function signInUser(identifier, password) {
   }
 
   let signInPromise;
+  let fallbackProfile = null;
   if (identifier.includes('@')) {
     signInPromise = auth.signInWithEmailAndPassword(identifier, password);
   } else {
@@ -43,18 +44,19 @@ async function signInUser(identifier, password) {
     if (!userEmail) {
       throw new Error('Student email is missing in database.');
     }
+    fallbackProfile = userDoc;
     signInPromise = auth.signInWithEmailAndPassword(userEmail, password);
   }
 
   const credential = await signInPromise;
-  await handlePostSignIn(credential.user);
+  await handlePostSignIn(credential.user, fallbackProfile);
 }
 
-async function handlePostSignIn(user) {
+async function handlePostSignIn(user, fallbackProfile = null) {
   if (!user || !user.email) {
     throw new Error('Unable to identify user account.');
   }
-  const userDoc = await fetchUserByEmail(user.email);
+  const userDoc = await fetchUserByEmail(user.email) || fallbackProfile;
   if (!userDoc) {
     throw new Error('User profile is missing. Contact the administrator.');
   }
@@ -99,10 +101,17 @@ async function getCurrentUserProfile() {
   if (!user || !user.email) {
     return null;
   }
-  const snapshot = await db.collection(CONFIG.studentsCollection)
+  let snapshot = await db.collection(CONFIG.studentsCollection)
     .where(CONFIG.emailField, '==', user.email)
     .limit(1)
     .get();
+  if (!snapshot.docs.length) {
+    const normalizedEmail = user.email.trim().toLowerCase();
+    snapshot = await db.collection(CONFIG.studentsCollection)
+      .where('emailLower', '==', normalizedEmail)
+      .limit(1)
+      .get();
+  }
   return snapshot.docs.length ? snapshot.docs[0] : null;
 }
 
