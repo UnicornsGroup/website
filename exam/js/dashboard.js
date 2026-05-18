@@ -1,44 +1,61 @@
 ﻿window.addEventListener('DOMContentLoaded', () => {
     let globalUserPayload = null;
+    let databaseRetryAttemptsCount = 0;
 
     const runtimeVerification = setInterval(() => {
         if (window.auth && window.onAuthStateChanged) {
             clearInterval(runtimeVerification);
             window.onAuthStateChanged(window.auth, async (user) => {
                 if (user) {
-                    try {
-                        const profileDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
-                        if (profileDoc.exists()) {
-                            globalUserPayload = profileDoc.data();
-                            if (globalUserPayload.role === "ADMIN") {
-                                window.location.replace("admin/admin-dashboard.html");
-                                return;
-                            }
-                            // Populate Desktop View Components
-                            document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
-                            document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
-                            
-                            // Populate Mobile View Components
-                            document.getElementById('mobileNameDisplay').textContent = globalUserPayload.studentName;
-                            document.getElementById('mobileStdDisplay').textContent = globalUserPayload.standard;
-                            
-                            executeDashboardQueryEngine();
-                        } else { window.location.replace("login.html"); }
-                    } catch (err) { window.location.replace("login.html"); }
-                } else { window.location.replace("login.html"); }
+                    await verifyAndFetchProfileWithRetry(user);
+                } else { 
+                    window.location.replace("login.html"); 
+                }
             });
         }
     }, 50);
 
-    const runLogoutRoutine = async () => {
+    // DYNAMIC TOLERANCE FILTER LOOP: Wait gracefully for background cloud account linking processes
+    async function verifyAndFetchProfileWithRetry(user) {
+        try {
+            const profileDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
+            
+            if (profileDoc.exists()) {
+                globalUserPayload = profileDoc.data();
+                if (globalUserPayload.role === "ADMIN") {
+                    window.location.replace("admin/admin-dashboard.html");
+                    return;
+                }
+                
+                // Clear and render classic desktop navigation properties hooks cleanly
+                document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
+                document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
+                
+                executeDashboardQueryEngine();
+            } else {
+                // If the profile document doesn't exist yet, retry 3 times (spaced 1 second apart) 
+                // to give lazy authentication background account creations time to finish writing data!
+                if (databaseRetryAttemptsCount < 3) {
+                    databaseRetryAttemptsCount++;
+                    console.log(`Profile doc not ready yet. Retrying transaction attempt row: ${databaseRetryAttemptsCount}`);
+                    setTimeout(() => verifyAndFetchProfileWithRetry(user), 1000);
+                } else {
+                    console.log("Max retries exceeded. Routing player back to gateway shield login.");
+                    window.location.replace("login.html");
+                }
+            }
+        } catch (err) { 
+            console.error("Session verification crash loop:", err);
+            window.location.replace("login.html"); 
+        }
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         if(confirm("Terminate assessment session profile safely?")) {
             await window.signOut(window.auth);
             window.location.replace("login.html");
         }
-    };
-
-    document.getElementById('logoutBtn')?.addEventListener('click', runLogoutRoutine);
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', runLogoutRoutine);
+    });
 
     const activeExamsContainer = document.getElementById('activeExamsContainer');
     const historyContainer = document.getElementById('historyContainer');
