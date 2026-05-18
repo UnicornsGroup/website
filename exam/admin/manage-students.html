@@ -27,69 +27,67 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Section Header Info -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-700 pb-6 mb-8">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tight text-white">Student Registration Matrix</h1>
-                <p class="text-sm text-gray-400 mt-1">Provision academic enrollment IDs, manage target classes, and perform credential override resets.</p>
+                <p class="text-sm text-gray-400 mt-1">Provision academic enrollment IDs, manage target classes, and perform bulk spreadsheet entries.</p>
             </div>
         </div>
 
+        <!-- NEW BULK STUDENT IMPORT PANEL -->
+        <div class="mb-8 bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
+            <h2 class="text-md font-bold text-blue-400 uppercase tracking-wider mb-2">⚡ Bulk Student Spreadsheet Import</h2>
+            <p class="text-xs text-gray-400 mb-4">Upload a .csv file populated with student headers to generate up to 70-80 custom profile authentication structures instantly.</p>
+            <input type="file" id="studentCsvFileInput" accept=".csv" 
+                class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Side Panel: Add / Update Student Profile Form Block -->
+            <!-- Left Side Panel: Form Block -->
             <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 h-fit shadow-xl">
                 <h2 id="formTitle" class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Add New Student Profile</h2>
-                
                 <form id="studentForm" class="space-y-4">
                     <input type="hidden" id="studentDocId">
-                    
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Admission Number</label>
                         <input type="text" id="admNum" required placeholder="e.g., SEA20260002"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">This forms the access username & password credential bundle.</p>
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Student Full Name</label>
                         <input type="text" id="studName" required placeholder="e.g., Rajesh Kumar"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Class / Standard Allocation</label>
                         <select id="studStd" required
                             class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">-- Choose Standard --</option>
+                            <!-- UPDATED STANDARD LISTINGS -->
+                            <option value="STD 08 (GM)">STD 08 (GM)</option>
+                            <option value="STD 08 (EM)">STD 08 (EM)</option>
                             <option value="STD 09 (GM)">STD 09 (GM)</option>
                             <option value="STD 10 (GM)">STD 10 (GM)</option>
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Mobile Contact Number</label>
                         <input type="tel" id="studMob" required placeholder="10 digit numeric value" pattern="[0-9]{10}"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-
                     <div class="pt-4 flex space-x-2">
-                        <button type="submit" id="saveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors text-sm">
-                            Save Student Record
-                        </button>
-                        <button type="button" id="cancelEditBtn" class="hidden flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                            Cancel
-                        </button>
+                        <button type="submit" id="saveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg text-sm">Save Student Record</button>
+                        <button type="button" id="cancelEditBtn" class="hidden flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm">Cancel</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Right Side Panel: Interactive Database Records Table -->
+            <!-- Right Side Panel: Records Table -->
             <div class="lg:col-span-2 bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-bold text-white">Active Student Records</h2>
                     <span id="studentCount" class="bg-blue-900/50 text-blue-300 text-xs px-2.5 py-1 rounded-full border border-blue-700 font-semibold">Total: 0</span>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
@@ -102,9 +100,7 @@
                             </tr>
                         </thead>
                         <tbody id="studentTableBody" class="divide-y divide-gray-700/50 text-gray-300">
-                            <tr>
-                                <td colspan="5" class="py-8 text-center text-gray-500">Querying live registration files...</td>
-                            </tr>
+                            <tr><td colspan="5" class="py-8 text-center text-gray-500">Querying live registration files...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -112,7 +108,6 @@
         </div>
     </main>
 
-    <!-- Global Module Infrastructure Bindings -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/admin.js"></script>
 </body>

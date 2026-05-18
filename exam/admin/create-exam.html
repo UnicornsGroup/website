@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Exam - Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Quill Rich Text Editor CDN Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/custom.css">
     <style>
-        /* Restyle Quill background to integrate cleanly with dark theme layout */
         .ql-toolbar { background-color: #374151 !important; border-color: #4b5563 !important; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
         .ql-container { border-color: #4b5563 !important; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; font-family: inherit; font-size: 0.875rem; }
         .ql-editor { background-color: #1f2937 !important; color: #f3f4f6 !important; min-height: 100px; }
-        .ql-editor.ql-blank::before { color: #9ca3af !important; font-style: normal !important; }
         .ql-snow .ql-stroke { stroke: #d1d5db !important; }
         .ql-snow .ql-fill { fill: #d1d5db !important; }
         .ql-snow .ql-picker { color: #d1d5db !important; }
@@ -21,7 +18,6 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-    <!-- Top Navigation Header Bar -->
     <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -41,7 +37,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="border-b border-gray-700 pb-4 mb-8">
             <h1 class="text-3xl font-extrabold tracking-tight text-white">Assessment Creation Center</h1>
-            <p class="text-sm text-gray-400 mt-1">Author live MCQ questionnaires, set up strict parameters, and publish target metrics across standards.</p>
+            <p class="text-sm text-gray-400 mt-1">Author live MCQ questionnaires and assign them to multiple targeted standards simultaneously.</p>
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -51,63 +47,50 @@
                 <form id="examMetaForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Assessment Title</label>
-                        <input type="text" id="examTitle" required placeholder="e.g., Unit Test 01 - Algebra"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="examTitle" required placeholder="e.g., Unit Test 01" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
 
+                    <!-- NEW UPDATE: MULTI SELECT CHECKBOX GRID FOR STANDARDS -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Target Class Allocation</label>
-                        <select id="examStd" required
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- Select Class --</option>
-                            <option value="STD 09 (GM)">STD 09 (GM)</option>
-                            <option value="STD 10 (GM)">STD 10 (GM)</option>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-400 mb-1.5">Target Allocation (Select Multiple)</label>
+                        <div id="standardsCheckboxGroup" class="bg-gray-900/60 border border-gray-700 p-3 rounded-lg space-y-2 text-sm text-gray-300">
+                            <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" value="STD 08 (GM)" class="std-checkbox rounded text-blue-600 bg-gray-700 border-gray-600"> <span>STD 08 (GM)</span></label>
+                            <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" value="STD 08 (EM)" class="std-checkbox rounded text-blue-600 bg-gray-700 border-gray-600"> <span>STD 08 (EM)</span></label>
+                            <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" value="STD 09 (GM)" class="std-checkbox rounded text-blue-600 bg-gray-700 border-gray-600"> <span>STD 09 (GM)</span></label>
+                            <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" value="STD 10 (GM)" class="std-checkbox rounded text-blue-600 bg-gray-700 border-gray-600"> <span>STD 10 (GM)</span></label>
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>
-                        <input type="text" id="examSubject" required placeholder="e.g., Mathematics"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="examSubject" required placeholder="e.g., Mathematics" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Duration (Minutes)</label>
-                        <input type="number" id="examDuration" required min="1" placeholder="e.g., 15"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="number" id="examDuration" required min="1" placeholder="15" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Start Evaluation window</label>
-                        <input type="datetime-local" id="examStart" required
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="datetime-local" id="examStart" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Termination Close Window</label>
-                        <input type="datetime-local" id="examEnd" required
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="datetime-local" id="examEnd" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Instructions Guidelines</label>
-                        <textarea id="examInstructions" required rows="3" placeholder="Read terms before initialization..."
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        <textarea id="examInstructions" required rows="3" placeholder="Read terms before initialization..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></textarea>
                     </div>
                 </form>
             </div>
 
             <!-- Right Grid Area: Question Compiler Block -->
             <div class="xl:col-span-2 space-y-6">
-                
                 <!-- Bulk Exam Import Layer -->
                 <div class="bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
                     <h2 class="text-md font-bold text-blue-400 uppercase tracking-wider mb-2">⚡ Bulk Import Spreadsheet Matrix</h2>
                     <p class="text-xs text-gray-400 mb-4">Select a properly configured .csv data file to load your complete questionnaire dynamically into the staging timeline layout array instantly.</p>
-                    <div class="flex items-center space-x-4">
-                        <input type="file" id="csvFileInput" accept=".csv" 
-                            class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
-                    </div>
+                    <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
                 </div>
 
                 <!-- MCQ Composition Engine Block -->
@@ -116,77 +99,46 @@
                         <h2 class="text-xl font-bold text-white">Item Questionnaire Manual Matrix</h2>
                         <span id="questionCounter" class="text-xs font-semibold text-blue-400 bg-blue-950 px-2.5 py-1 rounded border border-blue-900">Queued Questions: 0</span>
                     </div>
-
                     <form id="questionForm" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1">Question Body Context</label>
-                            <!-- Rich Text Editor Container Hook Node Replacement for old standard text box -->
                             <div id="editorToolbar"></div>
                             <div id="qTextEditor"></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Option A</label>
-                                <input type="text" id="optA" placeholder="Option Content A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Option B</label>
-                                <input type="text" id="optB" placeholder="Option Content B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Option C</label>
-                                <input type="text" id="optC" placeholder="Option Content C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Option D</label>
-                                <input type="text" id="optD" placeholder="Option Content D" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
+                            <div><label class="block text-xs font-medium text-gray-400 mb-1">Option A</label><input type="text" id="optA" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></div>
+                            <div><label class="block text-xs font-medium text-gray-400 mb-1">Option B</label><input type="text" id="optB" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></div>
+                            <div><label class="block text-xs font-medium text-gray-400 mb-1">Option C</label><input type="text" id="optC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></div>
+                            <div><label class="block text-xs font-medium text-gray-400 mb-1">Option D</label><input type="text" id="optD" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-medium text-gray-400 mb-1">Correct Option Key</label>
-                                <select id="correctOpt" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="A">Option A</option>
-                                    <option value="B">Option B</option>
-                                    <option value="C">Option C</option>
-                                    <option value="D">Option D</option>
+                                <select id="correctOpt" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
+                                    <option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Evaluation Points / Marks</label>
-                                <input type="number" id="qMarks" min="1" value="1" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div class="flex items-end">
-                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
-                                    Queue Question Item
-                                </button>
-                            </div>
+                            <div><label class="block text-xs font-medium text-gray-400 mb-1">Evaluation Points / Marks</label><input type="number" id="qMarks" min="1" value="1" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"></div>
+                            <div class="flex items-end"><button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Queue Question Item</button></div>
                         </div>
                     </form>
                 </div>
 
-                <!-- Preview Stack List View Elements -->
+                <!-- Preview Stack List -->
                 <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
                     <h3 class="text-md font-bold text-gray-300 mb-4 tracking-wide uppercase">Question Sheet Compilation Stage Preview</h3>
                     <div id="questionsPreviewList" class="space-y-3 divide-y divide-gray-700/40">
                         <p class="text-sm text-gray-500 py-4 text-center">No structural components queued inside the current scope stack framework.</p>
                     </div>
-
                     <div class="pt-6 border-t border-gray-700 flex justify-end">
-                        <button type="button" id="publishExamBtn" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-extrabold text-base px-8 py-3.5 rounded-lg shadow-lg tracking-wide transition-all transform active:scale-95">
-                            Commit & Publish Final Exam
-                        </button>
+                        <button type="button" id="publishExamBtn" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-extrabold text-base px-8 py-3.5 rounded-lg shadow-lg tracking-wide">Commit & Publish Final Exam</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Quill Rich Text JavaScript Core engine component bindings -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <!-- Base Module Core Connectors -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/exam.js"></script>
 </body>
