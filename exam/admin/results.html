@@ -29,7 +29,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="border-b border-gray-700 pb-4 mb-8">
             <h1 class="text-3xl font-extrabold tracking-tight text-white">Student Performance Grades Ledger</h1>
-            <p class="text-sm text-gray-400 mt-1">Review student scoring metrics, filter evaluation sheets, and monitor real-time class data outcomes.</p>
+            <p class="text-sm text-gray-400 mt-1">Review student scoring metrics, filter evaluation sheets, and override anti-cheating violation locks live.</p>
         </div>
 
         <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl mb-8">
@@ -50,12 +50,13 @@
                             <th class="pb-3 px-2">Class Stream</th>
                             <th class="pb-3 px-2">Marks Secured</th>
                             <th class="pb-3 px-2">Percentage</th>
-                            <th class="pb-3 px-2 text-right">Timestamp Complete</th>
+                            <th class="pb-3 px-2">Timestamp Complete</th>
+                            <th class="pb-3 px-2 text-right">Administrative Override</th>
                         </tr>
                     </thead>
                     <tbody id="gradesTableBodyOutlet" class="divide-y divide-gray-700/50 text-gray-300">
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td>
+                            <td colspan="7" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -86,7 +87,7 @@
             }, 50);
 
             document.getElementById('logoutBtn').addEventListener('click', async () => {
-                if(confirm("Confirm security termination log out request?")) {
+                if(confirm("Confirm secure sign out request?")) {
                     await window.signOut(window.auth);
                     window.location.replace("../login.html");
                 }
@@ -121,11 +122,11 @@
             async function querySubmissionsGradesMatrix() {
                 const selectedExamId = examSelectorDropdown.value;
                 if(!selectedExamId) {
-                    gradesTableBodyOutlet.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td></tr>`;
+                    gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td></tr>`;
                     return;
                 }
 
-                gradesTableBodyOutlet.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-gray-400">Filtering score registries sheets...</td></tr>`;
+                gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-400">Filtering score registries sheets...</td></tr>`;
 
                 try {
                     const q = window.query(window.collection(window.db, "results"), window.where("examId", "==", selectedExamId));
@@ -133,7 +134,7 @@
                     gradesTableBodyOutlet.innerHTML = "";
 
                     if (snapshot.empty) {
-                        gradesTableBodyOutlet.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-gray-500">No submissions have been generated or indexed for this examination yet.</td></tr>`;
+                        gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">No submissions have been generated or indexed for this examination yet.</td></tr>`;
                         return;
                     }
 
@@ -147,12 +148,51 @@
                             <td class="py-3.5 px-2 text-gray-400">${data.standard}</td>
                             <td class="py-3.5 px-2 font-bold font-mono text-emerald-400">${data.scorePoints} / ${data.totalWeightMarks} M</td>
                             <td class="py-3.5 px-2 font-mono text-purple-400 font-bold">${data.percentageScore}%</td>
-                            <td class="py-3.5 px-2 font-mono text-xs text-gray-400 text-right">${new Date(data.submittedAt).toLocaleString()}</td>
+                            <td class="py-3.5 px-2 font-mono text-xs text-gray-400">${new Date(data.submittedAt).toLocaleString()}</td>
+                            <td class="py-3.5 px-2 text-right">
+                                <!-- NEW OVERRIDE RESET BUTTON ACTION TRIPS -->
+                                <button class="allow-reattempt-btn bg-amber-950/60 hover:bg-amber-800 text-amber-400 border border-amber-900/50 px-2.5 py-1 rounded text-xs font-bold transition-all" 
+                                    data-docid="${doc.id}" data-studname="${data.studentName}" data-adm="${data.admissionNumber}">
+                                    Allow Re-Attempt
+                                </button>
+                            </td>
                         `;
                         gradesTableBodyOutlet.appendChild(tr);
                     });
 
+                    // Bind dynamic events to structural override components
+                    document.querySelectorAll('.allow-reattempt-btn').forEach(btn => {
+                        btn.addEventListener('click', executeReattemptOverrideUnlock);
+                    });
+
                 } catch (err) { console.error("Grades matrix fetch crashed:", err); }
+            }
+
+            // NEW FUNCTION: Purges violation record documentation to clear lock states
+            async function executeReattemptOverrideUnlock(e) {
+                const docId = e.target.getAttribute('data-docid');
+                const studentName = e.target.getAttribute('data-studname');
+                const admissionNumber = e.target.getAttribute('data-adm');
+
+                const alertPromptText = `CRITICAL OVERRIDE ACTIVATED:\n\nDo you want to completely unlock and clear the submission tracking record for student "${studentName}" (${admissionNumber})?\n\nThis will remove their old violation score ledger entirely and allow them to re-enter, open, and restart this specific examination immediately.\n\nProceed?`;
+
+                if(confirm(alertPromptText)) {
+                    try {
+                        e.target.disabled = true;
+                        e.target.textContent = "Unlocking...";
+
+                        // Clear submission document ledger entry map directly from primary Firestore node
+                        await window.deleteDoc(window.doc(window.db, "results", docId));
+                        
+                        alert(`Success! Security override cleared. Student "${studentName}" can now start their exam again.`);
+                        querySubmissionsGradesMatrix(); // Reload current view ledger
+                    } catch(err) {
+                        console.error(err);
+                        alert("Error executing network override parameters.");
+                        e.target.disabled = false;
+                        e.target.textContent = "Allow Re-Attempt";
+                    }
+                }
             }
         });
     </script>
