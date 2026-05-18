@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-    <!-- Top Navigation Header Bar -->
     <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -22,45 +21,49 @@
         </div>
     </header>
 
-    <!-- Main Analytical Performance Card Section Workspace -->
     <main class="max-w-3xl mx-auto px-4 py-10">
+        
+        <div id="securityViolationBanner" class="hidden mb-6 bg-red-950 border-2 border-red-600 rounded-2xl p-5 text-center shadow-2xl space-y-2 animate-pulse">
+            <h2 class="text-red-500 font-black text-xl tracking-wide uppercase flex items-center justify-center gap-2">
+                ⚠️ SECURE GUARD BLOCK LOCK INITIATED
+            </h2>
+            <p class="text-sm text-gray-300 font-medium">
+                Your examination session was forcefully terminated and auto-submitted because you violated secure workspace protocols (switched apps, answered an active call, dropped notification cards, or captured screen graphics).
+            </p>
+        </div>
+
         <div class="bg-gray-800 rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
             
-            <!-- Dynamic Grading Banner Top Wrapper Element -->
             <div id="resultBannerHeader" class="bg-gradient-to-r from-blue-900 to-indigo-900 px-6 py-8 text-center border-b border-gray-700">
                 <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Performance Summary Evaluation</h1>
                 <p id="resExamTitle" class="text-sm text-blue-200 mt-1 font-medium font-mono uppercase tracking-wide">Querying cloud ledger assets...</p>
             </div>
 
-            <!-- Quantitative Overview Analytics Score Grid Blocks -->
             <div class="p-6 sm:p-8 space-y-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Score Counter Item Card -->
                     <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700/60 text-center space-y-1">
                         <span class="text-xs text-gray-400 font-medium tracking-wider uppercase block">Points Secured</span>
                         <span id="resScorePoints" class="text-xl sm:text-2xl font-black font-mono text-blue-400">0 / 0</span>
                     </div>
 
-                    <!-- Percentage Value Indicator Card -->
                     <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700/60 text-center space-y-1">
                         <span class="text-xs text-gray-400 font-medium tracking-wider uppercase block">Final Accuracy</span>
                         <span id="resPercentage" class="text-xl sm:text-2xl font-black font-mono text-purple-400">0%</span>
                     </div>
 
-                    <!-- Correct Count Analytical Tracking Block -->
                     <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700/60 text-center space-y-1">
                         <span class="text-xs text-gray-400 font-medium tracking-wider uppercase block">Correct Answers</span>
                         <span id="resCorrectCount" class="text-xl sm:text-2xl font-black font-mono text-emerald-400">0 Items</span>
                     </div>
 
-                    <!-- Status Result Metrics Indicator -->
                     <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700/60 text-center space-y-1">
                         <span class="text-xs text-gray-400 font-medium tracking-wider uppercase block">Status Verdict</span>
-                        <span id="resVerdictBadge" class="text-sm sm:text-base font-extrabold tracking-wide uppercase px-2.5 py-0.5 rounded inline-block bg-gray-800 border border-gray-700 text-gray-400">Verifying</span>
+                        <div id="resVerdictBadge" class="mt-1">
+                            <span class="text-xs font-extrabold tracking-wide uppercase px-2.5 py-0.5 rounded inline-block bg-gray-800 border border-gray-700 text-gray-400">Verifying</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Profile Data Sub-Section Panel Map Blocks -->
                 <div class="bg-gray-900/30 rounded-xl p-5 border border-gray-700/60 text-sm space-y-3 font-medium">
                     <h3 class="text-xs font-bold text-gray-400 tracking-wider uppercase border-b border-gray-700/40 pb-1.5">Examinee Identification Meta Parameters</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-300">
@@ -71,7 +74,6 @@
                     </div>
                 </div>
 
-                <!-- Bottom Portal Encouragement/Information footer text block -->
                 <div class="text-center text-xs text-gray-500 pt-2">
                     This scorecard evaluation represents a certified response ledger finalized inside the cloud database storage array cluster matching secure operational requirements protocol parameters.
                 </div>
@@ -80,7 +82,6 @@
         </div>
     </main>
 
-    <!-- App Engine Runtime Module Anchors -->
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/results.js"></script>
 </body>

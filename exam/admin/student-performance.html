@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Analytics - Admin Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/custom.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
+    <!-- Top Navigation Header Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
+            </div>
+            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+                <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Overview</a>
+                <a href="create-exam.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Exams</a>
+                <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Students</a>
+                <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Grades</a>
+                <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div class="border-b border-gray-700 pb-4">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">Examinee Performance & Integrity Monitor</h1>
+            <p class="text-sm text-gray-400 mt-1">Audit individual student history profiles, inspect granular testing timelines, and isolate anti-cheating system logs.</p>
+        </div>
+
+        <!-- Student Selector & Card Meta Meta Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Panel: Search & Select Profile -->
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl h-fit space-y-4">
+                <h2 class="text-lg font-bold text-white border-b border-gray-700 pb-2 uppercase tracking-wide text-blue-400">Target Selector</h2>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1.5">Select Registered Student</label>
+                    <select id="studentProfileSelector" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Querying Student Registry... --</option>
+                    </select>
+                </div>
+
+                <!-- Live Meta Card Data Profile Info View -->
+                <div id="studentMetaDetailsBox" class="hidden bg-gray-900/50 rounded-lg p-4 border border-gray-700/60 space-y-2 text-xs font-medium text-gray-300 font-mono">
+                    <div>FULL NAME: <span id="metaViewName" class="text-white font-bold font-sans text-sm block mt-0.5">--</span></div>
+                    <div>CLASS STREAM: <span id="metaViewStd" class="text-blue-400 font-bold block mt-0.5">--</span></div>
+                    <div>MOBILE NUMBER: <span id="metaViewMob" class="text-gray-400 font-bold block mt-0.5">--</span></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Historical Exam Registry Spreadsheet and Cheat Flags Monitor -->
+            <div class="lg:col-span-2 bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl overflow-hidden">
+                <h2 class="text-xl font-bold text-white mb-4">Institutional Testing Ledger & Incident Audit Logs</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-gray-400 font-semibold">
+                                <th class="pb-3 px-2">Exam / Subject</th>
+                                <th class="pb-3 px-2">Points Secured</th>
+                                <th class="pb-3 px-2">Accuracy</th>
+                                <th class="pb-3 px-2">Integrity Status Check</th>
+                                <th class="pb-3 px-2 text-right">Completion Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentPerformanceTableBody" class="divide-y divide-gray-700/50 text-gray-300">
+                            <tr>
+                                <td colspan="5" class="py-12 text-center text-gray-500 font-medium">Please select a student from the profile parameter dropdown panel to build their historical record matrix.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Core App Module Infrastructure Interconnectors Links Layer -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module">
+        window.addEventListener('DOMContentLoaded', () => {
+            const verificationSessionLoop = setInterval(() => {
+                if (window.auth && window.onAuthStateChanged) {
+                    clearInterval(verificationSessionLoop);
+                    window.onAuthStateChanged(window.auth, async (user) => {
+                        if (user) {
+                            const userCheck = await window.getDoc(window.doc(window.db, "users", user.uid));
+                            if (!userCheck.exists() || userCheck.data().role !== "ADMIN") {
+                                window.location.replace("../login.html");
+                            } else {
+                                initializeExamineeDropdownRegistry();
+                            }
+                        } else {
+                            window.location.replace("../login.html");
+                        }
+                    });
+                }
+            }, 50);
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                if(confirm("Terminate security administrative session profile?")) {
+                    await window.signOut(window.auth);
+                    window.location.replace("../login.html");
+                }
+            });
+
+            const studentProfileSelector = document.getElementById('studentProfileSelector');
+            const studentPerformanceTableBody = document.getElementById('studentPerformanceTableBody');
+            const studentMetaDetailsBox = document.getElementById('studentMetaDetailsBox');
+
+            // Load and build interactive selector options directly out from Users database collection
+            async function initializeExamineeDropdownRegistry() {
+                try {
+                    const q = window.query(window.collection(window.db, "users"), window.where("role", "==", "STUDENT"));
+                    const snap = await window.getDocs(q);
+                    studentProfileSelector.innerHTML = `<option value="">-- Choose Student ID --</option>`;
+
+                    if(snap.empty) {
+                        studentProfileSelector.innerHTML = `<option value="">No registered examinee files found</option>`;
+                        return;
+                    }
+
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        const opt = document.createElement('option');
+                        opt.value = data.admissionNumber;
+                        // Pack custom JSON data payload profiles straight inside DOM configurations string attributes tags
+                        opt.setAttribute('data-payload', JSON.stringify(data));
+                        opt.textContent = `${data.admissionNumber} - ${data.studentName} [${data.standard}]`;
+                        studentProfileSelector.appendChild(opt);
+                    });
+
+                    studentProfileSelector.addEventListener('change', runExamineePerformanceAuditPipeline);
+
+                } catch(err) { console.error("Dropdown extraction layout broke:", err); }
+            }
+
+            // Core Query Processing Pipeline 
+            async function runExamineePerformanceAuditPipeline() {
+                const targetAdmissionNumberId = studentProfileSelector.value;
+                if(!targetAdmissionNumberId) {
+                    studentMetaDetailsBox.classList.add('hidden');
+                    studentPerformanceTableBody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500 font-medium">Please select a student from the profile parameter dropdown panel to build their historical record matrix.</td></tr>`;
+                    return;
+                }
+
+                // Extract packed configurations map profiles definitions back out from selected data attribute nodes
+                const selectedOptionNode = studentProfileSelector.options[studentProfileSelector.selectedIndex];
+                const rawUserDataPayload = JSON.parse(selectedOptionNode.getAttribute('data-payload'));
+
+                // Render Left Meta Card Data Box Fields
+                document.getElementById('metaViewName').textContent = rawUserDataPayload.studentName;
+                document.getElementById('metaViewStd').textContent = rawUserDataPayload.standard;
+                document.getElementById('metaViewMob').textContent = rawUserDataPayload.mobileNumber || "Not Linked";
+                studentMetaDetailsBox.classList.remove('hidden');
+
+                studentPerformanceTableBody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-400 font-mono">Querying institutional testing histories data charts...</td></tr>`;
+
+                try {
+                    // Extract all exam scorecard result documents matching this unique student identifier
+                    const q = window.query(window.collection(window.db, "results"), window.where("admissionNumber", "==", targetAdmissionNumberId));
+                    const snapshot = await window.getDocs(q);
+                    studentPerformanceTableBody.innerHTML = "";
+
+                    if(snapshot.empty) {
+                        studentPerformanceTableBody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500">No examination historical logs found or generated for this examinee.</td></tr>`;
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        
+                        // CRITICAL LOGIC DETECTOR LAYER: Calculate if accuracy levels correspond to a potential security violation exit event.
+                        // If they secure points but left more than half the test questions unattempted or spent 0 duration, it indicates an automatic lockout response sequence tripped.
+                        // Alternatively, we can check if a forced flag property structure exists, or provide explicit color status.
+                        
+                        // Let's create an intuitive visual detection indicator template rule layout
+                        let integrityBadgeHTML = "";
+                        
+                        // If student scored marks but percentage score is exactly matching a sub-par threshold or zero because they skipped options during app switches, flag warning metrics
+                        if (data.percentageScore === 0 && data.correctCount === 0) {
+                            integrityBadgeHTML = `<span class="bg-red-950 text-red-400 border border-red-900 text-xs px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wide inline-block shadow-sm">⚠️ VIOLATION TERMINATION (FORCED OUT)</span>`;
+                        } else if (data.percentageScore < 35) {
+                            integrityBadgeHTML = `<span class="bg-amber-950 text-amber-500 border border-amber-900 text-xs px-2.5 py-0.5 rounded-md font-semibold uppercase tracking-wide inline-block">Normal Attempt (Needs Improvement)</span>`;
+                        } else {
+                            integrityBadgeHTML = `<span class="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs px-2.5 py-0.5 rounded-md font-semibold uppercase tracking-wide inline-block">Normal Attempt (Passed)</span>`;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-800/40 text-sm transition-colors";
+                        tr.innerHTML = `
+                            <td class="py-4 px-2"><span class="text-xs font-mono font-bold text-blue-400 uppercase tracking-wide block">${data.subject}</span><div class="text-white font-bold mt-0.5 text-base">${data.examTitle}</div></td>
+                            <td class="py-4 px-2 font-mono text-gray-300 font-bold">${data.scorePoints} / ${data.totalWeightMarks} M</td>
+                            <td class="py-4 px-2 font-mono text-purple-400 font-bold">${data.percentageScore}%</td>
+                            <td class="py-4 px-2 font-medium">${integrityBadgeHTML}</td>
+                            <td class="py-4 px-2 font-mono text-xs text-gray-400 text-right">${new Date(data.submittedAt).toLocaleDateString()} ${new Date(data.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        `;
+                        studentPerformanceTableBody.appendChild(tr);
+                    });
+
+                } catch(error) {
+                    console.error("Historical profile compiler faulted:", error);
+                    studentPerformanceTableBody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-red-400 font-bold font-mono">Error mapping evaluation histories sheet matrix.</td></tr>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
