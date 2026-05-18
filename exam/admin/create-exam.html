@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Exam - Admin Console</title>
+    <title>Create & Manage Exams - Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/custom.css">
@@ -34,23 +34,24 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="border-b border-gray-700 pb-4 mb-8">
-            <h1 class="text-3xl font-extrabold tracking-tight text-white">Assessment Creation Center</h1>
-            <p class="text-sm text-gray-400 mt-1">Author live MCQ questionnaires and assign them to multiple targeted standards simultaneously.</p>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div class="border-b border-gray-700 pb-4">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">Assessment Management Center</h1>
+            <p class="text-sm text-gray-400 mt-1">Author new exams, add interactive MCQ options, or modify existing published session settings live.</p>
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <!-- Left Grid: Settings/Configurations Form -->
             <div class="xl:col-span-1 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl h-fit">
-                <h2 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Exam Parameters</h2>
+                <h2 id="metaFormTitle" class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Exam Parameters</h2>
                 <form id="examMetaForm" class="space-y-4">
+                    <!-- HIDDEN DOC ID PARAMETER TO IDENTIFY EDIT MODES -->
+                    <input type="hidden" id="editingExamDocId" value="">
+                    
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Assessment Title</label>
                         <input type="text" id="examTitle" required placeholder="e.g., Unit Test 01" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
                     </div>
-
-                    <!-- NEW UPDATE: MULTI SELECT CHECKBOX GRID FOR STANDARDS -->
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1.5">Target Allocation (Select Multiple)</label>
                         <div id="standardsCheckboxGroup" class="bg-gray-900/60 border border-gray-700 p-3 rounded-lg space-y-2 text-sm text-gray-300">
@@ -60,7 +61,6 @@
                             <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" value="STD 10 (GM)" class="std-checkbox rounded text-blue-600 bg-gray-700 border-gray-600"> <span>STD 10 (GM)</span></label>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>
                         <input type="text" id="examSubject" required placeholder="e.g., Mathematics" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
@@ -87,7 +87,7 @@
             <!-- Right Grid Area: Question Compiler Block -->
             <div class="xl:col-span-2 space-y-6">
                 <!-- Bulk Exam Import Layer -->
-                <div class="bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
+                <div id="bulkImportCardContainer" class="bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
                     <h2 class="text-md font-bold text-blue-400 uppercase tracking-wider mb-2">⚡ Bulk Import Spreadsheet Matrix</h2>
                     <p class="text-xs text-gray-400 mb-4">Select a properly configured .csv data file to load your complete questionnaire dynamically into the staging timeline layout array instantly.</p>
                     <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
@@ -130,10 +130,32 @@
                     <div id="questionsPreviewList" class="space-y-3 divide-y divide-gray-700/40">
                         <p class="text-sm text-gray-500 py-4 text-center">No structural components queued inside the current scope stack framework.</p>
                     </div>
-                    <div class="pt-6 border-t border-gray-700 flex justify-end">
+                    <div class="pt-6 border-t border-gray-700 flex justify-between items-center">
+                        <button type="button" id="cancelExamEditBtn" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors">Reset / Cancel Edit</button>
                         <button type="button" id="publishExamBtn" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-extrabold text-base px-8 py-3.5 rounded-lg shadow-lg tracking-wide">Commit & Publish Final Exam</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- NEW INVENTORY VIEW LAYER: ACTIVE EXAMS RECORDS LIST TABLE -->
+        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl overflow-hidden">
+            <h2 class="text-xl font-bold text-white mb-4">Live Examination Registries & Repository</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-700 text-gray-400 font-semibold">
+                            <th class="pb-3 px-2">Subject / Title</th>
+                            <th class="pb-3 px-2">Allocated Standards</th>
+                            <th class="pb-3 px-2">Duration</th>
+                            <th class="pb-3 px-2">Total Marks</th>
+                            <th class="pb-3 px-2 text-right">Action Management Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="examsInventoryTableBodyOutlet" class="divide-y divide-gray-700/50 text-gray-300">
+                        <tr><td colspan="5" class="py-8 text-center text-gray-500">Querying live examination records index...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>

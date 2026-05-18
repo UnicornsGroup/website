@@ -7,6 +7,8 @@
                     const profileCheck = await window.getDoc(window.doc(window.db, "users", user.uid));
                     if (!profileCheck.exists() || profileCheck.data().role !== "ADMIN") {
                         window.location.replace("../login.html");
+                    } else {
+                        loadExamsInventoryDirectory();
                     }
                 } else {
                     window.location.replace("../login.html");
@@ -29,6 +31,12 @@
     const questionCounter = document.getElementById('questionCounter');
     const publishExamBtn = document.getElementById('publishExamBtn');
     const csvFileInput = document.getElementById('csvFileInput');
+    
+    // NEW FORM EDIT HOOK ELEMENTS
+    const editingExamDocId = document.getElementById('editingExamDocId');
+    const metaFormTitle = document.getElementById('metaFormTitle');
+    const cancelExamEditBtn = document.getElementById('cancelExamEditBtn');
+    const examsInventoryTableBodyOutlet = document.getElementById('examsInventoryTableBodyOutlet');
 
     const optA = document.getElementById('optA');
     const optB = document.getElementById('optB');
@@ -36,6 +44,101 @@
     const optD = document.getElementById('optD');
     const correctOpt = document.getElementById('correctOpt');
     const qMarks = document.getElementById('qMarks');
+
+    // Load Live Inventory List directly from database collection
+    async function loadExamsInventoryDirectory() {
+        if(!window.db) return;
+        try {
+            const snap = await window.getDocs(window.collection(window.db, "exams"));
+            examsInventoryTableBodyOutlet.innerHTML = "";
+            
+            if(snap.empty) {
+                examsInventoryTableBodyOutlet.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500">No active exam schemas registered yet.</td></tr>`;
+                return;
+            }
+
+            snap.forEach(doc => {
+                const data = doc.data();
+                const stdListString = data.standards ? data.standards.join(', ') : data.standard;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/40 text-sm transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-2"><span class="text-xs font-mono font-bold text-blue-400 uppercase">${data.subject}</span><div class="text-white font-bold text-base">${data.title}</div></td>
+                    <td class="py-3.5 px-2 text-gray-300 font-medium">${stdListString}</td>
+                    <td class="py-3.5 px-2 font-mono text-gray-400">${data.duration} Mins</td>
+                    <td class="py-3.5 px-2 font-mono text-emerald-400 font-bold">${data.totalMarks} M</td>
+                    <td class="py-3.5 px-2 text-right">
+                        <button class="load-exam-edit-btn bg-blue-900/50 hover:bg-blue-800 border border-blue-700/50 px-3 py-1 rounded text-xs font-bold text-blue-200" data-id="${doc.id}">Edit / Modify</button>
+                    </td>
+                `;
+                examsInventoryTableBodyOutlet.appendChild(tr);
+            });
+
+            document.querySelectorAll('.load-exam-edit-btn').forEach(btn => {
+                btn.addEventListener('click', enterExamEditConfigurationMode);
+            });
+
+        } catch(err) { console.error(err); }
+    }
+
+    // NEW FUNCTION: Pull existing exam parameters from database and load into form fields
+    async function enterExamEditConfigurationMode(e) {
+        const targetId = e.target.getAttribute('data-id');
+        try {
+            const targetDocSnap = await window.getDoc(window.doc(window.db, "exams", targetId));
+            if(!targetDocSnap.exists()) return;
+
+            const examData = targetDocSnap.data();
+            
+            // Activate structural flags values
+            editingExamDocId.value = targetId;
+            metaFormTitle.textContent = "Modify Assessment Profile Mode";
+            publishExamBtn.textContent = "Update & Overwrite Exam Profile";
+            cancelExamEditBtn.classList.remove('hidden');
+            document.getElementById('bulkImportCardContainer').classList.add('hidden'); // Hide bulk upload box during editing
+
+            // Populate text metrics fields
+            document.getElementById('examTitle').value = examData.title;
+            document.getElementById('examSubject').value = examData.subject;
+            document.getElementById('examDuration').value = examData.duration;
+            document.getElementById('examInstructions').value = examData.instructions;
+            
+            // Format time inputs to ISO string standard format
+            if(examData.startTime) document.getElementById('examStart').value = examData.startTime.substring(0, 16);
+            if(examData.endTime) document.getElementById('examEnd').value = examData.endTime.substring(0, 16);
+
+            // Populate class allocation multi-checkbox values
+            document.querySelectorAll('.std-checkbox').forEach(cb => {
+                if(examData.standards) {
+                    cb.checked = examData.standards.includes(cb.value);
+                } else {
+                    cb.checked = (examData.standard === cb.value);
+                }
+            });
+
+            // Restore the saved question array layout stream
+            localQuestionStack = examData.questions ? [...examData.questions] : [];
+            refreshPreviewMatrix();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch(err) { alert("Error reading record dataset."); }
+    }
+
+    function resetCreationWorkspaceState() {
+        editingExamDocId.value = "";
+        metaFormTitle.textContent = "Exam Parameters";
+        publishExamBtn.textContent = "Commit & Publish Final Exam";
+        cancelExamEditBtn.classList.add('hidden');
+        document.getElementById('bulkImportCardContainer').classList.remove('hidden');
+
+        examMetaForm.reset();
+        document.querySelectorAll('.std-checkbox').forEach(cb => cb.checked = false);
+        localQuestionStack = [];
+        refreshPreviewMatrix();
+    }
+
+    cancelExamEditBtn.addEventListener('click', resetCreationWorkspaceState);
 
     csvFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -129,14 +232,11 @@
             return;
         }
 
-        // NEW FILTER: Extract checked standard nodes out from layout checkboxes group
         const targetStandardsArray = [];
-        document.querySelectorAll('.std-checkbox:checked').forEach(cb => {
-            targetStandardsArray.push(cb.value);
-        });
+        document.querySelectorAll('.std-checkbox:checked').forEach(cb => { targetStandardsArray.push(cb.value); });
 
         if(targetStandardsArray.length === 0) {
-            alert("Configuration Error: Please select at least 1 Target Standard checkbox allocation alignment row.");
+            alert("Configuration Error: Please select at least 1 Target Standard checkbox.");
             return;
         }
 
@@ -145,17 +245,16 @@
             return;
         }
 
-        if(!confirm("Publish assessment live to Firestore?")) return;
+        if(!confirm("Are you sure you want to save this exam dataset?")) return;
 
         publishExamBtn.disabled = true;
-        publishExamBtn.textContent = "Uploading Exam Schema...";
-
         const totalCalculatedMarks = localQuestionStack.reduce((acc, obj) => acc + obj.marks, 0);
+        const activeDocId = editingExamDocId.value; // Fetch current mode state string
 
         const examPayloadSchema = {
             title: document.getElementById('examTitle').value.trim(),
-            standards: targetStandardsArray, // NEW COMPATIBILITY RULE: Saved as a string array array format
-            standard: targetStandardsArray[0], // Backwards compatibility hook for individual student view fallback lookups
+            standards: targetStandardsArray,
+            standard: targetStandardsArray[0],
             subject: document.getElementById('examSubject').value.trim(),
             duration: parseInt(document.getElementById('examDuration').value) || 15,
             startTime: new Date(document.getElementById('examStart').value).toISOString(),
@@ -163,21 +262,27 @@
             instructions: document.getElementById('examInstructions').value.trim(),
             totalMarks: totalCalculatedMarks,
             questions: localQuestionStack, 
-            published: true,
-            createdAt: new Date().toISOString()
+            published: true
         };
 
         try {
-            await window.addDoc(window.collection(window.db, "exams"), examPayloadSchema);
-            alert("Success! Examination compiled across targeted standards.");
-            examMetaForm.reset();
-            document.querySelectorAll('.std-checkbox').forEach(cb => cb.checked = false);
-            localQuestionStack = [];
-            refreshPreviewMatrix();
-        } catch (error) { alert("Error committing schema files."); }
+            if(activeDocId) {
+                // UPDATE CURRENT EXAM MODE VIA FIRESTORE
+                await window.updateDoc(window.doc(window.db, "exams", activeDocId), examPayloadSchema);
+                alert("Success! The existing examination profile has been updated live inside the database.");
+            } else {
+                // CREATE FRESH EXAM MODE
+                examPayloadSchema.createdAt = new Date().toISOString();
+                await window.addDoc(window.collection(window.db, "exams"), examPayloadSchema);
+                alert("Success! A new examination schema has been successfully compiled and published.");
+            }
+            
+            resetCreationWorkspaceState();
+            loadExamsInventoryDirectory();
+
+        } catch (error) { alert("Error committing schema files to database targets."); }
         finally {
             publishExamBtn.disabled = false;
-            publishExamBtn.textContent = "Commit & Publish Final Exam";
         }
     });
 });
