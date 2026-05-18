@@ -1,13 +1,33 @@
-// Replace the values below with your Firebase project details from the Firebase console.
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAP2dqWzQAtf1VBMxeKiPQ6LFGQgMMgEWA",
-    authDomain: "surajerp-2837a.firebaseapp.com",
-    projectId: "surajerp-2837a",
-    storageBucket: "surajerp-2837a.firebasestorage.app",
-    messagingSenderId: "687017219075",
-    appId: "1:687017219075:web:642feda1ffc536e849aa36",
-    measurementId: "G-L7LKC97HH8"
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDM_yvNHBECUxAyjf0Q8c0OiJtfJFJS3ek",
+  authDomain: "onlineexam-4c87c.firebaseapp.com",
+  projectId: "onlineexam-4c87c",
+  appId: "1:911623761586:web:2795cb6637145123d9e3ab"
 };
 
-// This value is useful when calling the Firebase REST Identity Toolkit from the browser.
-const FIREBASE_API_KEY = FIREBASE_CONFIG.apiKey;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.auth = auth;
+window.db = db;
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.signOut = signOut;
+window.onAuthStateChanged = onAuthStateChanged;
+window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+window.doc = doc;
+window.setDoc = setDoc;
+window.getDoc = getDoc;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.query = query;
+window.where = where;
+window.updateDoc = updateDoc;
+window.deleteDoc = deleteDoc;
+
+console.log("Firebase initialized successfully.");

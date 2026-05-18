@@ -1,90 +1,193 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Exam | Online Exam System</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam - Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/custom.css" />
-  </head>
-  <body class="min-h-screen bg-slate-50">
-    <div class="min-h-screen">
-      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <img id="pageLogo" class="logo-image" src="../assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
-            <div>
-              <h1 class="text-xl font-semibold">Create New Exam</h1>
-              <p class="text-sm text-slate-500">Enter metadata and add MCQ questions for your exam.</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <a href="admin-dashboard.html" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Back</a>
-            <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Logout</button>
-          </div>
-        </div>
-      </header>
+    <!-- Quill Rich Text Editor CDN Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/custom.css">
+    <style>
+        /* Restyle Quill background to integrate cleanly with dark theme layout */
+        .ql-toolbar { background-color: #374151 !important; border-color: #4b5563 !important; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container { border-color: #4b5563 !important; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; font-family: inherit; font-size: 0.875rem; }
+        .ql-editor { background-color: #1f2937 !important; color: #f3f4f6 !important; min-height: 100px; }
+        .ql-editor.ql-blank::before { color: #9ca3af !important; font-style: normal !important; }
+        .ql-snow .ql-stroke { stroke: #d1d5db !important; }
+        .ql-snow .ql-fill { fill: #d1d5db !important; }
+        .ql-snow .ql-picker { color: #d1d5db !important; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <form id="examForm" class="space-y-6 rounded-3xl bg-white p-6 card-shadow">
-          <div class="grid gap-5 lg:grid-cols-2">
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">Exam Title</label>
-              <input id="examTitle" type="text" placeholder="Term 1 Maths Test" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+    <!-- Top Navigation Header Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
             </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">Subject</label>
-              <input id="examSubject" type="text" placeholder="Mathematics" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
+            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+                <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Overview</a>
+                <a href="create-exam.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium">Exams</a>
+                <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Students</a>
+                <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Grades</a>
+                <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="border-b border-gray-700 pb-4 mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">Assessment Creation Center</h1>
+            <p class="text-sm text-gray-400 mt-1">Author live MCQ questionnaires, set up strict parameters, and publish target metrics across standards.</p>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <!-- Left Grid: Settings/Configurations Form -->
+            <div class="xl:col-span-1 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl h-fit">
+                <h2 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Exam Parameters</h2>
+                <form id="examMetaForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Assessment Title</label>
+                        <input type="text" id="examTitle" required placeholder="e.g., Unit Test 01 - Algebra"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Target Class Allocation</label>
+                        <select id="examStd" required
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Select Class --</option>
+                            <option value="STD 09 (GM)">STD 09 (GM)</option>
+                            <option value="STD 10 (GM)">STD 10 (GM)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>
+                        <input type="text" id="examSubject" required placeholder="e.g., Mathematics"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Duration (Minutes)</label>
+                        <input type="number" id="examDuration" required min="1" placeholder="e.g., 15"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Start Evaluation window</label>
+                        <input type="datetime-local" id="examStart" required
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Termination Close Window</label>
+                        <input type="datetime-local" id="examEnd" required
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Instructions Guidelines</label>
+                        <textarea id="examInstructions" required rows="3" placeholder="Read terms before initialization..."
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </form>
             </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">Standard / Class</label>
-              <select id="examStandard" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required>
-                <option value="">Select standard</option>
-                <option value="STD 09 (GM)">STD 09 (GM)</option>
-                <option value="STD 10 (GM)">STD 10 (GM)</option>
-              </select>
+
+            <!-- Right Grid Area: Question Compiler Block -->
+            <div class="xl:col-span-2 space-y-6">
+                
+                <!-- Bulk Exam Import Layer -->
+                <div class="bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
+                    <h2 class="text-md font-bold text-blue-400 uppercase tracking-wider mb-2">⚡ Bulk Import Spreadsheet Matrix</h2>
+                    <p class="text-xs text-gray-400 mb-4">Select a properly configured .csv data file to load your complete questionnaire dynamically into the staging timeline layout array instantly.</p>
+                    <div class="flex items-center space-x-4">
+                        <input type="file" id="csvFileInput" accept=".csv" 
+                            class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- MCQ Composition Engine Block -->
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-2">
+                        <h2 class="text-xl font-bold text-white">Item Questionnaire Manual Matrix</h2>
+                        <span id="questionCounter" class="text-xs font-semibold text-blue-400 bg-blue-950 px-2.5 py-1 rounded border border-blue-900">Queued Questions: 0</span>
+                    </div>
+
+                    <form id="questionForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Question Body Context</label>
+                            <!-- Rich Text Editor Container Hook Node Replacement for old standard text box -->
+                            <div id="editorToolbar"></div>
+                            <div id="qTextEditor"></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Option A</label>
+                                <input type="text" id="optA" placeholder="Option Content A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Option B</label>
+                                <input type="text" id="optB" placeholder="Option Content B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Option C</label>
+                                <input type="text" id="optC" placeholder="Option Content C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Option D</label>
+                                <input type="text" id="optD" placeholder="Option Content D" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Correct Option Key</label>
+                                <select id="correctOpt" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="A">Option A</option>
+                                    <option value="B">Option B</option>
+                                    <option value="C">Option C</option>
+                                    <option value="D">Option D</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Evaluation Points / Marks</label>
+                                <input type="number" id="qMarks" min="1" value="1" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
+                                    Queue Question Item
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Preview Stack List View Elements -->
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+                    <h3 class="text-md font-bold text-gray-300 mb-4 tracking-wide uppercase">Question Sheet Compilation Stage Preview</h3>
+                    <div id="questionsPreviewList" class="space-y-3 divide-y divide-gray-700/40">
+                        <p class="text-sm text-gray-500 py-4 text-center">No structural components queued inside the current scope stack framework.</p>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-700 flex justify-end">
+                        <button type="button" id="publishExamBtn" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-extrabold text-base px-8 py-3.5 rounded-lg shadow-lg tracking-wide transition-all transform active:scale-95">
+                            Commit & Publish Final Exam
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">Duration (minutes)</label>
-              <input id="examDuration" type="number" min="5" max="180" value="15" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">Start Date / Time</label>
-              <input id="examStart" type="datetime-local" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-slate-700">End Date / Time</label>
-              <input id="examEnd" type="datetime-local" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required />
-            </div>
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">Instructions</label>
-            <textarea id="examInstructions" rows="4" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" placeholder="Read all questions carefully before submitting."></textarea>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <label class="text-sm font-medium text-slate-700">Publish exam now?</label>
-            <input id="examPublished" type="checkbox" class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-          </div>
-          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Questions</h2>
-              <button id="addQuestionBtn" type="button" class="btn-primary rounded-2xl px-4 py-2 text-sm">Add Question</button>
-            </div>
-            <div id="questionList" class="mt-4 space-y-4"></div>
-          </div>
-          <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <button id="saveExamBtn" type="submit" class="btn-primary rounded-2xl px-6 py-3 text-white">Save Exam</button>
-            <p id="examMessage" class="text-sm text-slate-600"></p>
-          </div>
-        </form>
-      </main>
-    </div>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="../js/config.js"></script>
-    <script src="../js/firebase-config.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/admin.js"></script>
-  </body>
+        </div>
+    </main>
+
+    <!-- Quill Rich Text JavaScript Core engine component bindings -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <!-- Base Module Core Connectors -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/exam.js"></script>
+</body>
 </html>

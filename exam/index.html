@@ -1,52 +1,45 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Suraj English Academy | Online Exam Portal</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Exam System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/custom.css" />
-  </head>
-  <body class="bg-slate-50 text-slate-900">
-    <main class="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
-      <section class="mx-auto max-w-5xl rounded-3xl bg-white p-8 shadow-2xl card-shadow">
-        <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div class="space-y-4">
-            <img id="pageLogo" class="logo-image" src="assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
-            <div id="logoText" class="hidden text-3xl font-semibold tracking-tight text-slate-900">Suraj English Academy</div>
-            <p class="max-w-2xl text-slate-600">A lightweight online exam system for coaching classes with student standard filtering, exam scheduling, secure login and instant results.</p>
-            <div class="flex flex-col gap-3 sm:flex-row">
-              <a href="login.html" class="btn-primary inline-flex items-center justify-center rounded-xl px-6 py-3 text-white shadow-lg transition hover:shadow-xl">Launch Portal</a>
-              <a href="README.md" class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-6 py-3 text-slate-700 transition hover:bg-slate-50">Documentation</a>
-            </div>
-          </div>
-          <div class="rounded-3xl bg-slate-900 p-8 text-white shadow-xl sm:p-10">
-            <h2 class="text-3xl font-semibold">Fast, mobile-first exam workflow</h2>
-            <p class="mt-4 text-slate-200">Student and teacher dashboards, exam creation, automatic submission, ranking, and result summaries — optimized for 70–80 learners.</p>
-            <div class="mt-8 grid gap-4 sm:grid-cols-2">
-              <div class="rounded-3xl bg-white/10 p-5">
-                <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Live exams</p>
-                <p class="mt-3 text-xl font-semibold">Auto scheduling</p>
-              </div>
-              <div class="rounded-3xl bg-white/10 p-5">
-                <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Anti-cheating</p>
-                <p class="mt-3 text-xl font-semibold">Tab & paste guard</p>
-              </div>
-            </div>
-          </div>
+</head>
+<body class="bg-gray-900 flex items-center justify-center h-screen">
+    <div class="text-center">
+        <div class="mb-6">
+            <img src="assets/logo/logo.png" alt="Logo" class="mx-auto h-20 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Coaching+Logo'">
         </div>
-      </section>
-    </main>
-    <script src="js/config.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script>
-      window.addEventListener('load', () => {
-        const logo = document.getElementById('pageLogo');
-        logo.onerror = () => {
-          logo.style.display = 'none';
-          document.getElementById('logoText').classList.remove('hidden');
-        };
-      });
+        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+        <p class="mt-4 text-gray-400 text-sm tracking-wide">Securing route connection...</p>
+    </div>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module">
+        window.addEventListener('DOMContentLoaded', () => {
+            const checkFirebase = setInterval(() => {
+                if (window.auth) {
+                    clearInterval(checkFirebase);
+                    window.onAuthStateChanged(window.auth, async (user) => {
+                        if (user) {
+                            try {
+                                const userDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
+                                if (userDoc.exists() && userDoc.data().role === "ADMIN") {
+                                    window.location.replace("admin/admin-dashboard.html");
+                                } else {
+                                    window.location.replace("dashboard.html");
+                                }
+                            } catch (e) {
+                                window.location.replace("login.html");
+                            }
+                        } else {
+                            window.location.replace("login.html");
+                        }
+                    });
+                }
+            }, 50);
+        });
     </script>
-  </body>
+</body>
 </html>

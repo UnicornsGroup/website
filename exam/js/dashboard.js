@@ -1,135 +1,168 @@
-window.addEventListener('load', () => {
-  initFirebase();
-  document.getElementById('logoutBtn').addEventListener('click', signOutUser);
-  monitorAuthState([CONFIG.studentRoleValue], async (profileDoc) => {
-    const user = profileDoc.data();
-    document.getElementById('studentStandard').textContent = user[CONFIG.standardField] || 'Unknown';
-    await loadStudentExams(user);
-  });
+﻿window.addEventListener('DOMContentLoaded', () => {
+    let globalUserPayload = null;
+
+    // Secure Session Validation Enforcer
+    const runtimeVerification = setInterval(() => {
+        if (window.auth && window.onAuthStateChanged) {
+            clearInterval(runtimeVerification);
+            window.onAuthStateChanged(window.auth, async (user) => {
+                if (user) {
+                    try {
+                        const profileDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
+                        if (profileDoc.exists()) {
+                            globalUserPayload = profileDoc.data();
+                            
+                            // Prevent Admins from infiltrating student dashboards
+                            if (globalUserPayload.role === "ADMIN") {
+                                window.location.replace("admin/admin-dashboard.html");
+                                return;
+                            }
+
+                            // Dynamic Layout Content Population
+                            document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
+                            document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
+
+                            // Pipeline execution of core evaluation views
+                            executeDashboardQueryEngine();
+                        } else {
+                            window.location.replace("login.html");
+                        }
+                    } catch (err) {
+                        console.error("Dashboard profile lookup crash:", err);
+                        window.location.replace("login.html");
+                    }
+                } else {
+                    window.location.replace("login.html");
+                }
+            });
+        }
+    }, 50);
+
+    // Manual Log Out Interface Hook
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        if(confirm("Terminate assessment session profile safely?")) {
+            await window.signOut(window.auth);
+            window.location.replace("login.html");
+        }
+    });
+
+    const activeExamsContainer = document.getElementById('activeExamsContainer');
+    const historyContainer = document.getElementById('historyContainer');
+
+    // Consolidated Core Core Query Engine Pipeline
+    async function executeDashboardQueryEngine() {
+        if (!globalUserPayload || !window.db) return;
+
+        try {
+            // 1. Fetch historical student responses submitted to structural database collections
+            const historyQuery = window.query(
+                window.collection(window.db, "results"), 
+                window.where("admissionNumber", "==", globalUserPayload.admissionNumber)
+            );
+            const historySnapshot = await window.getDocs(historyQuery);
+            const verifiedSubmissionsArray = [];
+
+            historySnapshot.forEach(doc => {
+                verifiedSubmissionsArray.push(doc.data().examId);
+            });
+
+            // Populate Performance History Sidebar Panel Items
+            if(!historySnapshot.empty) {
+                historyContainer.innerHTML = "";
+                historySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "bg-gray-700/40 p-3.5 rounded-lg border border-gray-600/50 text-xs space-y-1";
+                    card.innerHTML = `
+                        <div class="flex justify-between font-semibold text-white">
+                            <span class="truncate pr-2">${data.examTitle}</span>
+                            <span class="text-emerald-400 font-mono">${data.scorePoints} / ${data.totalWeightMarks} M</span>
+                        </div>
+                        <div class="text-gray-400 flex justify-between">
+                            <span>Percentage: ${data.percentageScore}%</span>
+                            <span class="text-gray-500 font-mono">${new Date(data.submittedAt).toLocaleDateString()}</span>
+                        </div>
+                    `;
+                    historyContainer.appendChild(card);
+                });
+            }
+
+            // 2. Query target assessments matched precisely against student allocated structural classes
+            const examsQuery = window.query(
+                window.collection(window.db, "exams"), 
+                window.where("standard", "==", globalUserPayload.standard),
+                window.where("published", "==", true)
+            );
+            const examsSnapshot = await window.getDocs(examsQuery);
+            activeExamsContainer.innerHTML = "";
+
+            if(examsSnapshot.empty) {
+                activeExamsContainer.innerHTML = `<div class="bg-gray-800 p-6 rounded-xl border border-gray-700 col-span-2 text-center py-12 text-gray-500">No active or scheduled exams configured for your target class stream at this moment.</div>`;
+                return;
+            }
+
+            const currentTimestampISO = new Date().getTime();
+
+            examsSnapshot.forEach(doc => {
+                const data = doc.data();
+                const startEpoch = new Date(data.startTime).getTime();
+                const endEpoch = new Date(data.endTime).getTime();
+                
+                const isAlreadySubmitted = verifiedSubmissionsArray.includes(doc.id);
+                
+                let isWindowActive = (currentTimestampISO >= startEpoch && currentTimestampISO <= endEpoch);
+                let isUpcoming = (currentTimestampISO < startEpoch);
+
+                const cardElement = document.createElement('div');
+                cardElement.className = "bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-lg flex flex-col justify-between";
+                
+                let systemStatusBadgeHTML = "";
+                let operationalButtonHTML = "";
+
+                if(isAlreadySubmitted) {
+                    systemStatusBadgeHTML = `<span class="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs px-2.5 py-0.5 rounded-full font-semibold">Completed</span>`;
+                    operationalButtonHTML = `<button disabled class="w-full mt-4 bg-gray-700 text-gray-500 font-medium py-2 rounded-lg cursor-not-allowed text-sm">Exam Already Attempted</button>`;
+                } else if (isUpcoming) {
+                    systemStatusBadgeHTML = `<span class="bg-amber-950 text-amber-400 border border-amber-900 text-xs px-2.5 py-0.5 rounded-full font-semibold">Upcoming</span>`;
+                    operationalButtonHTML = `<button disabled class="w-full mt-4 bg-gray-700/50 text-gray-500 font-medium py-2 rounded-lg cursor-not-allowed text-sm text-center">Locked Until ${new Date(data.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</button>`;
+                } else if (isWindowActive) {
+                    systemStatusBadgeHTML = `<span class="bg-red-950 text-red-400 border border-red-900 text-xs px-2.5 py-0.5 rounded-full font-semibold animate-pulse">LIVE NOW</span>`;
+                    operationalButtonHTML = `<button class="start-exam-btn w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition-all shadow-md transform active:scale-95" data-id="${doc.id}">Initialize Examination</button>`;
+                } else {
+                    systemStatusBadgeHTML = `<span class="bg-gray-900 text-gray-500 border border-gray-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">Closed / Expired</span>`;
+                    operationalButtonHTML = `<button disabled class="w-full mt-4 bg-gray-800 text-gray-600 font-medium py-2 rounded-lg cursor-not-allowed text-sm">Window Terminated</button>`;
+                }
+
+                cardElement.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold font-mono tracking-wider text-blue-400 uppercase">${data.subject}</span>
+                            ${systemStatusBadgeHTML}
+                        </div>
+                        <h3 class="text-lg font-bold text-white line-clamp-1">${data.title}</h3>
+                        <p class="text-xs text-gray-400 font-medium">Duration Allocation: <span class="text-white font-semibold">${data.duration} Minutes</span></p>
+                        <div class="text-xs text-gray-500 bg-gray-900/40 p-2.5 rounded border border-gray-700/40 space-y-0.5 font-mono">
+                            <div>Opens: ${new Date(data.startTime).toLocaleString()}</div>
+                            <div>Closes: ${new Date(data.endTime).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    ${operationalButtonHTML}
+                `;
+                activeExamsContainer.appendChild(cardElement);
+            });
+
+            // Bind Event Actions to Dynamic Initialization Node Points
+            document.querySelectorAll('.start-exam-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const selectedExamId = e.target.getAttribute('data-id');
+                    if(confirm("CRITICAL PROTOCOL CONFIRMATION:\n\nDo you want to initialize this exam? The countdown timer will start immediately and cannot be paused. Tab switches or exiting fullscreen will count as a cheating violation.\n\nProceed?")) {
+                        window.location.href = `exam.html?id=${selectedExamId}`;
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error("Critical execution fault thrown inside Dashboard pipeline:", error);
+        }
+    }
 });
-
-async function loadStudentExams(user) {
-  const now = Date.now();
-  const studentStandard = String(user[CONFIG.standardField] || '').trim();
-  if (!studentStandard) {
-    document.getElementById('activeExams').innerHTML = '<p class="text-sm text-slate-500">Unable to determine your standard.</p>';
-    document.getElementById('upcomingExams').innerHTML = '<p class="text-sm text-slate-500">Unable to determine your standard.</p>';
-    return;
-  }
-
-  const publishedSnapshot = await db.collection(CONFIG.examsCollection)
-    .where('published', '==', true)
-    .get();
-
-  const submissionsSnapshot = await db.collection(CONFIG.submissionsCollection)
-    .where(CONFIG.emailField, '==', user[CONFIG.emailField])
-    .get();
-
-  const submittedExams = new Map();
-  submissionsSnapshot.docs.forEach((doc) => submittedExams.set(doc.data().examId, doc.data()));
-
-  const activeExams = [];
-  const upcomingExams = [];
-  const completedExams = [];
-
-  const normalizedStandard = normalizeStandard(studentStandard);
-  publishedSnapshot.docs.forEach((doc) => {
-    const exam = { id: doc.id, ...doc.data() };
-    if (normalizeStandard(exam[CONFIG.standardField]) !== normalizedStandard) {
-      return;
-    }
-
-    const hasSubmitted = submittedExams.has(exam.id);
-    if (hasSubmitted) {
-      completedExams.push({ exam, submission: submittedExams.get(exam.id) });
-      return;
-    }
-
-    const start = new Date(exam.startTime).getTime();
-    const end = new Date(exam.endTime).getTime();
-    if (now < start) {
-      upcomingExams.push(exam);
-    } else if (now >= start && now <= end) {
-      activeExams.push(exam);
-    }
-  });
-
-  document.getElementById('activeCount').textContent = activeExams.length;
-  document.getElementById('upcomingCount').textContent = upcomingExams.length;
-  document.getElementById('completedCount').textContent = completedExams.length;
-
-  renderExamCards('activeExams', activeExams, 'Start Exam');
-  renderExamCards('upcomingExams', upcomingExams, 'Not Started');
-  renderCompletedExams(completedExams);
-}
-
-function normalizeStandard(value) {
-  return String(value || '')
-    .trim()
-    .toLowerCase()
-    .replace(/std\.?/g, '')
-    .replace(/standard\.?/g, '')
-    .replace(/class\.?/g, '')
-    .replace(/[\s\-\._]/g, '')
-    .replace(/[()]/g, '')
-    .replace(/[^a-z0-9]/g, '');
-}
-
-function renderExamCards(containerId, exams, buttonText) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  if (!exams.length) {
-    container.innerHTML = '<p class="text-sm text-slate-500">No exams found.</p>';
-    return;
-  }
-
-  exams.forEach((exam) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'rounded-3xl border border-slate-200 bg-slate-50 p-4';
-    wrapper.innerHTML = `
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <h3 class="text-lg font-semibold text-slate-900">${escapeHtml(exam.title)}</h3>
-          <p class="mt-2 text-sm text-slate-600">${escapeHtml(exam.subject)} • ${escapeHtml(exam.durationMinutes)} min</p>
-          <p class="mt-2 text-sm text-slate-500">${formatDateTime(exam.startTime)} - ${formatDateTime(exam.endTime)}</p>
-        </div>
-      </div>
-    `;
-
-    const actionButton = document.createElement('a');
-    actionButton.className = 'mt-4 inline-flex rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800';
-    actionButton.textContent = buttonText;
-    actionButton.href = buttonText === 'Start Exam' ? `exam.html?examId=${exam.id}` : 'javascript:void(0)';
-    wrapper.appendChild(actionButton);
-    container.appendChild(wrapper);
-  });
-}
-
-function renderCompletedExams(completed) {
-  const container = document.getElementById('completedExams');
-  container.innerHTML = '';
-  if (!completed.length) {
-    container.innerHTML = '<p class="text-sm text-slate-500">No completed exams yet.</p>';
-    return;
-  }
-  completed.forEach((item) => {
-    const card = document.createElement('div');
-    card.className = 'rounded-3xl border border-slate-200 bg-slate-50 p-4';
-    card.innerHTML = `
-      <h3 class="text-lg font-semibold text-slate-900">${escapeHtml(item.exam.title)}</h3>
-      <p class="mt-2 text-sm text-slate-600">Score: ${item.submission.score || 0} / ${item.submission.maxScore || 0}</p>
-      <p class="mt-2 text-sm text-slate-500">Submitted: ${formatDateTime(item.submission.submittedAt)}</p>
-      <a class="mt-4 inline-flex rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" href="result.html?examId=${item.exam.id}">View Result</a>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function escapeHtml(value) {
-  return String(value || '').replace(/[&<>"]+/g, (match) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[match]));
-}
-
-function formatDateTime(value) {
-  const date = new Date(value);
-  return date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
-}

@@ -1,60 +1,77 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Exam | Online Exam System</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Assessment Terminal - Secure Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/custom.css" />
-  </head>
-  <body class="min-h-screen bg-slate-50">
-    <div class="min-h-screen">
-      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <img id="pageLogo" class="logo-image" src="assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
-            <div>
-              <h1 class="text-xl font-semibold">Live Exam</h1>
-              <p class="text-sm text-slate-500">Use full screen and avoid switching tabs during the test.</p>
-            </div>
-          </div>
-          <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Exit</button>
-        </div>
-      </header>
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans no-select">
 
-      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <section class="grid gap-6 xl:grid-cols-[1fr_320px]">
-          <div class="space-y-6">
-            <div id="examBanner" class="rounded-3xl bg-white p-6 card-shadow"></div>
-            <div id="examContainer" class="space-y-6"></div>
-          </div>
-          <aside class="space-y-6">
-            <div class="rounded-3xl bg-white p-6 card-shadow">
-              <h2 class="text-lg font-semibold">Exam Timer</h2>
-              <p id="timerValue" class="mt-4 text-5xl font-semibold text-slate-900">00:00</p>
-              <div id="examStatus" class="mt-4 text-sm text-slate-600"></div>
+    <!-- Top Sticky Heads-Up Display Header Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="assets/logo/logo.png" alt="Logo" class="h-9 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+                <span id="examHeaderTitle" class="font-bold text-sm sm:text-base text-white tracking-wide truncate max-w-[180px] sm:max-w-xs">Loading Assessment...</span>
             </div>
-            <div id="cheatWarning" class="rounded-3xl bg-amber-50 p-6 text-amber-800 hidden card-shadow"></div>
-            <div class="rounded-3xl bg-white p-6 card-shadow">
-              <h3 class="text-base font-semibold">Exam Rules</h3>
-              <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                <li>- Do not switch tabs during exam.</li>
-                <li>- Copy/paste and right-click are disabled.</li>
-                <li>- Answers auto-save every 10 seconds.</li>
-                <li>- Timer continues after refresh.</li>
-              </ul>
+            
+            <!-- Floating Live Countdown Badge Counter -->
+            <div class="flex items-center space-x-3 bg-red-950/80 px-4 py-2 rounded-lg border border-red-700/50">
+                <span class="text-red-400 text-xs font-bold tracking-wider uppercase animate-pulse hidden sm:inline">Time Remaining:</span>
+                <span id="countdownTimerClock" class="text-red-200 font-mono font-extrabold text-base sm:text-lg tracking-widest">00:00</span>
             </div>
-          </aside>
-        </section>
-      </main>
+        </div>
+    </header>
+
+    <!-- Strict Violation Warning Overlay Panel Display Banner -->
+    <div id="violationWarningToast" class="hidden fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md bg-red-600 border border-red-500 text-white font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm animate-bounce">
+        <span>⚠️ SECURE GUARD DETECTION WARNING: Tab switch or window mutation detected! Multiple exceptions will trigger an automatic immediate submission lock.</span>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/timer.js"></script>
-    <script src="js/exam.js"></script>
-  </body>
+
+    <!-- Main Live Questionnaire Assessment Framework Workspace -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Structural Initialization Screen (Instructions Modal Stage) -->
+        <div id="instructionsGateBlock" class="bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700 shadow-2xl space-y-6">
+            <div class="border-b border-gray-700 pb-4">
+                <h2 id="instExamTitle" class="text-2xl font-black text-white">Assessment Operational Standard Instructions</h2>
+                <p class="text-xs text-blue-400 mt-1 font-mono uppercase tracking-wide">Verification parameters parsed successfully</p>
+            </div>
+            
+            <div class="text-sm text-gray-300 space-y-3 bg-gray-900/40 p-5 rounded-xl border border-gray-700/60 font-medium">
+                <p id="instExamDetails" class="text-gray-400">Loading parameter matrices...</p>
+                <p class="text-amber-400 font-bold">CRITICAL SECURITY CLAUSES BEFORE INITIALIZATION:</p>
+                <ul class="list-disc list-inside space-y-1 text-xs text-gray-400 pl-2">
+                    <li>Exiting the active viewport window profile will instantly register a cheating system exception log.</li>
+                    <li>Do not perform refresh steps; doing so WILL NOT restore elapsed execution minutes or reset item arrangements.</li>
+                    <li>When the monitor clock tracking countdown variable returns null (00:00), compilation payloads execute automatically.</li>
+                </ul>
+            </div>
+
+            <button type="button" id="initializeExamBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base py-3.5 rounded-xl shadow-lg transition-all transform active:scale-95 text-center">
+                Accept Protocols & Initialize Assessment
+            </button>
+        </div>
+
+        <!-- Live MCQ Questionnaire Operational Arena Workspace Canvas -->
+        <form id="liveExamForm" class="hidden space-y-6">
+            <!-- Questions Rendering Loop Targeted Element Hook Node -->
+            <div id="questionnaireRenderOutlet" class="space-y-6">
+                <!-- Javascript will inject randomized data nodes directly here -->
+            </div>
+
+            <!-- Terminal Final Action Complete Submit Dispatch Block -->
+            <div class="pt-6 border-t border-gray-800 flex justify-end">
+                <button type="submit" id="manualSubmitBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-base px-10 py-4 rounded-xl shadow-xl tracking-wide transition-all transform active:scale-95">
+                    Finalize & Submit Examination
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Fundamental Dependencies Stack -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/timer.js"></script>
+</body>
 </html>

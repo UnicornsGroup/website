@@ -1,77 +1,119 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Students | Online Exam System</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students - Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/custom.css" />
-  </head>
-  <body class="min-h-screen bg-slate-50">
-    <div class="min-h-screen">
-      <header class="border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <img id="pageLogo" class="logo-image" src="../assets/logo/logo.png" alt="Coaching Logo" onerror="this.style.display='none'" />
-            <div>
-              <h1 class="text-xl font-semibold">Manage Students</h1>
-              <p class="text-sm text-slate-500">Add or update admission records for students.</p>
+    <link rel="stylesheet" href="../css/custom.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
+    <!-- Top Navigation Header Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
             </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <a href="admin-dashboard.html" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Back</a>
-            <button id="logoutBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Logout</button>
-          </div>
+            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+                <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Overview</a>
+                <a href="create-exam.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Exams</a>
+                <a href="manage-students.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium">Students</a>
+                <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Grades</a>
+                <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
+            </nav>
         </div>
-      </header>
-      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div class="rounded-3xl bg-white p-6 card-shadow">
-            <h2 class="text-lg font-semibold">Student List</h2>
-            <div id="studentTable" class="mt-6 overflow-hidden rounded-3xl border border-slate-200"></div>
-          </div>
-          <div class="rounded-3xl bg-white p-6 card-shadow">
-            <h2 class="text-lg font-semibold">Add New Student</h2>
-            <form id="studentForm" class="mt-6 space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Admission Number</label>
-                <input id="studentAdmission" type="text" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Student Name</label>
-                <input id="studentName" type="text" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Standard</label>
-                <select id="studentStandard" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" required>
-                  <option value="">Select standard</option>
-                  <option value="STD 09 (GM)">STD 09 (GM)</option>
-                  <option value="STD 10 (GM)">STD 10 (GM)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Email</label>
-                <input id="studentEmail" type="email" required class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Mobile Number</label>
-                <input id="studentPhone" type="tel" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm" />
-              </div>
-              <div class="space-y-2">
-                <button type="submit" class="btn-primary w-full rounded-2xl px-6 py-3 text-white">Save Student</button>
-                <p id="studentMessage" class="text-sm text-slate-600"></p>
-              </div>
-            </form>
-          </div>
-        </section>
-      </main>
-    </div>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="../js/config.js"></script>
-    <script src="../js/firebase-config.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/admin.js"></script>
-  </body>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Section Header Info -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-700 pb-6 mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">Student Registration Matrix</h1>
+                <p class="text-sm text-gray-400 mt-1">Provision academic enrollment IDs, manage target classes, and perform credential override resets.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Side Panel: Add / Update Student Profile Form Block -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 h-fit shadow-xl">
+                <h2 id="formTitle" class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Add New Student Profile</h2>
+                
+                <form id="studentForm" class="space-y-4">
+                    <input type="hidden" id="studentDocId">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Admission Number</label>
+                        <input type="text" id="admNum" required placeholder="e.g., SEA20260002"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">This forms the access username & password credential bundle.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Student Full Name</label>
+                        <input type="text" id="studName" required placeholder="e.g., Rajesh Kumar"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Class / Standard Allocation</label>
+                        <select id="studStd" required
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Choose Standard --</option>
+                            <option value="STD 09 (GM)">STD 09 (GM)</option>
+                            <option value="STD 10 (GM)">STD 10 (GM)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Mobile Contact Number</label>
+                        <input type="tel" id="studMob" required placeholder="10 digit numeric value" pattern="[0-9]{10}"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="pt-4 flex space-x-2">
+                        <button type="submit" id="saveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors text-sm">
+                            Save Student Record
+                        </button>
+                        <button type="button" id="cancelEditBtn" class="hidden flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Side Panel: Interactive Database Records Table -->
+            <div class="lg:col-span-2 bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-white">Active Student Records</h2>
+                    <span id="studentCount" class="bg-blue-900/50 text-blue-300 text-xs px-2.5 py-1 rounded-full border border-blue-700 font-semibold">Total: 0</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-gray-400 font-semibold">
+                                <th class="pb-3 px-2">Adm. No.</th>
+                                <th class="pb-3 px-2">Name</th>
+                                <th class="pb-3 px-2">Standard</th>
+                                <th class="pb-3 px-2">Mobile</th>
+                                <th class="pb-3 px-2 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-gray-700/50 text-gray-300">
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-gray-500">Querying live registration files...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Module Infrastructure Bindings -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+</body>
 </html>
