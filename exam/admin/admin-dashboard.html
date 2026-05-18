@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/custom.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
+    <!-- Top Navigation Header Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
+            </div>
+            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+                <a href="admin-dashboard.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium">Overview</a>
+                <a href="create-exam.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Exams</a>
+                <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Students</a>
+                <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Grades</a>
+                <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="border-b border-gray-700 pb-4 mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">Administrative Insights Engine</h1>
+            <p class="text-sm text-gray-400 mt-1">Real-time status metrics monitoring engine across all institutional evaluation components.</p>
+        </div>
+
+        <!-- Metric Score Counter Grid Blocks -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-md">
+                <span class="text-xs text-gray-400 font-bold tracking-wider uppercase block mb-1">Total Registered Students</span>
+                <span id="statStudentsCount" class="text-3xl font-black font-mono text-blue-400">Loading...</span>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-md">
+                <span class="text-xs text-gray-400 font-bold tracking-wider uppercase block mb-1">Total Created Exams</span>
+                <span id="statExamsCount" class="text-3xl font-black font-mono text-purple-400">Loading...</span>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-md">
+                <span class="text-xs text-gray-400 font-bold tracking-wider uppercase block mb-1">Total Submissions Received</span>
+                <span id="statResultsCount" class="text-3xl font-black font-mono text-emerald-400">Loading...</span>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
+            <h2 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Recently Active Examinations</h2>
+            <div id="activeExamsListContainer" class="space-y-3">
+                <p class="text-sm text-gray-500 py-4 text-center">Querying database matrices...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Framework System Hooks Module -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module">
+        window.addEventListener('DOMContentLoaded', () => {
+            const verificationLoop = setInterval(() => {
+                if (window.auth && window.onAuthStateChanged) {
+                    clearInterval(verificationLoop);
+                    window.onAuthStateChanged(window.auth, async (user) => {
+                        if (user) {
+                            const check = await window.getDoc(window.doc(window.db, "users", user.uid));
+                            if (!check.exists() || check.data().role !== "ADMIN") {
+                                window.location.replace("../login.html");
+                            } else {
+                                executeAnalyticsFetchEngine();
+                            }
+                        } else {
+                            window.location.replace("../login.html");
+                        }
+                    });
+                }
+            }, 50);
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                if(confirm("Confirm secure sign out procedure?")) {
+                    await window.signOut(window.auth);
+                    window.location.replace("../login.html");
+                }
+            });
+
+            async function executeAnalyticsFetchEngine() {
+                try {
+                    const studentsSnapshot = await window.getDocs(window.query(window.collection(window.db, "users"), window.where("role", "==", "STUDENT")));
+                    document.getElementById('statStudentsCount').textContent = studentsSnapshot.size;
+
+                    const examsSnapshot = await window.getDocs(window.collection(window.db, "exams"));
+                    document.getElementById('statExamsCount').textContent = examsSnapshot.size;
+
+                    const resultsSnapshot = await window.getDocs(window.collection(window.db, "results"));
+                    document.getElementById('statResultsCount').textContent = resultsSnapshot.size;
+
+                    const examsListOutlet = document.getElementById('activeExamsListContainer');
+                    examsListOutlet.innerHTML = "";
+
+                    if (examsSnapshot.empty) {
+                        examsListOutlet.innerHTML = `<p class="text-sm text-gray-500 py-4 text-center">No examination files compiled yet inside database repos.</p>`;
+                        return;
+                    }
+
+                    examsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const div = document.createElement('div');
+                        div.className = "bg-gray-900/40 p-4 rounded-lg border border-gray-700/60 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2";
+                        div.innerHTML = `
+                            <div>
+                                <span class="text-xs font-bold font-mono tracking-wide text-blue-400 block uppercase">${data.subject} | Allocation: ${data.standard}</span>
+                                <h4 class="text-base font-bold text-white mt-0.5">${data.title}</h4>
+                            </div>
+                            <div class="text-xs text-gray-400 text-left sm:text-right font-mono">
+                                <div>Total Weight: <span class="text-white font-bold">${data.totalMarks} Marks</span></div>
+                                <div>Window Duration: <span class="text-white font-bold">${data.duration} Mins</span></div>
+                            </div>
+                        `;
+                        examsListOutlet.appendChild(div);
+                    });
+
+                } catch (err) { console.error("Analytics pipeline fault:", err); }
+            }
+        });
+    </script>
+</body>
+</html>
