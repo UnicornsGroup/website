@@ -10,19 +10,36 @@
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
     <!-- Top Navigation Header Bar -->
-    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
+                <span class="font-bold text-base text-white tracking-wide">SEA | Admin Panel</span>
             </div>
-            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+            
+            <button id="adminMenuToggleBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-md hover:bg-gray-700/50 transition-colors">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path id="adminMenuIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <nav class="hidden md:flex space-x-4 text-sm">
                 <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Overview</a>
                 <a href="create-exam.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Exams</a>
                 <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Students</a>
+                <a href="student-performance.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Analytics</a>
                 <a href="results.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium">Grades</a>
                 <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
             </nav>
+        </div>
+
+        <div id="adminDropdownDrawer" class="hidden md:hidden border-b border-gray-700 bg-gray-800 px-4 py-3 flex flex-col space-y-2 text-sm shadow-xl">
+            <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Overview</a>
+            <a href="create-exam.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Exams</a>
+            <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Students</a>
+            <a href="student-performance.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Analytics</a>
+            <a href="results.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium text-center">Grades</a>
+            <button id="mobileLogoutBtn" class="w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition-colors shadow-md">Sign Out Panel</button>
         </div>
     </header>
 
@@ -36,13 +53,11 @@
             <div class="w-full sm:max-w-md">
                 <label class="block text-sm font-medium text-gray-400 mb-2">Select Target Examination Reference to Filter Scores</label>
                 <select id="examSelectorDropdown" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    <option value="">-- Querying Available Exams... --</option>
+                    <option value="">-- Choose an Exam --</option>
                 </select>
             </div>
-            
-            <!-- NEW DOWNLOAD & GENERATE MERIT BUTTON -->
-            <button id="downloadPdfReportBtn" disabled class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold px-6 py-2.5 rounded-lg shadow-md transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
-                <span>Download & Share Standard Merit List PDF</span>
+            <button id="downloadPdfReportBtn" disabled class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold px-6 py-2.5 rounded-lg shadow-md transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+                Download & Share Standard Merit List PDF
             </button>
         </div>
 
@@ -62,72 +77,51 @@
                         </tr>
                     </thead>
                     <tbody id="gradesTableBodyOutlet" class="divide-y divide-gray-700/50 text-gray-300">
-                        <tr>
-                            <td colspan="7" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td>
-                        </tr>
+                        <tr><td colspan="7" class="py-8 text-center text-gray-500">Select an exam above to view scores.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- HIDDEN PRINTER CANVAS SHEET (DOCKING CONTAINER FOR BRANDED REPORT STYLES) -->
     <div class="hidden">
         <div id="hiddenPrintLayoutCanvas" class="p-8 bg-white text-gray-900 space-y-6" style="width: 790px; font-family: Arial, sans-serif;">
-            
-            <!-- Header Letterhead Block Layout -->
             <div class="flex items-center justify-between border-b-4 border-blue-900 pb-4">
-                <div style="width: 15%;">
-                    <img src="../assets/logo/logo.png" style="max-height: 80px; width: auto; object-contain;" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                </div>
+                <div style="width: 15%;"><img src="../assets/logo/logo.png" style="max-height: 80px; width: auto;" onerror="this.src='https://via.placeholder.com/150?text=Logo'"></div>
                 <div class="text-right" style="width: 82%;">
-                    <h1 style="font-size: 24px; font-weight: 900; color: #1e3a8a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Suraj English Academy, Palanpur</h1>
+                    <h1 style="font-size: 24px; font-weight: 900; color: #1e3a8a; margin: 0; text-transform: uppercase;">Suraj English Academy, Palanpur</h1>
                     <p style="font-size: 11px; color: #374151; margin: 2px 0 0 0; line-height: 1.4;">
                         Address: 262, Tirupati Rajnagar, Abu Highway, Palanpur, Gujarat – 385001<br>
-                        Website: <span style="color: #2563eb; font-weight: bold;">www.surajenglishacademy.in</span> | Mobile: +91 94273 92046 | WhatsApp: +91 89801 90101
+                        Website: <b>www.surajenglishacademy.in</b> | Mobile: +91 94273 92046 | WhatsApp: +91 89801 90101
                     </p>
                 </div>
             </div>
-
-            <!-- Exam Details Banner Row -->
             <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb;">
-                <h2 id="pdfMetaExamTitle" style="font-size: 16px; font-weight: bold; color: #111827; margin: 0;">Exam: Loading Title...</h2>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #4b5563; margin-top: 4px; font-weight: 500;">
-                    <span id="pdfMetaSubject">Subject: -</span>
-                    <span id="pdfMetaStandard">Standard Scope: -</span>
-                    <span id="pdfMetaTotalMarks">Total Weight: -</span>
+                <h2 id="pdfMetaExamTitle" style="font-size: 16px; font-weight: bold; margin: 0;">Exam: -</h2>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #4b5563; margin-top: 4px;">
+                    <span id="pdfMetaSubject">Subject: -</span><span id="pdfMetaStandard">Standard: -</span><span id="pdfMetaTotalMarks">Total Weight: -</span>
                 </div>
             </div>
-
-            <h3 style="font-size: 14px; font-weight: bold; color: #1e3a8a; margin: 15px 0 5px 0; border-left: 4px solid #1e3a8a; padding-left: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Official Merit Sequence Rankings Sheet</h3>
-            
-            <!-- Standard Performance Data Table Grid -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                 <thead>
-                    <tr style="background-color: #1e3a8a; color: white; font-weight: bold;">
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 8%;">Rank</th>
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 18%;">Adm. Number</th>
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 34%;">Student Full Name</th>
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 15%;">Standard</th>
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 15%;">Marks Secured</th>
-                        <th style="padding: 8px; border: 1px solid #cbd5e1; width: 10%;">Percentage</th>
+                    <tr style="background-color: #1e3a8a; color: white;">
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Rank</th>
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Adm. Number</th>
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Student Full Name</th>
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Standard</th>
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Marks Secured</th>
+                        <th style="padding: 8px; border: 1px solid #cbd5e1;">Percentage</th>
                     </tr>
                 </thead>
-                <tbody id="pdfTableRowsOutletNode">
-                    <!-- Javascript will inject sorted nodes directly here -->
-                </tbody>
+                <tbody id="pdfTableRowsOutletNode"></tbody>
             </table>
-
-            <!-- Footnote 컴퓨터 생성 Clause -->
-            <div style="border-t: 1px dashed #cbd5e1; padding-top: 15px; margin-top: 30px; text-align: center; font-size: 10px; color: #6b7280; font-weight: bold; font-style: italic;">
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 15px; text-align: center; font-size: 10px; color: #6b7280; font-weight: bold; font-style: italic;">
                 “This is a computer-generated result sheet. If you have any query WhatsApp us.”
             </div>
         </div>
     </div>
 
-    <!-- PRINT DEPENDENCIES SCRIPTS RENDERING LAYER -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- App Module Core Dependencies Links Layer -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module">
         window.addEventListener('DOMContentLoaded', () => {
@@ -152,12 +146,14 @@
                 }
             }, 50);
 
-            document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const handleLogOutAction = async () => {
                 if(confirm("Confirm secure sign out request?")) {
                     await window.signOut(window.auth);
                     window.location.replace("../login.html");
                 }
-            });
+            };
+            document.getElementById('logoutBtn').addEventListener('click', handleLogOutAction);
+            document.getElementById('mobileLogoutBtn').addEventListener('click', handleLogOutAction);
 
             const examSelectorDropdown = document.getElementById('examSelectorDropdown');
             const gradesTableBodyOutlet = document.getElementById('gradesTableBodyOutlet');
@@ -167,12 +163,6 @@
                 try {
                     const examsSnapshot = await window.getDocs(window.collection(window.db, "exams"));
                     examSelectorDropdown.innerHTML = `<option value="">-- Choose an Exam --</option>`;
-                    
-                    if(examsSnapshot.empty) {
-                        examSelectorDropdown.innerHTML = `<option value="">No exam records found inside database repositories</option>`;
-                        return;
-                    }
-
                     examsSnapshot.forEach(doc => {
                         const data = doc.data();
                         const opt = document.createElement('option');
@@ -180,10 +170,8 @@
                         opt.textContent = `${data.standard} | ${data.subject} - ${data.title}`;
                         examSelectorDropdown.appendChild(opt);
                     });
-
                     examSelectorDropdown.addEventListener('change', querySubmissionsGradesMatrix);
-
-                } catch (e) { console.error("Dropdown injection failure:", e); }
+                } catch (e) { console.error(e); }
             }
 
             async function querySubmissionsGradesMatrix() {
@@ -193,14 +181,12 @@
                 activeSelectedExamMeta = null;
 
                 if(!selectedExamId) {
-                    gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">Please select an exam from the dropdown panel filter array above.</td></tr>`;
+                    gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">Select an exam above to view scores.</td></tr>`;
                     return;
                 }
-
-                gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-400">Filtering score registries sheets...</td></tr>`;
+                gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-400 font-mono">Filtering score registries...</td></tr>`;
 
                 try {
-                    // Fetch primary exam definitions metadata node
                     const examDocCheck = await window.getDoc(window.doc(window.db, "exams", selectedExamId));
                     if(examDocCheck.exists()) activeSelectedExamMeta = examDocCheck.data();
 
@@ -209,32 +195,33 @@
                     gradesTableBodyOutlet.innerHTML = "";
 
                     if (snapshot.empty) {
-                        gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">No submissions have been generated or indexed for this examination yet.</td></tr>`;
+                        gradesTableBodyOutlet.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-500">No submissions received for this examination yet.</td></tr>`;
                         return;
                     }
 
-                    // Dump snapshot rows inside array map objects safely
-                    snapshot.forEach(doc => {
-                        activeFetchedRowsArray.push(doc.data());
-                    });
-
-                    // NEW REQUIREMENT CRITERIA: Sort payload data array from HIGHEST score points to LOWEST score points
+                    snapshot.forEach(doc => { activeFetchedRowsArray.push({ ...doc.data(), docId: doc.id }); });
                     activeFetchedRowsArray.sort((a, b) => b.scorePoints - a.scorePoints);
 
-                    // Render array values into standard dashboard table tracking sheet row layouts
                     activeFetchedRowsArray.forEach(data => {
+                        let integrityBadgeHTML = "";
+                        if (data.percentageScore === 0 && data.correctCount === 0) {
+                            integrityBadgeHTML = `<span class="bg-red-950 text-red-400 border border-red-900 text-xs px-2 py-0.5 rounded font-bold animate-pulse">⚠️ FORCED LOCKOUT</span>`;
+                        } else {
+                            integrityBadgeHTML = `<span class="text-gray-400 text-xs font-semibold">Completed Passively</span>`;
+                        }
+
                         const tr = document.createElement('tr');
-                        tr.className = "hover:bg-gray-800/40 transition-colors text-sm";
+                        tr.className = "hover:bg-gray-800/40 text-sm transition-colors";
                         tr.innerHTML = `
-                            <td class="py-3.5 px-2 font-mono text-xs text-blue-400 font-bold">${data.admissionNumber}</td>
-                            <td class="py-3.5 px-2 text-white font-medium">${data.studentName}</td>
-                            <td class="py-3.5 px-2 text-gray-400">${data.standard}</td>
-                            <td class="py-3.5 px-2 font-bold font-mono text-emerald-400">${data.scorePoints} / ${data.totalWeightMarks} M</td>
-                            <td class="py-3.5 px-2 font-mono text-purple-400 font-bold">${data.percentageScore}%</td>
-                            <td class="py-3.5 px-2 font-mono text-xs text-gray-400">${new Date(data.submittedAt).toLocaleString()}</td>
-                            <td class="py-3.5 px-2 text-right">
-                                <button class="allow-reattempt-btn bg-amber-950/60 hover:bg-amber-800 text-amber-400 border border-amber-900/50 px-2.5 py-1 rounded text-xs font-bold transition-all" 
-                                    data-docid="${doc.id}" data-studname="${data.studentName}" data-adm="${data.admissionNumber}">
+                            <td class="py-3 px-2 font-mono text-xs text-blue-400 font-bold">${data.admissionNumber}</td>
+                            <td class="py-3 px-2 text-white font-medium">${data.studentName}</td>
+                            <td class="py-3 px-2 text-gray-400">${data.standard}</td>
+                            <td class="py-3 px-2 font-bold text-emerald-400">${data.scorePoints} / ${data.totalWeightMarks} M</td>
+                            <td class="py-3 px-2 text-purple-400 font-bold">${data.percentageScore}%</td>
+                            <td class="py-3 px-2 font-mono text-xs text-gray-500">${new Date(data.submittedAt).toLocaleString()} ${integrityBadgeHTML}</td>
+                            <td class="py-3 px-2 text-right">
+                                <button class="allow-reattempt-btn bg-amber-950/60 hover:bg-amber-800 text-amber-400 border border-amber-900/50 px-2 py-0.5 rounded text-xs font-bold" 
+                                    data-docid="${data.docId}" data-studname="${data.studentName}" data-adm="${data.admissionNumber}">
                                     Allow Re-Attempt
                                 </button>
                             </td>
@@ -242,36 +229,26 @@
                         gradesTableBodyOutlet.appendChild(tr);
                     });
 
-                    document.querySelectorAll('.allow-reattempt-btn').forEach(btn => {
-                        btn.addEventListener('click', executeReattemptOverrideUnlock);
-                    });
-
-                    // Activate the action button layout now that data layers arrays match completely
+                    document.querySelectorAll('.allow-reattempt-btn').forEach(btn => btn.addEventListener('click', executeReattemptOverrideUnlock));
                     downloadPdfReportBtn.disabled = false;
-
-                } catch (err) { console.error("Grades matrix fetch crashed:", err); }
+                } catch (err) { console.error(err); }
             }
 
             async function executeReattemptOverrideUnlock(e) {
                 const docId = e.target.getAttribute('data-docid');
                 const studentName = e.target.getAttribute('data-studname');
-                const admissionNumber = e.target.getAttribute('data-adm');
-
-                if(confirm(`Do you want to clear the entry lock record for student "${studentName}" Completely?`)) {
+                if(confirm(`Completely clear lockout history for "${studentName}" to grant fresh re-entry access?`)) {
                     try {
-                        e.target.disabled = true;
                         await window.deleteDoc(window.doc(window.db, "results", docId));
-                        alert("Override cleared.");
+                        alert("Lockout records cleared.");
                         querySubmissionsGradesMatrix();
-                    } catch(err) { e.target.disabled = false; }
+                    } catch(err) { console.error(err); }
                 }
             }
 
-            // NEW CRITICAL FEATURE: Generate Branded PDF and Launch Sharing Options Automatically
             downloadPdfReportBtn.addEventListener('click', async () => {
                 if(activeFetchedRowsArray.length === 0 || !activeSelectedExamMeta) return;
 
-                // 1. Populate Hidden Canvas Element fields details text tags
                 document.getElementById('pdfMetaExamTitle').textContent = `Exam: ${activeSelectedExamMeta.title}`;
                 document.getElementById('pdfMetaSubject').textContent = `Subject: ${activeSelectedExamMeta.subject}`;
                 document.getElementById('pdfMetaStandard').textContent = `Standard Stream: ${activeSelectedExamMeta.standard}`;
@@ -280,66 +257,53 @@
                 const pdfTableRowsOutletNode = document.getElementById('pdfTableRowsOutletNode');
                 pdfTableRowsOutletNode.innerHTML = "";
 
-                // Append sorted data items rows directly onto layout blueprint canvas
                 activeFetchedRowsArray.forEach((student, index) => {
                     const row = document.createElement('tr');
                     row.style.borderBottom = "1px solid #e2e8f0";
-                    row.style.fontWeight = "500";
-                    
-                    // Add alternating row highlight layers background styling tints
                     if(index % 2 === 1) row.style.backgroundColor = "#f8fafc";
-
                     row.innerHTML = `
-                        <td style="padding: 7px 8px; font-weight: bold; color: #1e3a8a; border: 1px solid #cbd5e1;">${index + 1}</td>
-                        <td style="padding: 7px 8px; font-family: monospace; font-size: 11px; border: 1px solid #cbd5e1;">${student.admissionNumber}</td>
-                        <td style="padding: 7px 8px; color: #0f172a; font-weight: bold; border: 1px solid #cbd5e1;">${student.studentName}</td>
-                        <td style="padding: 7px 8px; color: #475569; border: 1px solid #cbd5e1;">${student.standard}</td>
-                        <td style="padding: 7px 8px; font-weight: bold; color: #16a34a; border: 1px solid #cbd5e1;">${student.scorePoints} / ${student.totalWeightMarks}</td>
-                        <td style="padding: 7px 8px; font-weight: bold; color: #7c3aed; border: 1px solid #cbd5e1;">${student.percentageScore}%</td>
+                        <td style="padding: 7px 8px; font-weight: bold; color: #1e3a8a;">${index + 1}</td>
+                        <td style="padding: 7px 8px; font-family: monospace;">${student.admissionNumber}</td>
+                        <td style="padding: 7px 8px; color: #0f172a; font-weight: bold;">${student.studentName}</td>
+                        <td style="padding: 7px 8px; color: #475569;">${student.standard}</td>
+                        <td style="padding: 7px 8px; font-weight: bold; color: #16a34a;">${student.scorePoints} / ${student.totalWeightMarks}</td>
+                        <td style="padding: 7px 8px; font-weight: bold; color: #7c3aed;">${student.percentageScore}%</td>
                     `;
                     pdfTableRowsOutletNode.appendChild(row);
                 });
 
-                // Configuration blueprints rules definitions properties maps for print formatting library engine
                 const targetElementSourceNode = document.getElementById('hiddenPrintLayoutCanvas');
                 const fileCleanNameString = `Merit_List_${activeSelectedExamMeta.title.replace(/\s+/g, '_')}.pdf`;
 
-                const printConfigurationsBlueprint = {
-                    margin:       0.3,
-                    filename:     fileCleanNameString,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                const config = {
+                    margin: 0.3, filename: fileCleanNameString, image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
                 };
 
                 try {
                     downloadPdfReportBtn.disabled = true;
-                    downloadPdfReportBtn.textContent = "Compiling PDF Ledger...";
+                    const pdfBlob = await html2pdf().set(config).from(targetElementSourceNode).output('blob');
+                    const shareFile = new File([pdfBlob], fileCleanNameString, { type: 'application/pdf' });
 
-                    // 2. Compute and compile the Document file blob array out from memory context targets
-                    const pdfDataBlobFileInstance = await html2pdf().set(printConfigurationsBlueprint).from(targetElementSourceNode).output('blob');
-
-                    // 3. Package Blob File into a native system share transaction layout array matching requirements
-                    const sharedDocumentBlobArray = new File([pdfDataBlobFileInstance], fileCleanNameString, { type: 'application/pdf' });
-
-                    // 4. Fire Web Sharing Native Action sheet triggers if supported on active infrastructure browser device
-                    if (navigator.canShare && navigator.canShare({ files: [sharedDocumentBlobArray] })) {
-                        await navigator.share({
-                            files: [sharedDocumentBlobArray],
-                            title: `Suraj English Academy - Merit Report List`,
-                            text: `Attached official merit score evaluations table listing for examination test session: ${activeSelectedExamMeta.title}`
-                        });
+                    if (navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+                        await navigator.share({ files: [shareFile], title: `SEA Merit Report List` });
                     } else {
-                        // Fallback: If device lacks systemic application pop-up routing sheets hooks, trigger instant browser workspace file pull download
-                        await html2pdf().set(printConfigurationsBlueprint).from(targetElementSourceNode).save();
+                        await html2pdf().set(config).from(targetElementSourceNode).save();
                     }
+                } catch (err) { console.error(err); }
+                finally { downloadPdfReportBtn.disabled = false; }
+            });
 
-                } catch (err) {
-                    console.error("PDF Compilation Error exception thrown:", err);
-                    alert("Error exporting document file profiles bundle layout asset.");
-                } finally {
-                    downloadPdfReportBtn.disabled = false;
-                    downloadPdfReportBtn.textContent = "Download & Share Standard Merit List PDF";
+            const toggleBtn = document.getElementById('adminMenuToggleBtn');
+            const drawer = document.getElementById('adminDropdownDrawer');
+            const iconPath = document.getElementById('adminMenuIconPath');
+            toggleBtn.addEventListener('click', () => {
+                if(drawer.classList.contains('hidden')) {
+                    drawer.classList.remove('hidden');
+                    iconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                } else {
+                    drawer.classList.add('hidden');
+                    iconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
                 }
             });
         });

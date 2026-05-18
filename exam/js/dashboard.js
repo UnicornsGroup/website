@@ -14,8 +14,14 @@
                                 window.location.replace("admin/admin-dashboard.html");
                                 return;
                             }
+                            // Populate Desktop View Components
                             document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
                             document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
+                            
+                            // Populate Mobile View Components
+                            document.getElementById('mobileNameDisplay').textContent = globalUserPayload.studentName;
+                            document.getElementById('mobileStdDisplay').textContent = globalUserPayload.standard;
+                            
                             executeDashboardQueryEngine();
                         } else { window.location.replace("login.html"); }
                     } catch (err) { window.location.replace("login.html"); }
@@ -24,12 +30,15 @@
         }
     }, 50);
 
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const runLogoutRoutine = async () => {
         if(confirm("Terminate assessment session profile safely?")) {
             await window.signOut(window.auth);
             window.location.replace("login.html");
         }
-    });
+    };
+
+    document.getElementById('logoutBtn')?.addEventListener('click', runLogoutRoutine);
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', runLogoutRoutine);
 
     const activeExamsContainer = document.getElementById('activeExamsContainer');
     const historyContainer = document.getElementById('historyContainer');
@@ -58,7 +67,6 @@
                 });
             }
 
-            // NEW CRITICAL COUPLING LOOKUP: Fetch ALL exams for backwards-safety fallback queries
             const examsQuery = window.query(window.collection(window.db, "exams"), window.where("published", "==", true));
             const examsSnapshot = await window.getDocs(examsQuery);
             activeExamsContainer.innerHTML = "";
@@ -68,11 +76,9 @@
 
             examsSnapshot.forEach(doc => {
                 const data = doc.data();
-                
-                // NEW ARRAY FILTER CLAUSE: Verify if student's standard matches either the backward hook string or exists inside the multi-select target layout standards array array mapping
                 const hasStandardPermission = (data.standard === globalUserPayload.standard || (data.standards && data.standards.includes(globalUserPayload.standard)));
                 
-                if (!hasStandardPermission) return; // Skip if standard doesn't belong to the student
+                if (!hasStandardPermission) return;
 
                 matchingExamsFoundCount++;
                 const startEpoch = new Date(data.startTime).getTime();

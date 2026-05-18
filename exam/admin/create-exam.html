@@ -19,13 +19,20 @@
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
     <!-- Top Navigation Header Bar -->
-    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <img src="../assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                <span class="font-bold text-lg text-white tracking-wide hidden sm:inline">Suraj English Academy | Control Panel</span>
+                <span class="font-bold text-base text-white tracking-wide">SEA | Admin Panel</span>
             </div>
-            <nav class="flex space-x-2 sm:space-x-4 text-sm">
+            
+            <button id="adminMenuToggleBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-md hover:bg-gray-700/50 transition-colors">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path id="adminMenuIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <nav class="hidden md:flex space-x-4 text-sm">
                 <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Overview</a>
                 <a href="create-exam.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium">Exams</a>
                 <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Students</a>
@@ -33,6 +40,15 @@
                 <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300">Grades</a>
                 <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Sign Out</button>
             </nav>
+        </div>
+
+        <div id="adminDropdownDrawer" class="hidden md:hidden border-b border-gray-700 bg-gray-800 px-4 py-3 flex flex-col space-y-2 text-sm shadow-xl">
+            <a href="admin-dashboard.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Overview</a>
+            <a href="create-exam.html" class="px-3 py-2 rounded-md bg-blue-600 text-white font-medium text-center">Exams</a>
+            <a href="manage-students.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Students</a>
+            <a href="student-performance.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Analytics</a>
+            <a href="results.html" class="px-3 py-2 rounded-md hover:bg-gray-700 text-gray-300 text-center">Grades</a>
+            <button id="mobileLogoutBtn" class="w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition-colors shadow-md">Sign Out Panel</button>
         </div>
     </header>
 
@@ -43,7 +59,7 @@
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <!-- Left Grid: Settings/Configurations Form -->
+            <!-- Left Form Layout Grid -->
             <div class="xl:col-span-1 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl h-fit">
                 <h2 id="metaFormTitle" class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Exam Parameters</h2>
                 <form id="examMetaForm" class="space-y-4">
@@ -84,16 +100,14 @@
                 </form>
             </div>
 
-            <!-- Right Grid Area: Question Compiler Block -->
+            <!-- Right Question Elements Grid -->
             <div class="xl:col-span-2 space-y-6">
-                <!-- Bulk Exam Import Layer -->
                 <div id="bulkImportCardContainer" class="bg-gradient-to-r from-slate-800 to-gray-800 p-6 rounded-xl border border-dashed border-gray-600 shadow-xl">
                     <h2 class="text-md font-bold text-blue-400 uppercase tracking-wider mb-2">⚡ Bulk Import Spreadsheet Matrix</h2>
-                    <p class="text-xs text-gray-400 mb-4">Select a properly configured .csv data file to load your complete questionnaire dynamically into the staging timeline layout array instantly.</p>
+                    <p class="text-xs text-gray-400 mb-4">Select a properly configured .csv file to load your questionnaire instantly.</p>
                     <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
                 </div>
 
-                <!-- MCQ Composition Engine Block -->
                 <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
                     <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-2">
                         <h2 class="text-xl font-bold text-white">Item Questionnaire Manual Matrix</h2>
@@ -124,7 +138,6 @@
                     </form>
                 </div>
 
-                <!-- Preview Stack List -->
                 <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
                     <h3 class="text-md font-bold text-gray-300 mb-4 tracking-wide uppercase">Question Sheet Compilation Stage Preview</h3>
                     <div id="questionsPreviewList" class="space-y-3 divide-y divide-gray-700/40">
@@ -138,7 +151,6 @@
             </div>
         </div>
 
-        <!-- Live Inventory View Table Layer -->
         <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl overflow-hidden">
             <h2 class="text-xl font-bold text-white mb-4">Live Examination Registries & Repository</h2>
             <div class="overflow-x-auto">
@@ -163,5 +175,29 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/exam.js"></script>
+    <script>
+        // Bind responsive menu handlers directly to local nodes
+        const toggleBtn = document.getElementById('adminMenuToggleBtn');
+        const drawer = document.getElementById('adminDropdownDrawer');
+        const iconPath = document.getElementById('adminMenuIconPath');
+
+        toggleBtn.addEventListener('click', () => {
+            if(drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                iconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+            } else {
+                drawer.classList.add('hidden');
+                iconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+            }
+        });
+
+        const handleMobileSignOut = async () => {
+            if(confirm("Confirm security administrative log out request?")) {
+                await window.signOut(window.auth);
+                window.location.replace("../login.html");
+            }
+        };
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', handleMobileSignOut);
+    </script>
 </body>
 </html>
