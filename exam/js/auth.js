@@ -24,71 +24,97 @@
         btnText.textContent = "Authenticating...";
         btnSpinner.classList.remove('hidden');
 
-        const rawUsername = usernameInput.value.trim();
-        const password = passwordInput.value;
+        // FORCE UPPERCASE AND REMOVE SPACES
+        const rawUsername = usernameInput.value.trim().toUpperCase();
+        const password = passwordInput.value.trim();
 
         if (!rawUsername || !password) {
             showError("Please enter both admission number and password.");
             return;
         }
 
-        const derivedEmail = `${rawUsername.toUpperCase()}@surajenglishacademy.in`;
+        const derivedEmail = `${rawUsername}@surajenglishacademy.in`;
 
         const executeLogin = setInterval(async () => {
             if (window.auth && window.signInWithEmailAndPassword) {
                 clearInterval(executeLogin);
 
                 try {
-                    // Try normal login first
+                    // Try to log in assuming the Auth profile already exists
                     const userCredential = await window.signInWithEmailAndPassword(window.auth, derivedEmail, password);
                     await routeAuthenticatedUser(userCredential.user.uid);
                 } catch (error) {
-                    // NEW UPDATE: Catch if account is missing in Auth tab but present in CSV/Firestore
-                    if (error.code === "auth/invalid-credential" || error.code === "auth/user-not-found") {
-                        await attemptLazyAuthenticationProvisioning(rawUsername.toUpperCase(), derivedEmail, password);
+                    console.log("Initial Auth Failure Code:", error.code);
+                    // Catch invalid credentials and check if it's an unprovisioned CSV record
+                    if (error.code === "auth/invalid-credential" || error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+                        await attemptLazyAuthenticationProvisioning(rawUsername, derivedEmail, password);
                     } else if (error.code === "auth/network-request-failed") {
-                        showError("Network latency breakdown. Connect to internet.");
+                        showError("Network connection fault. Check your internet access.");
                     } else {
-                        showError("Invalid admission number or password.");
+                        showError("Invalid admission number or password validation error.");
                     }
                 }
             }
         }, 50);
     });
 
-    // Dynamic provisioner logic for bulk CSV imported users
     async function attemptLazyAuthenticationProvisioning(username, email, password) {
         try {
-            // 1. Verify if the student records exist inside Firestore from the CSV upload
-            const customDocId = username + "_UID";
-            const userDocRef = window.doc(window.db, "users", customDocId);
-            const userDocSnapshot = await window.getDoc(userDocRef);
+            // Check both standard document ID and _UID format to be safe
+            const fallbackDocId = username + "_UID";
+            
+            let userDocRef = window.doc(window.db, "users", fallbackDocId);
+            let userDocSnapshot = await window.getDoc(userDocRef);
+
+            // If not found with _UID, try checking raw username string doc ID
+            if (!userDocSnapshot.exists()) {
+                userDocRef = window.doc(window.db, "users", username);
+                userDocSnapshot = await window.getDoc(userDocRef);
+            }
 
             if (userDocSnapshot.exists()) {
                 const userData = userDocSnapshot.data();
 
-                // Safety: Only run this trick if password matches username (default rule for fresh imports)
-                if (password === username) {
-                    // 2. Dynamically build the missing Auth tab record on the fly!
+                // Validation Rule: For first time login, password must match username string perfectly
+                if (password.toUpperCase() === username) {
+                    btnText.textContent = "Creating Safe Connection...";
+                    
+                    // 1. Create account inside Firebase Authentication tab dynamically
                     const newAuthCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
                     
-                    // 3. Link old CSV data to the newly created user UID to avoid duplicates
-                    await window.setDoc(window.doc(window.db, "users", newAuthCredential.user.uid), userData);
+                    // 2. Clone CSV profile configurations into the newly generated Auth UID reference document
+                    await window.setDoc(window.doc(window.db, "users", newAuthCredential.user.uid), {
+                        admissionNumber: userData.admissionNumber.trim().toUpperCase(),
+                        studentName: userData.studentName.trim(),
+                        standard: userData.standard.trim(),
+                        role: "STUDENT",
+                        email: email,
+                        mobileNumber: userData.mobileNumber ? userData.mobileNumber.toString().trim() : "0000000000"
+                    });
                     
-                    // 4. Clean up the placeholder fallback document
-                    await window.deleteDoc(userDocRef);
+                    // 3. Clear temporary holding structural index document safely
+                    try {
+                        await window.deleteDoc(userDocRef);
+                    } catch(clearErr) { console.log("Holding cache doc cleanup skipped."); }
 
-                    // 5. Success! Route straight into system
                     window.location.replace("dashboard.html");
                 } else {
-                    showError("Invalid password for this imported admission profile.");
+                    showError("Invalid password typed for this registered admission profile.");
                 }
             } else {
-                showError("Admission Number not registered in the school system registry.");
+                // Check if user is already provisioned under their Auth UID but just typed a wrong password
+                const fallbackQuery = window.query(window.collection(window.db, "users"), window.where("admissionNumber", "==", username));
+                const fallbackSnapshot = await window.getDocs(fallbackQuery);
+                
+                if (!fallbackSnapshot.empty) {
+                    showError("Incorrect password. Type your absolute admission number clearly.");
+                } else {
+                    showError("Admission Number '" + username + "' not found in the institution database.");
+                }
             }
         } catch (provisionError) {
-            console.error("Lazy provisioning error:", provisionError);
-            showError("Authentication access system fault. Contact administration.");
+            console.error("Provisioning engine pipeline error:", provisionError);
+            showError("Authentication gate timeout issue. Try checking your login fields.");
         }
     }
 
@@ -102,7 +128,7 @@
                 window.location.replace("dashboard.html");
             }
         } else {
-            showError("Profile documentation record missing from system index.");
+            showError("Profile database configuration record missing for this ID.");
         }
     }
 });
