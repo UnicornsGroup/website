@@ -1,54 +1,28 @@
 ﻿window.addEventListener('DOMContentLoaded', () => {
     let globalUserPayload = null;
-    let databaseRetryAttemptsCount = 0;
 
     const runtimeVerification = setInterval(() => {
         if (window.auth && window.onAuthStateChanged) {
             clearInterval(runtimeVerification);
             window.onAuthStateChanged(window.auth, async (user) => {
                 if (user) {
-                    await verifyAndFetchProfileWithRetry(user);
-                } else { 
-                    window.location.replace("login.html"); 
-                }
+                    try {
+                        const profileDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
+                        if (profileDoc.exists()) {
+                            globalUserPayload = profileDoc.data();
+                            if (globalUserPayload.role === "ADMIN") {
+                                window.location.replace("admin/admin-dashboard.html");
+                                return;
+                            }
+                            document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
+                            document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
+                            executeDashboardQueryEngine();
+                        } else { window.location.replace("login.html"); }
+                    } catch (err) { window.location.replace("login.html"); }
+                } else { window.location.replace("login.html"); }
             });
         }
     }, 50);
-
-    // DYNAMIC TOLERANCE FILTER LOOP: Wait gracefully for background cloud account linking processes
-    async function verifyAndFetchProfileWithRetry(user) {
-        try {
-            const profileDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
-            
-            if (profileDoc.exists()) {
-                globalUserPayload = profileDoc.data();
-                if (globalUserPayload.role === "ADMIN") {
-                    window.location.replace("admin/admin-dashboard.html");
-                    return;
-                }
-                
-                // Clear and render classic desktop navigation properties hooks cleanly
-                document.getElementById('studentNameDisplay').textContent = globalUserPayload.studentName;
-                document.getElementById('studentStdDisplay').textContent = globalUserPayload.standard;
-                
-                executeDashboardQueryEngine();
-            } else {
-                // If the profile document doesn't exist yet, retry 3 times (spaced 1 second apart) 
-                // to give lazy authentication background account creations time to finish writing data!
-                if (databaseRetryAttemptsCount < 3) {
-                    databaseRetryAttemptsCount++;
-                    console.log(`Profile doc not ready yet. Retrying transaction attempt row: ${databaseRetryAttemptsCount}`);
-                    setTimeout(() => verifyAndFetchProfileWithRetry(user), 1000);
-                } else {
-                    console.log("Max retries exceeded. Routing player back to gateway shield login.");
-                    window.location.replace("login.html");
-                }
-            }
-        } catch (err) { 
-            console.error("Session verification crash loop:", err);
-            window.location.replace("login.html"); 
-        }
-    }
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         if(confirm("Terminate assessment session profile safely?")) {
@@ -84,6 +58,7 @@
                 });
             }
 
+            // NEW CRITICAL COUPLING LOOKUP: Fetch ALL exams for backwards-safety fallback queries
             const examsQuery = window.query(window.collection(window.db, "exams"), window.where("published", "==", true));
             const examsSnapshot = await window.getDocs(examsQuery);
             activeExamsContainer.innerHTML = "";
@@ -93,9 +68,11 @@
 
             examsSnapshot.forEach(doc => {
                 const data = doc.data();
+                
+                // NEW ARRAY FILTER CLAUSE: Verify if student's standard matches either the backward hook string or exists inside the multi-select target layout standards array array mapping
                 const hasStandardPermission = (data.standard === globalUserPayload.standard || (data.standards && data.standards.includes(globalUserPayload.standard)));
                 
-                if (!hasStandardPermission) return;
+                if (!hasStandardPermission) return; // Skip if standard doesn't belong to the student
 
                 matchingExamsFoundCount++;
                 const startEpoch = new Date(data.startTime).getTime();
