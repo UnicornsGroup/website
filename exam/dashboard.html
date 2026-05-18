@@ -3,52 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - Portal</title>
+    <title>Student Dashboard - Assessment Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/custom.css">
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-    <!-- Classic Sticky Header Navigation Bar -->
-    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-md">
+    <!-- Top Branding & Navigation Bar -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <img src="assets/logo/logo.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
                 <span class="font-bold text-lg text-white tracking-wide">Suraj English Academy</span>
             </div>
-            <nav class="flex items-center space-x-4 text-sm">
-                <span id="studentNameDisplay" class="text-white font-bold bg-gray-900/60 px-3 py-1.5 rounded-lg border border-gray-700/50 text-xs tracking-wide">Loading Profile...</span>
-                <span id="studentStdDisplay" class="bg-blue-950 text-blue-400 border border-blue-900 px-2 py-1 rounded text-xs font-mono font-bold">--</span>
-                <button id="logoutBtn" class="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors text-xs">Sign Out</button>
-            </nav>
+            <div class="flex items-center space-x-4">
+                <div class="hidden sm:block text-right">
+                    <p id="studentNameDisplay" class="text-sm font-semibold text-white">Loading Student...</p>
+                    <p id="studentStdDisplay" class="text-xs text-gray-400">Verifying Standard...</p>
+                </div>
+                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium text-xs sm:text-sm px-3 py-2 rounded-md transition-colors">
+                    Sign Out
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <div class="border-b border-gray-700 pb-4">
-            <h1 class="text-3xl font-black tracking-tight text-white">Your Examination Dashboard</h1>
-            <p class="text-sm text-gray-400 mt-1">Initialize assigned online tests, follow strict protocols, and review your grading transcripts history.</p>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome banner -->
+        <div class="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-6 border border-blue-700/40 shadow-xl mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Welcome back to your Assessment Hub</h1>
+            <p class="text-sm text-blue-200 mt-1">Access scheduled examination sessions, complete live test questionnaires, and view grade distributions below.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <!-- Left 2 Columns: Live Exams List Wrapper -->
-            <div class="lg:col-span-2 space-y-4">
-                <h2 class="text-xl font-bold text-white tracking-wide border-l-4 border-blue-600 pl-2">Available Live Questionnaires</h2>
-                <div id="activeExamsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 col-span-2 text-center py-8 text-gray-500">Querying live evaluation registries matrices...</div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Side Area: Active & Scheduled Exams (Takes 2 Columns) -->
+            <div class="lg:col-span-2 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <span class="flex h-3 w-3 relative mr-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        Available Live & Upcoming Examinations
+                    </h2>
+                    <div id="activeExamsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 col-span-2 text-center py-12 text-gray-500">
+                            Searching for live evaluation schemas...
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Historical Performance Sidebar Panel -->
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl space-y-4">
-                <h2 class="text-lg font-bold text-white tracking-wide border-b border-gray-700 pb-2">Your History Performance</h2>
-                <div id="historyContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                    <p class="text-xs text-gray-500 text-center py-4">No completed submissions indexed inside your scope profile yet.</p>
+            <!-- Right Side Area: Historical Submissions and Scorecards -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
+                    <h2 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Your Performance History</h2>
+                    <div id="historyContainer" class="space-y-4">
+                        <p class="text-sm text-gray-500 py-6 text-center">No structural submission records indexed for this profile profile block.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- App Runtime Entry-Points -->
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/dashboard.js"></script>
 </body>
