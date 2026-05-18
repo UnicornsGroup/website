@@ -1,0 +1,5 @@
+﻿text,optionA,optionB,optionC,optionD,correct,marks
+"What is the value of <b>5 + 7</b>?",10,12,14,16,B,1
+"Identify the <i>prime number</i> from the options below:",4,6,9,11,D,2
+"Solve for x: <b>2x - 4 = 10</b>",5,6,7,8,C,2
+"Which asset folder holds your school logo?",assets/logo/,css/,js/,admin/,A,1

@@ -16,11 +16,9 @@
         btnSpinner.classList.add('hidden');
     }
 
-    // Intercept Form Submission
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // UI Loading Feedback state
         errorAlert.classList.add('hidden');
         submitBtn.disabled = true;
         btnText.textContent = "Authenticating...";
@@ -34,45 +32,77 @@
             return;
         }
 
-        // Rule-Based Mapping: Translate clean entry string to corporate auth email format
         const derivedEmail = `${rawUsername.toUpperCase()}@surajenglishacademy.in`;
 
-        // Wait explicitly until the Firebase library object attachments process on the global window context
         const executeLogin = setInterval(async () => {
             if (window.auth && window.signInWithEmailAndPassword) {
                 clearInterval(executeLogin);
 
                 try {
-                    // Firebase Authenticator Module Execution
+                    // Try normal login first
                     const userCredential = await window.signInWithEmailAndPassword(window.auth, derivedEmail, password);
-                    const user = userCredential.user;
-
-                    // Fetch associated structural metadata permissions rule maps from Firestore Engine
-                    const userDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
-
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        
-                        // Enforce Role Hierarchy Engine Routing Definitions
-                        if (userData.role === "ADMIN") {
-                            window.location.replace("admin/admin-dashboard.html");
-                        } else if (userData.role === "STUDENT") {
-                            window.location.replace("dashboard.html");
-                        } else {
-                            showError("Unauthorized role profile identifier assigned.");
-                        }
-                    } else {
-                        showError("Profile documentation record missing from system inventory index mapping.");
-                    }
+                    await routeAuthenticatedUser(userCredential.user.uid);
                 } catch (error) {
-                    console.error("Auth Failure Exception:", error);
-                    let displayMsg = "Invalid admission number or password.";
-                    if (error.code === "auth/network-request-failed") {
-                        displayMsg = "Network latency breakdown. Connect to functional internet service provider infrastructure.";
+                    // NEW UPDATE: Catch if account is missing in Auth tab but present in CSV/Firestore
+                    if (error.code === "auth/invalid-credential" || error.code === "auth/user-not-found") {
+                        await attemptLazyAuthenticationProvisioning(rawUsername.toUpperCase(), derivedEmail, password);
+                    } else if (error.code === "auth/network-request-failed") {
+                        showError("Network latency breakdown. Connect to internet.");
+                    } else {
+                        showError("Invalid admission number or password.");
                     }
-                    showError(displayMsg);
                 }
             }
         }, 50);
     });
+
+    // Dynamic provisioner logic for bulk CSV imported users
+    async function attemptLazyAuthenticationProvisioning(username, email, password) {
+        try {
+            // 1. Verify if the student records exist inside Firestore from the CSV upload
+            const customDocId = username + "_UID";
+            const userDocRef = window.doc(window.db, "users", customDocId);
+            const userDocSnapshot = await window.getDoc(userDocRef);
+
+            if (userDocSnapshot.exists()) {
+                const userData = userDocSnapshot.data();
+
+                // Safety: Only run this trick if password matches username (default rule for fresh imports)
+                if (password === username) {
+                    // 2. Dynamically build the missing Auth tab record on the fly!
+                    const newAuthCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                    
+                    // 3. Link old CSV data to the newly created user UID to avoid duplicates
+                    await window.setDoc(window.doc(window.db, "users", newAuthCredential.user.uid), userData);
+                    
+                    // 4. Clean up the placeholder fallback document
+                    await window.deleteDoc(userDocRef);
+
+                    // 5. Success! Route straight into system
+                    window.location.replace("dashboard.html");
+                } else {
+                    showError("Invalid password for this imported admission profile.");
+                }
+            } else {
+                showError("Admission Number not registered in the school system registry.");
+            }
+        } catch (provisionError) {
+            console.error("Lazy provisioning error:", provisionError);
+            showError("Authentication access system fault. Contact administration.");
+        }
+    }
+
+    async function routeAuthenticatedUser(uid) {
+        const userDoc = await window.getDoc(window.doc(window.db, "users", uid));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.role === "ADMIN") {
+                window.location.replace("admin/admin-dashboard.html");
+            } else {
+                window.location.replace("dashboard.html");
+            }
+        } else {
+            showError("Profile documentation record missing from system index.");
+        }
+    }
 });
