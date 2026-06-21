@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Suraj English Academy</title>
+  
+  <!-- Google Fonts: Playfair Display (Serif) & Outfit (Sans-Serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
+  
+  <style>
+    :root {
+      --primary: #4a7a5e;
+      --primary-dark: #345840;
+      --primary-light: rgba(74, 122, 94, 0.08);
+      --accent: #e8a33d;
+      --bg: #faf6ee;
+      --card-bg: #ffffff;
+      --text: #2c3e35;
+      --text-muted: #6e8477;
+      --border-color: rgba(74, 122, 94, 0.15);
+      --badge-active-bg: #e1f5fe;
+      --badge-active-text: #0288d1;
+      --badge-blocked-bg: #fde8e8;
+      --badge-blocked-text: #9b1c1c;
+      --radius: 12px;
+      --transition: all 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1.5px solid var(--border-color);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(52, 88, 64, 0.02);
+    }
+
+    .header-branding h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--primary-dark);
+    }
+
+    .header-branding p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background-color: #c94a48;
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background-color: #a73c3a;
+    }
+
+    .btn-secondary {
+      background-color: #ffffff;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #f7f4ed;
+      color: var(--primary-dark);
+    }
+
+    /* Auth Screen CSS */
+    .admin-auth-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 24px rgba(52, 88, 64, 0.05);
+      text-align: center;
+    }
+
+    .auth-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--primary-dark);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 122, 94, 0.1);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      margin-bottom: 16px;
+      text-align: left;
+      line-height: 1.4;
+      display: none;
+    }
+
+    .alert-danger {
+      background-color: #fde8e8;
+      border-left: 3.5px solid #c94a48;
+      color: #9b1c1c;
+    }
+
+    .alert-success {
+      background-color: #eaf5ea;
+      border-left: 3.5px solid #4a7a5e;
+      color: #2c5c3c;
+    }
+
+    /* Main Grid Layout */
+    .admin-dashboard-container {
+      display: none; /* Shown after auth verification */
+      flex: 1;
+      padding: 30px;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(52, 88, 64, 0.02);
+      margin-bottom: 24px;
+    }
+
+    .card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--primary-dark);
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    /* Sidebar controls */
+    .bot-status-card {
+      border-left: 4px solid #4a7a5e;
+    }
+
+    .bot-status-card.off {
+      border-left: 4px solid #c94a48;
+    }
+
+    .status-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .status-label {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    /* Toggle Switch style */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .bot-off-panel {
+      background-color: #faf8f5;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
+      margin-top: 10px;
+    }
+
+    .helper-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* App settings inputs */
+    .settings-group {
+      margin-bottom: 14px;
+    }
+
+    .settings-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 550;
+      margin-bottom: 4px;
+    }
+
+    /* Table styles */
+    .toolbar {
+      display: none;
+      background-color: var(--primary-light);
+      border: 1px solid var(--border-color);
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .toolbar-info {
+      font-weight: 550;
+      font-size: 0.9rem;
+      color: var(--primary-dark);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: #fcfbfa;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge.active {
+      background-color: var(--badge-active-bg);
+      color: var(--badge-active-text);
+    }
+
+    .badge.blocked {
+      background-color: var(--badge-blocked-bg);
+      color: var(--badge-blocked-text);
+    }
+
+    /* CSV preview table style */
+    .csv-preview-box {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .csv-preview-table {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* Actions results styles */
+    .results-box {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .results-table-container {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    /* Admin Tabs Styling */
+    .admin-tabs {
+      display: none;
+      gap: 6px;
+      margin-bottom: 20px;
+      background-color: var(--primary-light);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 8px;
+      background: none;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(74, 122, 94, 0.15);
+    }
+
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 900px) {
+      .admin-tabs {
+        display: flex;
+      }
+
+      /* Hide cards belonging to inactive tabs */
+      .tab-content-card:not(.tab-active) {
+        display: none !important;
+      }
+
+      .admin-dashboard-container {
+        padding: 15px 10px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+      header {
+        padding: 10px 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .header-branding h2 {
+        font-size: 1.05rem;
+      }
+      .btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-branding">
+      <h2>Suraj English Academy, Palanpur</h2>
+      <p id="dashboardSub">AI Assistant Admin Portal</p>
+    </div>
+    <div>
+      <button id="logoutBtn" class="btn btn-secondary" style="display:none;">Logout</button>
+    </div>
+  </header>
+
+  <!-- 1. Administrator Authentication Gate -->
+  <div class="admin-auth-container" id="authGate">
+    <div class="auth-card">
+      <h1>Admin Login</h1>
+      <div id="authError" class="alert alert-danger"></div>
+      
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label for="adminEmail">Email Address</label>
+          <input type="email" id="adminEmail" class="form-control" placeholder="admin@surajacademy.in" required>
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Login to Console</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Master Dashboard Workspace -->
+  <div class="admin-dashboard-container" id="dashboardWorkspace">
+    <!-- Admin Mobile Navigation Tabs -->
+    <div class="admin-tabs" id="adminTabs">
+      <button class="tab-btn active" data-tab="directory">Directory</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+      <button class="tab-btn" data-tab="import">Import / Add</button>
+    </div>
+    
+    <div class="dashboard-grid">
+      
+      <!-- Left Column: Controls & Configuration -->
+      <div class="left-col">
+        
+        <!-- Bot Switch Panel -->
+        <div class="card bot-status-card tab-content-card" id="botStatusCard" data-tab-group="settings">
+          <h3>AI Bot global status</h3>
+          <div class="status-toggle-wrapper">
+            <span class="status-label" id="botStatusLabel">AI Bot: ON</span>
+            <label class="switch">
+              <input type="checkbox" id="botToggle" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="bot-off-panel" id="botOffPanel" style="display:none;">
+            <div class="form-group">
+              <label for="disabledReason">Maintenance Reason</label>
+              <input type="text" id="disabledReason" class="form-control" placeholder="Undergoing server maintenance">
+              <span class="helper-text">This note is shown to students when asking doubts.</span>
+            </div>
+            <div class="form-group">
+              <label for="disabledUntil">Re-enable Automatically At</label>
+              <input type="datetime-local" id="disabledUntil" class="form-control">
+              <span class="helper-text">Leave blank to stay off until manually toggled.</span>
+            </div>
+            <button id="saveBotOffBtn" class="btn btn-danger" style="width:100%; margin-top:8px;">Turn Bot OFF</button>
+          </div>
+          
+          <div id="botStatusSummary" class="helper-text" style="margin-top:10px; font-weight:550;"></div>
+        </div>
+
+        <!-- Global Configurations -->
+        <div class="card tab-content-card" data-tab-group="settings">
+          <h3>Operating Parameters</h3>
+          <div id="settingsFeedback" class="alert"></div>
+          
+          <div class="settings-group">
+            <label for="settingsLimit">Daily messages limit</label>
+            <input type="number" id="settingsLimit" class="form-control" min="1" max="200" required>
+            <span class="helper-text">Max doubts allowed per student per day.</span>
+          </div>
+          
+          <div class="settings-group">
+            <label for="settingsHistory">Chat Context History Length</label>
+            <input type="number" id="settingsHistory" class="form-control" min="1" max="20" required>
+            <span class="helper-text">Past messages sent to AI as context (higher = costlier).</span>
+          </div>
+
+          <div class="settings-group">
+            <label for="settingsModel">Gemini model name</label>
+            <input type="text" id="settingsModel" class="form-control" required>
+            <span class="helper-text">Must be a valid active Gemini API model.</span>
+          </div>
+
+          <div class="settings-group">
+            <label for="settingsMaxTokens">Max reply length (tokens)</label>
+            <input type="number" id="settingsMaxTokens" class="form-control" min="100" max="2000" required>
+            <span class="helper-text">Forces shorter replies to control output costs.</span>
+          </div>
+
+          <button id="saveSettingsBtn" class="btn btn-primary" style="width:100%; margin-top:10px;">Save Settings</button>
+        </div>
+
+        <!-- Add student form -->
+        <div class="card tab-content-card" data-tab-group="import">
+          <h3>Add New Student</h3>
+          <div id="addStudentFeedback" class="alert"></div>
+          
+          <form id="addStudentForm">
+            <div class="form-group">
+              <label for="newEnrollment">Enrollment Number</label>
+              <input type="text" id="newEnrollment" class="form-control" placeholder="e.g. 2024CS001" required>
+            </div>
+            <div class="form-group">
+              <label for="newPassword">Initial Password</label>
+              <input type="text" id="newPassword" class="form-control" minlength="6" placeholder="At least 6 characters" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+          </form>
+        </div>
+
+        <!-- Bulk Add via CSV -->
+        <div class="card tab-content-card" data-tab-group="import">
+          <h3>CSV Bulk Upload</h3>
+          <p class="helper-text" style="margin-bottom:12px; font-size:0.82rem; line-height:1.4;">
+            Import CSV file with headers: <code>enrollment_number,password</code>. Maximum 300 entries per file.
+          </p>
+          
+          <input type="file" id="csvFileInput" class="form-control" accept=".csv" style="padding:6px;">
+          
+          <div id="csvPreviewBox" class="csv-preview-box">
+            <h4>Data Preview (<span id="csvCount">0</span> rows)</h4>
+            <div class="csv-preview-table">
+              <table style="font-size: 0.8rem;">
+                <thead>
+                  <tr>
+                    <th>Enrollment</th>
+                    <th>Password</th>
+                  </tr>
+                </thead>
+                <tbody id="csvPreviewBody"></tbody>
+              </table>
+            </div>
+            <button id="csvUploadBtn" class="btn btn-primary" style="width:100%;">Confirm & Upload</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: List Directories and Tables -->
+      <div class="right-col">
+        
+        <!-- CSV / Batch results display -->
+        <div class="card results-box tab-content-card" id="bulkResultsBox" data-tab-group="directory">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>Batch Processing Results</h3>
+            <button id="closeResultsBtn" class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;">Clear Results</button>
+          </div>
+          <div id="resultsCounts" style="font-weight:600; margin-bottom:10px; font-size:0.9rem;"></div>
+          <div class="results-table-container">
+            <table style="font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th style="width:80px;">Row/UID</th>
+                  <th>Enrollment Number / UID</th>
+                  <th>Status</th>
+                  <th>Reason/Message</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Student directory catalog -->
+        <div class="card tab-content-card" style="margin-bottom: 0;" data-tab-group="directory">
+          <h3>Academy Directory</h3>
+          <div id="directoryFeedback" class="alert"></div>
+
+          <!-- Multi selection toolbar -->
+          <div class="toolbar" id="toolbar">
+            <span class="toolbar-info" id="selectedCountText">0 selected</span>
+            <button id="bulkDeleteBtn" class="btn btn-danger" style="padding:6px 14px; font-size:0.85rem;">Delete Selected</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px; text-align:center;"><input type="checkbox" id="selectAllCheckbox"></th>
+                  <th>Enrollment Number</th>
+                  <th>Email Address</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; color:var(--text-muted);">Fetching students list...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script>
+    const authGate = document.getElementById("authGate");
+    const dashboardWorkspace = document.getElementById("dashboardWorkspace");
+    const adminLoginForm = document.getElementById("adminLoginForm");
+    const authError = document.getElementById("authError");
+    const logoutBtn = document.getElementById("logoutBtn");
+    
+    // Bot Status control elements
+    const botStatusCard = document.getElementById("botStatusCard");
+    const botToggle = document.getElementById("botToggle");
+    const botStatusLabel = document.getElementById("botStatusLabel");
+    const botOffPanel = document.getElementById("botOffPanel");
+    const disabledReason = document.getElementById("disabledReason");
+    const disabledUntil = document.getElementById("disabledUntil");
+    const saveBotOffBtn = document.getElementById("saveBotOffBtn");
+    const botStatusSummary = document.getElementById("botStatusSummary");
+
+    // Settings elements
+    const settingsLimit = document.getElementById("settingsLimit");
+    const settingsHistory = document.getElementById("settingsHistory");
+    const settingsModel = document.getElementById("settingsModel");
+    const settingsMaxTokens = document.getElementById("settingsMaxTokens");
+    const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    const settingsFeedback = document.getElementById("settingsFeedback");
+
+    // Create student form elements
+    const addStudentForm = document.getElementById("addStudentForm");
+    const newEnrollment = document.getElementById("newEnrollment");
+    const newPassword = document.getElementById("newPassword");
+    const addStudentFeedback = document.getElementById("addStudentFeedback");
+
+    // CSV elements
+    const csvFileInput = document.getElementById("csvFileInput");
+    const csvPreviewBox = document.getElementById("csvPreviewBox");
+    const csvCount = document.getElementById("csvCount");
+    const csvPreviewBody = document.getElementById("csvPreviewBody");
+    const csvUploadBtn = document.getElementById("csvUploadBtn");
+
+    // Directory elements
+    const studentTableBody = document.getElementById("studentTableBody");
+    const directoryFeedback = document.getElementById("directoryFeedback");
+    const toolbar = document.getElementById("toolbar");
+    const selectedCountText = document.getElementById("selectedCountText");
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+
+    // Results display
+    const bulkResultsBox = document.getElementById("bulkResultsBox");
+    const resultsCounts = document.getElementById("resultsCounts");
+    const resultsTableBody = document.getElementById("resultsTableBody");
+    const closeResultsBtn = document.getElementById("closeResultsBtn");
+
+    let studentsData = [];
+    let selectedUids = new Set();
+    let csvDataParsed = [];
+
+    // Check Authentication state
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // Run verify list
+        runVerification();
+      } else {
+        showAuthGate();
+      }
+    });
+
+    function showAuthGate() {
+      authGate.style.display = "flex";
+      dashboardWorkspace.style.display = "none";
+      logoutBtn.style.display = "none";
+      document.getElementById("dashboardSub").textContent = "Academy Assistant Admin Portal";
+    }
+
+    function showDashboard() {
+      authGate.style.display = "none";
+      dashboardWorkspace.style.display = "block";
+      logoutBtn.style.display = "inline-block";
+      document.getElementById("dashboardSub").textContent = "Admin Dashboard";
+    }
+
+    // Admin login
+    adminLoginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      authError.style.display = "none";
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        console.error("Admin signin error:", error);
+        authError.textContent = error.message || "Failed to log in.";
+        authError.style.display = "block";
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+      auth.signOut().then(() => {
+        showAuthGate();
+      });
+    });
+
+    // Run verification on authorization
+    async function runVerification() {
+      try {
+        const listFn = functions.httpsCallable("list_students");
+        await listFn(); // Triggers check_admin logic in function
+        
+        // Success: is admin
+        showDashboard();
+        loadDashboardData();
+      } catch (err) {
+        console.error("Authorization check failed:", err);
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.email && currentUser.email.endsWith("@surajenglishacademy.in")) {
+          alert("Access denied. You are logged in as a student. Redirecting to student portal.");
+          window.location.href = "index.html";
+        } else {
+          alert("You are not authorized as an administrator. Signing out.");
+          auth.signOut();
+        }
+      }
+    }
+
+    // Load initial states
+    async function loadDashboardData() {
+      fetchStudents();
+      fetchBotStatus();
+      fetchAppSettings();
+    }
+
+    // --- Student Directory Operations ---
+
+    async function fetchStudents() {
+      try {
+        const listFn = functions.httpsCallable("list_students");
+        const res = await listFn();
+        studentsData = res.data.students || [];
+        renderStudentsTable();
+      } catch (err) {
+        showFeedback(directoryFeedback, "Failed to load students list: " + err.message, "danger");
+      }
+    }
+
+    function renderStudentsTable() {
+      studentTableBody.innerHTML = "";
+      selectedUids.clear();
+      updateToolbar();
+      selectAllCheckbox.checked = false;
+
+      if (studentsData.length === 0) {
+        studentTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No student accounts found.</td></tr>`;
+        return;
+      }
+
+      studentsData.forEach(student => {
+        const tr = document.createElement("tr");
+
+        // Checkbox column
+        const tdCheck = document.createElement("td");
+        tdCheck.style.textAlign = "center";
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.value = student.uid;
+        chk.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            selectedUids.add(student.uid);
+          } else {
+            selectedUids.delete(student.uid);
+          }
+          updateToolbar();
+        });
+        tdCheck.appendChild(chk);
+
+        // Enrollment
+        const tdEnroll = document.createElement("td");
+        tdEnroll.textContent = student.enrollment_number;
+
+        // Email
+        const tdEmail = document.createElement("td");
+        tdEmail.textContent = student.email;
+
+        // Status badge
+        const tdStatus = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.classList.add("badge");
+        if (student.blocked) {
+          badge.classList.add("blocked");
+          badge.textContent = "Blocked";
+        } else {
+          badge.classList.add("active");
+          badge.textContent = "Active";
+        }
+        tdStatus.appendChild(badge);
+
+        // Action Buttons
+        const tdActions = document.createElement("td");
+        
+        // Toggle Block Button
+        const blockBtn = document.createElement("button");
+        blockBtn.classList.add("btn", "btn-secondary");
+        blockBtn.style.padding = "4px 8px";
+        blockBtn.style.fontSize = "0.8rem";
+        blockBtn.style.marginRight = "6px";
+        blockBtn.textContent = student.blocked ? "Unblock" : "Block";
+        blockBtn.addEventListener("click", () => handleToggleBlock(student.uid, !student.blocked));
+
+        // Delete Button
+        const delBtn = document.createElement("button");
+        delBtn.classList.add("btn", "btn-danger");
+        delBtn.style.padding = "4px 8px";
+        delBtn.style.fontSize = "0.8rem";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => handleDeleteStudent(student.uid, student.enrollment_number));
+
+        tdActions.appendChild(blockBtn);
+        tdActions.appendChild(delBtn);
+
+        tr.appendChild(tdCheck);
+        tr.appendChild(tdEnroll);
+        tr.appendChild(tdEmail);
+        tr.appendChild(tdStatus);
+        tr.appendChild(tdActions);
+
+        studentTableBody.appendChild(tr);
+      });
+    }
+
+    selectAllCheckbox.addEventListener("change", (e) => {
+      const checkboxes = studentTableBody.querySelectorAll("input[type='checkbox']");
+      selectedUids.clear();
+      checkboxes.forEach(chk => {
+        chk.checked = e.target.checked;
+        if (e.target.checked) {
+          selectedUids.add(chk.value);
+        }
+      });
+      updateToolbar();
+    });
+
+    function updateToolbar() {
+      if (selectedUids.size > 0) {
+        toolbar.style.display = "flex";
+        selectedCountText.textContent = `${selectedUids.size} selected`;
+      } else {
+        toolbar.style.display = "none";
+      }
+    }
+
+    async function handleToggleBlock(uid, newBlockedState) {
+      try {
+        const toggleFn = functions.httpsCallable("toggle_block");
+        await toggleFn({ uid, blocked: newBlockedState });
+        showFeedback(directoryFeedback, "Student status updated successfully.", "success");
+        fetchStudents();
+      } catch (err) {
+        showFeedback(directoryFeedback, "Failed to toggle status: " + err.message, "danger");
+      }
+    }
+
+    async function handleDeleteStudent(uid, enrollment) {
+      if (confirm(`Are you sure you want to permanently delete student '${enrollment}'? This will delete their Auth credentials and chat logs.`)) {
+        try {
+          const deleteFn = functions.httpsCallable("delete_student");
+          await deleteFn({ uid });
+          showFeedback(directoryFeedback, "Student deleted successfully.", "success");
+          fetchStudents();
+        } catch (err) {
+          showFeedback(directoryFeedback, "Failed to delete student: " + err.message, "danger");
+        }
+      }
+    }
+
+    // Bulk Delete
+    bulkDeleteBtn.addEventListener("click", async () => {
+      const count = selectedUids.size;
+      if (count === 0) return;
+
+      if (confirm(`Are you sure you want to permanently delete the ${count} selected students? This cannot be undone.`)) {
+        showFeedback(directoryFeedback, "Deleting students batch...", "success");
+        try {
+          const bulkDeleteFn = functions.httpsCallable("bulk_delete_students");
+          const res = await bulkDeleteFn({ uids: Array.from(selectedUids) });
+          
+          showFeedback(directoryFeedback, `Batch deleted. Succeeded: ${res.data.succeeded}, Failed: ${res.data.failed}`, "success");
+          displayBatchResults(res.data);
+          fetchStudents();
+        } catch (err) {
+          showFeedback(directoryFeedback, "Batch deletion failed: " + err.message, "danger");
+        }
+      }
+    });
+
+    // Single student creation
+    addStudentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideFeedback(addStudentFeedback);
+      const enrollmentVal = newEnrollment.value.trim();
+      const passwordVal = newPassword.value;
+
+      try {
+        const createFn = functions.httpsCallable("create_student");
+        await createFn({ enrollment_number: enrollmentVal, password: passwordVal });
+        
+        showFeedback(addStudentFeedback, "Student account created successfully.", "success");
+        addStudentForm.reset();
+        fetchStudents();
+      } catch (err) {
+        showFeedback(addStudentFeedback, err.message, "danger");
+      }
+    });
+
+    // --- CSV Batch Processing ---
+
+    csvFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        parseCSVClientSide(text);
+      };
+      reader.readAsText(file);
+    });
+
+    function parseCSVClientSide(csvText) {
+      const lines = csvText.split(/\r?\n/);
+      if (lines.length <= 1) {
+        alert("The CSV file is empty or missing headers.");
+        resetCSVInput();
+        return;
+      }
+
+      // Check header
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+      const enrollIdx = headers.indexOf("enrollment_number");
+      const passIdx = headers.indexOf("password");
+
+      if (enrollIdx === -1 || passIdx === -1) {
+        alert("Invalid CSV headers. Must contain exactly 'enrollment_number' and 'password' columns.");
+        resetCSVInput();
+        return;
+      }
+
+      csvDataParsed = [];
+      csvPreviewBody.innerHTML = "";
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue; // Skip blank lines
+        
+        const cols = line.split(",");
+        const enrollment = cols[enrollIdx] ? cols[enrollIdx].trim() : "";
+        const password = cols[passIdx] ? cols[passIdx].trim() : "";
+
+        if (enrollment || password) {
+          csvDataParsed.push({ enrollment_number: enrollment, password: password });
+        }
+      }
+
+      if (csvDataParsed.length === 0) {
+        alert("No valid student rows found in the CSV.");
+        resetCSVInput();
+        return;
+      }
+
+      if (csvDataParsed.length > 300) {
+        alert("CSV contains " + csvDataParsed.length + " rows. Maximum 300 is allowed per upload.");
+        resetCSVInput();
+        return;
+      }
+
+      // Render preview
+      csvCount.textContent = csvDataParsed.length;
+      csvDataParsed.slice(0, 5).forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row.enrollment_number}</td><td>${row.password ? '••••••' : ''}</td>`;
+        csvPreviewBody.appendChild(tr);
+      });
+      if (csvDataParsed.length > 5) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="2" style="text-align:center; color:var(--text-muted);">... and ${csvDataParsed.length - 5} more</td>`;
+        csvPreviewBody.appendChild(tr);
+      }
+
+      csvPreviewBox.style.display = "block";
+    }
+
+    function resetCSVInput() {
+      csvFileInput.value = "";
+      csvPreviewBox.style.display = "none";
+      csvDataParsed = [];
+    }
+
+    csvUploadBtn.addEventListener("click", async () => {
+      if (csvDataParsed.length === 0) return;
+
+      csvUploadBtn.disabled = true;
+      csvUploadBtn.textContent = "Uploading...";
+
+      try {
+        const bulkCreateFn = functions.httpsCallable("bulk_create_students");
+        const res = await bulkCreateFn({ students: csvDataParsed });
+        
+        alert(`CSV import complete. Succeeded: ${res.data.succeeded}, Failed: ${res.data.failed}`);
+        displayBatchResults(res.data);
+        fetchStudents();
+        resetCSVInput();
+      } catch (err) {
+        alert("CSV Upload failed: " + err.message);
+      } finally {
+        csvUploadBtn.disabled = false;
+        csvUploadBtn.textContent = "Confirm & Upload";
+      }
+    });
+
+    function displayBatchResults(batchData) {
+      resultsTableBody.innerHTML = "";
+      resultsCounts.textContent = `Total: ${batchData.total} | Succeeded: ${batchData.succeeded} | Failed: ${batchData.failed}`;
+      
+      const list = batchData.results || [];
+      list.forEach(item => {
+        const tr = document.createElement("tr");
+        const identifier = item.enrollment_number || item.uid || "N/A";
+        const indexOrUid = item.row !== undefined ? `Row ${item.row}` : "UID";
+        
+        let statusBadge = "";
+        if (item.status === "success") {
+          statusBadge = `<span class="badge active">Success</span>`;
+        } else {
+          statusBadge = `<span class="badge blocked">Failed</span>`;
+        }
+
+        tr.innerHTML = `
+          <td>${indexOrUid}</td>
+          <td>${identifier}</td>
+          <td>${statusBadge}</td>
+          <td style="color:${item.status === 'success' ? 'inherit' : 'var(--badge-blocked-text)'};">${item.reason || item.email || ''}</td>
+        `;
+        resultsTableBody.appendChild(tr);
+      });
+
+      bulkResultsBox.style.display = "block";
+      bulkResultsBox.scrollIntoView({ behavior: "smooth" });
+    }
+
+    closeResultsBtn.addEventListener("click", () => {
+      bulkResultsBox.style.display = "none";
+      resultsTableBody.innerHTML = "";
+    });
+
+    // --- Bot Status Toggle Operations ---
+
+    async function fetchBotStatus() {
+      try {
+        const botStatusFn = functions.httpsCallable("get_bot_status");
+        const res = await botStatusFn();
+        
+        updateBotStatusUI(res.data);
+      } catch (err) {
+        console.error("Failed to load bot status:", err);
+      }
+    }
+
+    function updateBotStatusUI(status) {
+      botToggle.checked = status.enabled;
+      
+      if (status.enabled) {
+        botStatusCard.classList.remove("off");
+        botStatusLabel.textContent = "AI Bot: ON";
+        botOffPanel.style.display = "none";
+        botStatusSummary.textContent = "AI Bot is actively replying to students.";
+        botStatusSummary.style.color = "var(--primary-dark)";
+      } else {
+        botStatusCard.classList.add("off");
+        botStatusLabel.textContent = "AI Bot: OFF";
+        botOffPanel.style.display = "block";
+        
+        let summary = "AI Bot is globally disabled.";
+        if (status.disabled_reason) {
+          summary += ` Reason: "${status.disabled_reason}".`;
+        }
+        if (status.disabled_until) {
+          const reEnableDate = new Date(status.disabled_until);
+          summary += ` Auto re-enables at: ${reEnableDate.toLocaleString()}.`;
+        }
+        botStatusSummary.textContent = summary;
+        botStatusSummary.style.color = "var(--badge-blocked-text)";
+      }
+    }
+
+    botToggle.addEventListener("change", async (e) => {
+      // If toggled ON, turn on immediately
+      if (e.target.checked) {
+        try {
+          const statusFn = functions.httpsCallable("set_bot_status");
+          const res = await statusFn({ enabled: true, reason: null, disabled_until: null });
+          updateBotStatusUI(res.data);
+        } catch (err) {
+          alert("Failed to turn bot ON: " + err.message);
+          botToggle.checked = false;
+        }
+      } else {
+        // Show configuration panel for turning off
+        botStatusCard.classList.add("off");
+        botStatusLabel.textContent = "AI Bot: OFF";
+        botOffPanel.style.display = "block";
+      }
+    });
+
+    saveBotOffBtn.addEventListener("click", async () => {
+      const reasonVal = disabledReason.value.trim() || null;
+      let untilVal = null;
+      
+      if (disabledUntil.value) {
+        // Convert to ISO string
+        untilVal = new Date(disabledUntil.value).toISOString();
+      }
+
+      try {
+        const statusFn = functions.httpsCallable("set_bot_status");
+        const res = await statusFn({ enabled: false, reason: reasonVal, disabled_until: untilVal });
+        updateBotStatusUI(res.data);
+        disabledReason.value = "";
+        disabledUntil.value = "";
+      } catch (err) {
+        alert("Failed to disable bot: " + err.message);
+      }
+    });
+
+    // --- App Settings Operations ---
+
+    async function fetchAppSettings() {
+      try {
+        const settingsFn = functions.httpsCallable("get_app_settings");
+        const res = await settingsFn();
+        
+        settingsLimit.value = res.data.daily_message_limit;
+        settingsHistory.value = res.data.history_context_length;
+        settingsModel.value = res.data.gemini_model;
+        settingsMaxTokens.value = res.data.max_output_tokens;
+      } catch (err) {
+        console.error("Failed to load app settings:", err);
+      }
+    }
+
+    saveSettingsBtn.addEventListener("click", async () => {
+      hideFeedback(settingsFeedback);
+      
+      const limit = parseInt(settingsLimit.value);
+      const history = parseInt(settingsHistory.value);
+      const model = settingsModel.value.trim();
+      const maxTokens = parseInt(settingsMaxTokens.value);
+
+      if (isNaN(limit) || isNaN(history) || !model || isNaN(maxTokens)) {
+        showFeedback(settingsFeedback, "Please fill in all setting fields with valid values.", "danger");
+        return;
+      }
+
+      try {
+        const updateSettingsFn = functions.httpsCallable("update_app_settings");
+        await updateSettingsFn({
+          daily_message_limit: limit,
+          history_context_length: history,
+          gemini_model: model,
+          max_output_tokens: maxTokens
+        });
+        showFeedback(settingsFeedback, "Operating parameters updated successfully.", "success");
+        fetchAppSettings();
+      } catch (err) {
+        showFeedback(settingsFeedback, err.message, "danger");
+      }
+    });
+
+    // --- Feedback Helpers ---
+
+    function showFeedback(element, message, type) {
+      element.textContent = message;
+      element.className = `alert alert-${type}`;
+      element.style.display = "block";
+      setTimeout(() => {
+        hideFeedback(element);
+      }, 6000);
+    }
+
+    function hideFeedback(element) {
+      element.textContent = "";
+      element.style.display = "none";
+    }
+
+    // --- Mobile Tab Switching Logic ---
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const contentCards = document.querySelectorAll(".tab-content-card");
+
+    function switchTab(tabId) {
+      tabButtons.forEach(btn => {
+        if (btn.getAttribute("data-tab") === tabId) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      contentCards.forEach(card => {
+        if (card.getAttribute("data-tab-group") === tabId) {
+          card.classList.add("tab-active");
+        } else {
+          card.classList.remove("tab-active");
+        }
+      });
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tabId = btn.getAttribute("data-tab");
+        switchTab(tabId);
+      });
+    });
+
+    // Initialize the active tab
+    switchTab("directory");
+  </script>
+</body>
+</html>

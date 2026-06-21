@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Suraj English Academy</title>
+  <!-- Google Fonts: Playfair Display (Serif) & Outfit (Sans-Serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
+  
+  <style>
+    :root {
+      --primary: #4a7a5e;
+      --primary-dark: #345840;
+      --accent: #e8a33d;
+      --bg: #faf6ee;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text: #2c3e35;
+      --text-muted: #6e8477;
+      --error: #b94a48;
+      --radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(142,15%,85%,1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(38,20%,85%,1) 0px, transparent 50%);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(74, 122, 94, 0.15);
+      border-radius: var(--radius);
+      padding: 40px 30px;
+      box-shadow: 0 10px 30px rgba(52, 88, 64, 0.08);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .branding {
+      margin-bottom: 30px;
+    }
+
+    .branding h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.2rem;
+      color: var(--primary-dark);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .branding p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      background: rgba(74, 122, 94, 0.1);
+      color: var(--primary);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      border: 1.5px solid rgba(74, 122, 94, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background-color: #ffffff;
+      border: 1.5px solid rgba(74, 122, 94, 0.2);
+      border-radius: 10px;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 122, 94, 0.15);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(74, 122, 94, 0.2);
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(52, 88, 64, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-alert {
+      display: none;
+      background-color: rgba(185, 74, 72, 0.08);
+      border-left: 3px solid var(--error);
+      color: var(--error);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-align: left;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .admin-link {
+      display: block;
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .admin-link:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Bouncing dots spinner inside button */
+    .spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .spinner span {
+      width: 6px;
+      height: 6px;
+      background-color: white;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spinBounce 1.4s infinite ease-in-out both;
+    }
+
+    .spinner span:nth-child(1) { animation-delay: -0.32s; }
+    .spinner span:nth-child(2) { animation-delay: -0.16s; }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 30px 20px;
+      }
+      .branding h1 {
+        font-size: 1.8rem;
+      }
+      body {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="branding">
+        <div class="logo-badge">S</div>
+        <h1>Suraj English Academy</h1>
+        <p>Palanpur — AI Grammar Doubts Desk</p>
+      </div>
+
+      <div id="errorMsg" class="error-alert"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="enrollment">Enrollment Number</label>
+          <input 
+            type="text" 
+            id="enrollment" 
+            class="form-control" 
+            placeholder="e.g. 2024CS045" 
+            required 
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-control" 
+            placeholder="••••••••" 
+            required 
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn">
+          <span id="btnText">Sign In</span>
+          <span id="btnSpinner" class="spinner">
+            <span></span><span></span><span></span>
+          </span>
+        </button>
+      </form>
+
+      <a href="admin.html" class="admin-link">Access Academy Administrator Panel</a>
+    </div>
+  </div>
+
+  <!-- Load config helper first -->
+  <script src="firebase-config.js"></script>
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const enrollmentInput = document.getElementById("enrollment");
+    const passwordInput = document.getElementById("password");
+    const errorMsg = document.getElementById("errorMsg");
+    const submitBtn = document.getElementById("submitBtn");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
+
+    // Check auth state on load. If already authenticated, forward to index.html
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // Double check we are not logged in as admin by seeing if the email doesn't end with surajenglishacademy.in
+        // If it is admin, stay here or redirect to admin panel, but for students redirect to index.html
+        if (user.email && user.email.endsWith("@surajenglishacademy.in")) {
+          window.location.href = "index.html";
+        }
+      }
+    });
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = "block";
+    }
+
+    function clearError() {
+      errorMsg.textContent = "";
+      errorMsg.style.display = "none";
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        submitBtn.disabled = true;
+        btnText.style.display = "none";
+        btnSpinner.style.display = "flex";
+      } else {
+        submitBtn.disabled = false;
+        btnText.style.display = "inline";
+        btnSpinner.style.display = "none";
+      }
+    }
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearError();
+      setLoading(true);
+
+      const rawEnrollment = enrollmentInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!rawEnrollment || !password) {
+        showError("Please enter both enrollment number and password.");
+        setLoading(false);
+        return;
+      }
+
+      // Convert enrollment number silently to email address
+      const email = rawEnrollment.toLowerCase() + "@surajenglishacademy.in";
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("Login failure: ", error);
+        // Display a user-friendly generic message
+        showError("Incorrect enrollment number or password. Please contact the academy if you're having trouble.");
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
